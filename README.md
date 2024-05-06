@@ -9,6 +9,7 @@ and networks Here's a breakdown of the key components:
 
   ## Server
 The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in network programming for specifying address information and creating sockets. It contains several fields, and three of them are particularly important for socket creation:
+
 **ai_family:**  This field specifies the address family, which defines the addressing scheme used for the socket. Here are some common values:
   - AF_INET: This indicates the use of IPv4 addressing, the most common version of the Internet Protocol.
   - AF_INET6: This signifies the use of IPv6 addressing, the next generation of IP with a larger address space.
