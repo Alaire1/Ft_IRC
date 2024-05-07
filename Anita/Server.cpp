@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 #include <errno.h>
+#include <fcntl.h>
 
 Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL)
 {
@@ -76,12 +77,27 @@ void Server::socketCReationError(int status)
     exit(1);
 }
 
+
 int Server::createSocket()
 {
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
     if (_socket == -1)
     {
         socketCReationError(errno);
+        exit(1);
+    }
+    // Set the socket to non-blocking mode
+    int flags = fcntl(_socket, F_GETFL, 0);
+    if (flags == -1)
+    {
+        std::cerr << "Error: fcntl failed" << std::endl; // to add more error handling
+        exit(1);
+    }
+
+    flags |= O_NONBLOCK; 
+    if (fcntl(_socket, F_SETFL, flags) == -1)
+    {
+        std::cerr << "Error: fcntl failed" << std::endl; // to add more error handling
         exit(1);
     }
     return (0);
