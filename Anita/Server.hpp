@@ -15,13 +15,16 @@ class Server
         ~Server();
      
         void    createServer();
-
+        // socket handling
         int    createSocket();
         int    getSocket() const;
-
+        //signal handling
         void   handleSignals();
         static void	signalHandler(int signum);
-        
+        //error handling
+        void    socketCReationError(int status);
+        void    printGetaddrinfoError(int status);
+
         
 };
 void printGetaddrinfoError(int status);
