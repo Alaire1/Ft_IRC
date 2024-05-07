@@ -22,5 +22,7 @@ class Server
         void   handleSignals();
         static void	signalHandler(int signum);
         
+        
 };
+void printGetaddrinfoError(int status);
 #endif
