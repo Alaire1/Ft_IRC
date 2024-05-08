@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+#include "HelperFunctions.hpp"
 int main(int ac, char **av)
 {
     if (ac != 3)
@@ -7,7 +7,7 @@ int main(int ac, char **av)
         std::cerr << "Usage: ./server [port] [host]" << std::endl;
         return (1);
     }
-    // checkIfPortIsValid(av[1]);
+    checkIfPortIsValid(av[1]);
 
     Server server(atoi(av[1]), av[2]); 
 

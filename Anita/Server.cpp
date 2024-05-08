@@ -35,7 +35,6 @@ void Server::initializeHints()
     hints.ai_socktype = SOCK_STREAM; // use TCP, which guarantees delivery
     hints.ai_flags = AI_PASSIVE; // fill in my IP for me
     int status = getaddrinfo(NULL, "6667", &hints, &_servInfo); // later we can change the port to be a parameter
-
     if (status != 0) {
         printGetaddrinfoError(status);
         exit(1);
