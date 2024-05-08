@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 
-Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL)
+Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL), _port(6667), _password("12345")
 {
    
 }
