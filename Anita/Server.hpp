@@ -17,8 +17,11 @@ class Server
         struct addrinfo *_servInfo; // struct needed to create a socket
         int _socket;
         bool _isRunning;
+        std::string _password;
+        int _port;
     public:
         Server();
+        Server(int port, std::string password);
         ~Server();
      
         void    createServer();
