@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#define BACKLOG 10 // common choice between 5 and 10 // may be changed
 class Server
 {
     private:
@@ -25,6 +26,7 @@ class Server
         ~Server();
      
         void    createServer();
+        void   startServer();
         // socket handling
         void    initializeHints();
         int    createSocket();
@@ -33,9 +35,14 @@ class Server
         //signal handling
         void   handleSignals();
         static void	signalHandler(int signum);
+
         //error handling
-        void    socketCreationError(int status);
-        void    printGetaddrinfoError(int status);
+        void    errorPrintGetaddrinfo(int status);
+        void    errorSocketCreation(int status);
+        void    errorSetsockopt(int status);
+        void    errorFcntl(int status);
+        void    errorSocketBinding(int status);
+        void    errorListen(int status);
 
         //testing
         void    printPassword();
