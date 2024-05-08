@@ -16,6 +16,7 @@ class Server
      
         void    createServer();
         // socket handling
+        void    initializeHints(struct addrinfo *hints);
         int    createSocket();
         int    getSocket() const;
         //signal handling
@@ -27,5 +28,4 @@ class Server
 
         
 };
-void printGetaddrinfoError(int status);
 #endif
