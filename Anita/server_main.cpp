@@ -13,5 +13,6 @@ int main(int ac, char **av)
 
     server.createServer();
     std::cout << "socket: " << server.getSocket() << std::endl;
+    server.printPassword();
     return (0);
 }

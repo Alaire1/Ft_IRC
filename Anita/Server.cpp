@@ -80,3 +80,8 @@ void Server::signalHandler(int signum)
 {
     std::cout  <<"Signal received" << signum  << std::endl;
 }
+ 
+void Server::printPassword()
+{
+    std::cout << "Password: " << _password << std::endl;
+}

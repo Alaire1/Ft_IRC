@@ -36,6 +36,9 @@ class Server
         //error handling
         void    socketCreationError(int status);
         void    printGetaddrinfoError(int status);
+
+        //testing
+        void    printPassword();
        
 };
 #endif
