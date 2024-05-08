@@ -1,10 +1,5 @@
 #include "Server.hpp"
-#include <signal.h>
-#include <iostream>
-#include <cstring>
-#include <map>
-#include <errno.h>
-#include <fcntl.h>
+
 
 Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL)
 {
@@ -19,12 +14,14 @@ Server::~Server()
 
 void Server::createServer()
 {
+    initializeHints();
     createSocket();
     handleSignals();
+
 }
 
 
-void Server::initializeHints(struct addrinfo *hints)
+void Server::initializeHints()
 {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints)); // hints are better to be local variable since they are just used once 
@@ -43,7 +40,7 @@ int Server::createSocket()
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
     if (_socket == -1)
     {
-        socketCReationError(errno);
+        socketCreationError(errno);
         exit(1);
     }
     // Set the socket to non-blocking mode

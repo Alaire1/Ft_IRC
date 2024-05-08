@@ -4,6 +4,13 @@
 #include <sys/socket.h>
 #include <ostream>
 #include <netdb.h>
+#include <signal.h>
+#include <iostream>
+#include <cstring>
+#include <map>
+#include <errno.h>
+#include <fcntl.h>
+
 class Server
 {
     private:
@@ -16,16 +23,16 @@ class Server
      
         void    createServer();
         // socket handling
-        void    initializeHints(struct addrinfo *hints);
+        void    initializeHints();
         int    createSocket();
         int    getSocket() const;
+
         //signal handling
         void   handleSignals();
         static void	signalHandler(int signum);
         //error handling
-        void    socketCReationError(int status);
+        void    socketCreationError(int status);
         void    printGetaddrinfoError(int status);
-
-        
+       
 };
 #endif

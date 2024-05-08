@@ -22,7 +22,7 @@ void Server::printGetaddrinfoError(int status) {
     std::cerr << std::endl;
     exit(1);
 }
-void Server::socketCReationError(int status)
+void Server::socketCreationError(int status)
 {
     std::map<int, std::string> errorMessages = {
         {EAI_AGAIN, "Temporary failure in name resolution"},
