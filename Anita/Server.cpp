@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 
-Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL)
+Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL), _port(6667), _password("1234")
 {
    
 }
@@ -40,8 +40,7 @@ void Server::initializeHints()
         exit(1);
     }
 }
-
-int Server::createSocket() // may split into smaller fumnctions
+void Server::createSocket()
 {
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
     if (_socket == -1)
@@ -49,16 +48,20 @@ int Server::createSocket() // may split into smaller fumnctions
         errorSocketCreation(errno);
         exit(1);
     }
-    // Set the socket to be reusable, so we can bind it again even if it is in TIME_WAIT state
+}
+void Server::setSocketReusable()
+{
     int reuse = 1; 
     int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     if (result == -1) {
        errorSetsockopt(errno); 
         close(_socket); // Close the socket on error
-        return (1);
+        exit (1); // not sure is i should return 1 or exit(1)
     }
-    // Set the socket to non-blocking mode
-    int flags = fcntl(_socket, F_GETFL, 0);
+}
+void Server::nonBlockingSocket()
+{
+   int flags = fcntl(_socket, F_GETFL, 0);
     if (flags == -1)
     {
         errorFcntl(errno);
@@ -70,17 +73,34 @@ int Server::createSocket() // may split into smaller fumnctions
         errorFcntl(errno);
         exit(1);
     }
-    // Bind the socket to the port
+}
+
+void Server::bindSocket()
+{
     if (bind(_socket, _servInfo->ai_addr, _servInfo->ai_addrlen) == -1)
     {
         errorSocketBinding(errno);
         exit(1);
     }
-    // Start listening on the socket // BACKLOG is the number of connections that can be waiting while the process is handling a particular connection
+}
+void Server::listenSocket()
+{
     if (listen(_socket, BACKLOG) == -1) {
         errorListen(errno);
         exit(1);
     }
+}
+int Server::createAndSetSocket() // may split into smaller fumnctions
+{
+    createSocket();
+    // Set the socket to be reusable, so we can bind it again even if it is in TIME_WAIT state
+    setSocketReusable();
+    // Set the socket to non-blocking mode
+    nonBlockingSocket();
+    // Bind the socket to the port
+    bindSocket();
+    // Start listening on the socket // BACKLOG is the number of connections that can be waiting while the process is handling a particular connection
+    listenSocket();
     return (0);
 }
 

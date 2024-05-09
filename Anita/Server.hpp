@@ -29,8 +29,13 @@ class Server
         void   startServer();
         // socket handling
         void    initializeHints();
-        int    createSocket();
-        int    getSocket() const;
+        int     createSocket();
+        int     getSocket() const;
+        void    setSocketReusable();
+        void    nonBlockingSocket();
+        void    bindSocket();
+        void    listenSocket();
+        int     createAndSetSocket();
 
         //signal handling
         void   handleSignals();
