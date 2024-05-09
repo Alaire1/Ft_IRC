@@ -10,6 +10,7 @@
 #include <map>
 #include <errno.h>
 #include <fcntl.h>
+#include <cstdlib>
 
 #define BACKLOG 10 // common choice between 5 and 10 // may be changed
 class Server

@@ -20,10 +20,27 @@ Server::~Server()
 void Server::createServer()
 {
     initializeHints();
-    createSocket();
     handleSignals();
+    createAndSetSocket();
+    //startServer();
+}
+void Server::handleSignals()
+{
+    signal(SIGINT, signalHandler);
+    signal(SIGTERM, signalHandler);
 }
 
+// void Sever::startServer()
+// {
+//     _isRunning = true;
+//     while (_isRunning)
+//     {
+//         // accept connections
+        
+//         // handle connections
+//         // close connections
+//     }
+// }
 void Server::initializeHints()
 {
     struct addrinfo hints; // freed by itself because it is a local variable
@@ -37,6 +54,7 @@ void Server::initializeHints()
         exit(1);
     }
 }
+
 void Server::createSocket()
 {
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
@@ -59,7 +77,7 @@ void Server::setSocketReusable()
 }
 void Server::nonBlockingSocket()
 {
-   int flags = fcntl(_socket, F_GETFL, 0);
+   int flags = fcntl(_socket, F_GETFL, 0); // Get the current flags on the socket
     if (flags == -1)
     {
         errorFcntl(errno);
@@ -107,11 +125,7 @@ int Server::createAndSetSocket() // may split into smaller fumnctions
     return (0);
 }
 
-void Server::handleSignals()
-{
-    signal(SIGINT, signalHandler);
-    signal(SIGTERM, signalHandler);
-}
+
 
 int Server::getSocket() const
 {

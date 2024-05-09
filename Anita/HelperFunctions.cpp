@@ -1,5 +1,5 @@
 #include "HelperFunctions.hpp"
-
+#include <cstdlib>
 void checkIfPortIsValid(char *port)
 {
     int portNumber = atoi(port);
@@ -8,6 +8,5 @@ void checkIfPortIsValid(char *port)
         std::cerr << "Invalid port number. Give number between 1024 and 65535" << std::endl;
          exit (1);
     }
-   
 }
-// if we want we can put some rules of password here 
+// if we want we can put some rules of password here c++
