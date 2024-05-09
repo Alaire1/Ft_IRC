@@ -20,6 +20,7 @@ class Server
         bool _isRunning;
         std::string _password;
         int _port;
+    
     public:
         Server();
         Server(int port, std::string password);
@@ -29,7 +30,7 @@ class Server
         void   startServer();
         // socket handling
         void    initializeHints();
-        int     createSocket();
+        void    createSocket();
         int     getSocket() const;
         void    setSocketReusable();
         void    nonBlockingSocket();

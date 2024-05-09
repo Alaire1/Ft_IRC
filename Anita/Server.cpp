@@ -17,15 +17,12 @@ Server::~Server()
     freeaddrinfo(_servInfo);
 }
 
-
 void Server::createServer()
 {
     initializeHints();
     createSocket();
     handleSignals();
-
 }
-
 
 void Server::initializeHints()
 {
@@ -46,6 +43,7 @@ void Server::createSocket()
     if (_socket == -1)
     {
         errorSocketCreation(errno);
+        close(_socket); // Close the socket on error
         exit(1);
     }
 }
@@ -56,7 +54,7 @@ void Server::setSocketReusable()
     if (result == -1) {
        errorSetsockopt(errno); 
         close(_socket); // Close the socket on error
-        exit (1); // not sure is i should return 1 or exit(1)
+        exit (1); // not sure if i should return 1 or exit(1) 
     }
 }
 void Server::nonBlockingSocket()
@@ -65,12 +63,14 @@ void Server::nonBlockingSocket()
     if (flags == -1)
     {
         errorFcntl(errno);
+        close(_socket); // Close the socket on error
         exit(1);
     }
     flags |= O_NONBLOCK; 
     if (fcntl(_socket, F_SETFL, flags) == -1)
     {
         errorFcntl(errno);
+        close(_socket); // Close the socket on error
         exit(1);
     }
 }
@@ -80,13 +80,16 @@ void Server::bindSocket()
     if (bind(_socket, _servInfo->ai_addr, _servInfo->ai_addrlen) == -1)
     {
         errorSocketBinding(errno);
+        close(_socket); // Close the socket on error
         exit(1);
     }
 }
 void Server::listenSocket()
 {
+    // BACKLOG is the number of connections that can be waiting while the process is handling a particular connection
     if (listen(_socket, BACKLOG) == -1) {
         errorListen(errno);
+        close(_socket); // Close the socket on error
         exit(1);
     }
 }
@@ -99,7 +102,7 @@ int Server::createAndSetSocket() // may split into smaller fumnctions
     nonBlockingSocket();
     // Bind the socket to the port
     bindSocket();
-    // Start listening on the socket // BACKLOG is the number of connections that can be waiting while the process is handling a particular connection
+    // Start listening on the socket 
     listenSocket();
     return (0);
 }
