@@ -22,7 +22,7 @@ void Server::createServer()
     initializeHints();
     handleSignals();
     createAndSetSocket();
-    //startServer();
+    //startServer();  .
 }
 void Server::handleSignals()
 {
