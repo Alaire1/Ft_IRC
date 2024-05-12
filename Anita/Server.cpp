@@ -31,25 +31,70 @@ void Server::handleSignals()
 }
 
 
-void pollFds()
-{
-    int timeout = 1000; // 1 second timeout // random value
-    int ready = poll(&_fds[0], _fds.size(), timeout);
-    if (ready == -1)
-    {
-        errorPoll(errno);
-        exit(1);
-    }
-}
+// void pollFds()
+// {
+//     int timeout = 1000; // 1 second timeout // random value
+//     int ready = poll(&_fds[0], _fds.size(), timeout);
+//     if (ready == -1)
+//     {
+//         errorPoll(errno);
+//         exit(1);
+//     }
+// }
 
-void Sever::startServer()
-{
-    _isRunning = true;
-    while (_isRunning)
-    {
-      int ready = pollFds();
-    }
-}
+// void Server::handleNewConnection() {
+//     struct sockaddr_storage clientAddr;
+//     socklen_t addrLen = sizeof(clientAddr);
+//     int newFd = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
+
+//     if (newFd == -1) {
+//         errorAccept(errno);
+//         return;
+//     }
+//     addFd(newFd, POLLIN);
+// }
+
+// void Server::handleExistingConnection(struct pollfd& pfd) {
+//     char buffer[1024];
+//     int bytes = recv(pfd.fd, buffer, sizeof(buffer), 0);
+
+//     if (bytes <= 0) {
+//         // Client disconnected or error
+//         if (bytes == 0) {
+//             // Client disconnected
+//         } else {
+//             // Error
+//         }
+
+//         close(pfd.fd);
+//         pfd.fd = -1; // Mark for removal
+//     } else {
+//         // Handle data...
+//     }
+// }
+// void Sever::startServer()
+// {
+//     _isRunning = true;
+//     while (_isRunning)
+//     {
+//       int ready = pollFds();
+//          for (auto it = _fds.begin(); it != _fds.end(); ) {
+//             if (it->revents & POLLIN) {
+//                 if (it->fd == _socket) {
+//                     handleNewConnection();
+//                 } else {
+//                     handleExistingConnection(*it);
+//                 }
+//             }
+
+//             if (it->fd == -1) {
+//                 it = _fds.erase(it);
+//             } else {
+//                 ++it;
+//             }
+//         }
+//     }
+// }
  
 
 void Server::initializeHints()

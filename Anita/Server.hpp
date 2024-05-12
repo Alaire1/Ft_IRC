@@ -29,7 +29,10 @@ class Server
         ~Server();
      
         void    createServer();
+
         void   startServer();
+        void    pollFds();
+        
         // socket handling
         void    initializeHints();
         void    createSocket();
@@ -52,7 +55,7 @@ class Server
         void    errorFcntl(int status);
         void    errorSocketBinding(int status);
         void    errorListen(int status);
-        void   errorPoll(int status);
+        void    errorPoll(int status);
 
         //testing
         void    printPassword();
