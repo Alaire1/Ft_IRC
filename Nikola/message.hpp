@@ -15,7 +15,7 @@ class Message
 	std::string _message_text;
 	std::string _message_timestamp;
 	std::string _message_author;
-
+	int _message_type;
 
 	
 };
