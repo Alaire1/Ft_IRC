@@ -125,4 +125,21 @@ void Server::errorListen(int status)
     }
     std::cerr << std::endl;
 }
+void errorPoll(int status)
+{
+    std::map<int, std::string> poll_errors;
+    poll_errors[EBADF] = "The fd member of one of the elements of the fds array is negative.";
+    poll_errors[EFAULT] = "The memory area pointed to by the events or revents members of one of the elements of the fds array is not accessible.";
+    poll_errors[EINTR] = "The call was interrupted by a signal handler before any of the requested events occurred or the timeout expired.";
+    poll_errors[EINVAL] = "The nfds value exceeds the RLIMIT_NOFILE value.";
+    poll_errors[EINVAL] = "The timeout value is invalid (less than -1).";
 
+    std::cerr << "poll error: ";
+    std::map<int, std::string>::const_iterator it = poll_errors.find(status);
+    if (it != poll_errors.end()) {
+        std::cerr << it->second;
+    } else {
+        std::cerr << "Unknown error";
+    }
+    std::cerr << std::endl;
+}

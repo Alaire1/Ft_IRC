@@ -30,17 +30,28 @@ void Server::handleSignals()
     signal(SIGTERM, signalHandler);
 }
 
-// void Sever::startServer()
-// {
-//     _isRunning = true;
-//     while (_isRunning)
-//     {
-//         // accept connections
-        
-//         // handle connections
-//         // close connections
-//     }
-// }
+
+void pollFds()
+{
+    int timeout = 1000; // 1 second timeout // random value
+    int ready = poll(&_fds[0], _fds.size(), timeout);
+    if (ready == -1)
+    {
+        errorPoll(errno);
+        exit(1);
+    }
+}
+
+void Sever::startServer()
+{
+    _isRunning = true;
+    while (_isRunning)
+    {
+      int ready = pollFds();
+    }
+}
+ 
+
 void Server::initializeHints()
 {
     struct addrinfo hints; // freed by itself because it is a local variable
@@ -111,6 +122,14 @@ void Server::listenSocket()
         exit(1);
     }
 }
+void Server::initialize_pollfd() 
+{
+   struct pollfd fd; 
+    fd.fd = _socket;   // the socket we are listening on
+    fd.events = POLLIN; // wait for an incoming connection
+    _fds.push_back(fd); // add the socket to the pollfd vector
+}
+
 int Server::createAndSetSocket() // may split into smaller fumnctions
 {
     createSocket();
@@ -122,6 +141,7 @@ int Server::createAndSetSocket() // may split into smaller fumnctions
     bindSocket();
     // Start listening on the socket 
     listenSocket();
+    initialize_pollfd();
     return (0);
 }
 

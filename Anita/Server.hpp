@@ -21,6 +21,7 @@ class Server
         bool _isRunning;
         std::string _password;
         int _port;
+        std::vector<struct pollfd> _fds;
     
     public:
         Server();
@@ -38,6 +39,7 @@ class Server
         void    bindSocket();
         void    listenSocket();
         int     createAndSetSocket();
+        void    initialize_pollfd();
 
         //signal handling
         void   handleSignals();
@@ -50,6 +52,7 @@ class Server
         void    errorFcntl(int status);
         void    errorSocketBinding(int status);
         void    errorListen(int status);
+        void   errorPoll(int status);
 
         //testing
         void    printPassword();
