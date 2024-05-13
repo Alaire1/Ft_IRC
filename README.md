@@ -43,7 +43,8 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
 
 ### Socket creation steps:
 - Create socket
-  ```
+  
+```
   void Server::createSocket()
 {
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
@@ -54,18 +55,62 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
     }
 }
 ```
+
 - Set the socket to be reusable
+
 ```
- 
+ void Server::setSocketReusable()
+{
+    int reuse = 1; 
+    int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    if (result == -1) 
+    {
+       errorSetsockopt(errno); 
+        close(_socket); // Close the socket on error
+        exit (1); // not sure if i should return 1 or exit(1) 
+    }
+}
 ```
+
 - Set the socket to non-blocking mode
+
 ```
+void Server::nonBlockingSocket()
+{
+   if (fcntl(_socket, F_SETFL, O_NONBLOCK) == -1)
+   {
+       errorFcntl(errno);
+       close(_socket); // Close the socket on error
+       exit(1);
+   }
+}
 ```
+
 - Bind the socket to the port
+
 ```
+void Server::bindSocket()
+{
+    if (bind(_socket, _servInfo->ai_addr, _servInfo->ai_addrlen) == -1)
+    {
+        errorSocketBinding(errno);
+        close(_socket); // Close the socket on error
+        exit(1);
+    }
+}
 ```
+
 - Start listening on the socket
+
 ```
+void Server::listenSocket()
+{
+    if (listen(_socket, BACKLOG) == -1) {
+        errorListen(errno);
+        close(_socket); // Close the socket on error
+        exit(1);
+    }
+}
 ```
 
 
