@@ -8,11 +8,11 @@ int main(int ac, char **av)
         return (1);
     }
     checkIfPortIsValid(av[1]);
+    checkPassword(av[2]);
+    Server ourServer(atoi(av[1]), av[2]); 
 
-    Server server(atoi(av[1]), av[2]); 
-
-    server.createServer();
-    std::cout << "socket: " << server.getSocket() << std::endl;
-    server.printPassword();
+    ourServer.createServer();
+    std::cout << "socket: " << ourServer.getSocket() << std::endl;
+    ourServer.printPassword();
     return (0);
 }

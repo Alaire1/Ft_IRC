@@ -125,7 +125,8 @@ void Server::setSocketReusable()
 {
     int reuse = 1; 
     int result = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
-    if (result == -1) {
+    if (result == -1) 
+    {
        errorSetsockopt(errno); 
         close(_socket); // Close the socket on error
         exit (1); // not sure if i should return 1 or exit(1) 

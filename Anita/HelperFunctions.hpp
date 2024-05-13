@@ -3,5 +3,5 @@
 #include <iostream>
 
 void checkIfPortIsValid(char *port);
-
+void checkPassword(char *password);
 #endif // HELPERFUNCTIONS_HPP
