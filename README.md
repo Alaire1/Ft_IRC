@@ -7,7 +7,7 @@ and networks Here's a breakdown of the key components:
 - **Channels:** These are virtual chat rooms within the network where users can gather and discuss specific topics or interests. Users can join and leave channels at will.
 - **Protocol (IRC):** This is the set of rules and commands that define how IRC servers and clients communicate with each other. It uses TCP for data transfer and optionally TLS for encryption.
 
-  ## Server
+## Server
 The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in network programming for specifying address information and creating sockets. It contains several fields, and three of them are particularly important for socket creation:
 
 **ai_family:**  This field specifies the address family, which defines the addressing scheme used for the socket. Here are some common values:
@@ -40,3 +40,12 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
 - `EAI_SERVICE`: The `ai_socktype` field in the `hints` structure is not supported for the specified `ai_family`; or the `ai_socktype` was `SOCK_STREAM` and the `ai_protocol` was not `IPPROTO_TCP`, or the `ai_socktype` was `SOCK_DGRAM` and the `ai_protocol` was not `IPPROTO_UDP`; or the service is not available for the specified socket type. This error is returned if the service passed to `getaddrinfo()` is not supported for the socket type requested.
 
 - `EAI_SOCKTYPE`: The requested socket type is not supported. This could occur, for example, if `hints.ai_socktype` and `hints.ai_protocol` are inconsistent. This error is returned if the `hints.ai_socktype` field is invalid.
+
+### Socket creation steps:
+- Create socket
+- Set the socket to be reusable
+- Set the socket to non-blocking mode
+- Bind the socket to the port
+- Start listening on the socket 
+
+
