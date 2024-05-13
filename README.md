@@ -43,9 +43,29 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
 
 ### Socket creation steps:
 - Create socket
+  ```
+  void Server::createSocket()
+{
+    _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
+    if (_socket == -1)
+    {
+        errorSocketCreation(errno);
+        exit(1);
+    }
+}
+```
 - Set the socket to be reusable
+```
+ 
+```
 - Set the socket to non-blocking mode
+```
+```
 - Bind the socket to the port
-- Start listening on the socket 
+```
+```
+- Start listening on the socket
+```
+```
 
 
