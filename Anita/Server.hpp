@@ -22,7 +22,7 @@ class Server
         bool _isRunning;
         std::string _password;
         int _port;
-        std::vector<struct pollfd> _fds;
+        //std::vector<struct pollfd> _fds;
     
     public:
         Server();

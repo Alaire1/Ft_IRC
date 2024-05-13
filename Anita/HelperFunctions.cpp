@@ -1,5 +1,6 @@
 #include "HelperFunctions.hpp"
 #include <cstdlib>
+#include <cstring>
 
 bool isNumeric(const std::string& str) {
   for (size_t i = 0; i < str.length(); ++i) {
@@ -12,7 +13,7 @@ bool isNumeric(const std::string& str) {
 
 void checkIfPortIsValid(char *port)
 { 
-    if isNumeric(port) == false
+    if (isNumeric(port) == false)
     {
         std::cerr << "Invalid port number. Must be fully numeric" << std::endl;
         exit (1);
@@ -42,7 +43,7 @@ void checkPassword(char *password)
         std::cerr << "Password must be at least 1 character long" << std::endl;
         exit (1);
     }
-    if isNotPrintable(password) == true
+    if (isNotPrintable(password) == true)
     {
         std::cerr << "Password must contain printable characters only" << std::endl;
         exit (1);
