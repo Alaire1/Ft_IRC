@@ -42,7 +42,7 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
 - `EAI_SOCKTYPE`: The requested socket type is not supported. This could occur, for example, if `hints.ai_socktype` and `hints.ai_protocol` are inconsistent. This error is returned if the `hints.ai_socktype` field is invalid.
 
 ### Socket creation steps:
-- Create socket
+- **Create socket**
   
 ```
   void Server::createSocket()
@@ -56,7 +56,7 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
 }
 ```
 
-- Set the socket to be reusable
+- **Set the socket to be reusable**
 
 ```
  void Server::setSocketReusable()
@@ -72,7 +72,7 @@ The addrinfo structure, defined in **<sys/socket.h>**, plays a crucial role in n
 }
 ```
 
-- Set the socket to non-blocking mode
+- **Set the socket to non-blocking mode**
 
 ```
 void Server::nonBlockingSocket()
@@ -86,7 +86,7 @@ void Server::nonBlockingSocket()
 }
 ```
 
-- Bind the socket to the port
+- **Bind the socket to the port**
 
 ```
 void Server::bindSocket()
@@ -100,7 +100,7 @@ void Server::bindSocket()
 }
 ```
 
-- Start listening on the socket
+- **Start listening on the socket**
 
 ```
 void Server::listenSocket()
