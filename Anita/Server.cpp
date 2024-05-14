@@ -93,7 +93,7 @@ void Server::handleSignals()
 //     _isRunning = true;
 //     while (_isRunning)
 //     {
-//       int ready = pollFds();
+//       int ready = pollFds(); //what is the usage of this ready var??
 //          for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
 //             if (it->revents & POLLIN) {
 //                 if (it->fd == _socket) {
