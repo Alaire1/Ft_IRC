@@ -1,14 +1,15 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
-#include <vector>
-#include <sys/socket.h>
+#include <vector> //-> for vector
+#include <sys/socket.h> //-> for socket()
+#include <sys/types.h> //-> for socket()
 #include <netinet/in.h> //-> for sockaddr_in
-#include <sys/types.h>
-#include <string>
-#include <unistd.h>
-#include <poll.h>
+#include <fcntl.h> //-> for fcntl()
+#include <unistd.h> //-> for close()
 #include <arpa/inet.h> //-> for inet_ntoa()
-#include <fcntl.h>
+#include <poll.h> //-> for poll()
+#include <csignal> //-> for signal()
+#include <string.h>
 #include "Client.hpp"
 
 class Client;

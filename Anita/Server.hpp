@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <vector>
 #include <cstdlib>
+#include "Client.hpp"
 
 #define BACKLOG 10 // common choice between 5 and 10 // may be changed
 class Server
@@ -22,6 +23,7 @@ class Server
         bool _isRunning;
         std::string _password;
         int _port;
+        std::vector<struct Client> clients;
         //std::vector<struct pollfd> _fds;
     
     public:

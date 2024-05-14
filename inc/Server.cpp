@@ -98,6 +98,22 @@ void Server::acceptNewClient()
 
 void Server::receiveNewData(int fd)
 {
+	char buff[1024]; //-> buffer for the received data
+	memset(buff, 0, sizeof(buff)); //-> clear the buffer
+
+	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1 , 0); //-> receive the data
+
+	if(bytes <= 0){ //-> check if the client disconnected
+		std::cout << RED << "Client <" << fd << "> Disconnected" << WHI << std::endl;
+		ClearClients(fd); //-> clear the client
+		close(fd); //-> close the client socket
+	}
+
+	else{ //-> print the received data
+		buff[bytes] = '\0';
+		std::cout << YEL << "Client <" << fd << "> Data: " << WHI << buff;
+		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
+	}
 
 }
 
