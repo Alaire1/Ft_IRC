@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <iostream>
 #include <cstring>
+#include <string.h>
 #include <map>
 #include <errno.h>
 #include <poll.h>
@@ -24,7 +25,7 @@ class Server
         bool _isRunning;
         std::string _password;
         int _port;
-        std::vector<struct Client> clients;
+        std::vector<struct Client> _clients;
         std::vector<struct pollfd> _fds;
     
     public:
@@ -34,8 +35,12 @@ class Server
      
         void    createServer();
 
-        void   startServer();
+        // 	starting server & accepting clients/data
+        void   	startServer();
         void    pollFds();
+				void 		handleExistingConnection(int fd);
+				void 		handleNewConnection();
+				void 		addFd(int fd, short events);
         
         // socket handling
         void    initializeHints();

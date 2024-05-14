@@ -32,7 +32,7 @@ void Server::handleSignals()
 }
 
 
-// void pollFds()
+// void Server::pollFds()
 // {
 //     int timeout = 1000; // 1 second timeout // random value
 //     int ready = poll(&_fds[0], _fds.size(), timeout);
@@ -44,6 +44,7 @@ void Server::handleSignals()
 // }
 
 // void Server::handleNewConnection() {
+//     Client cli;
 //     struct sockaddr_storage clientAddr;
 //     socklen_t addrLen = sizeof(clientAddr);
 //     int newFd = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
@@ -53,10 +54,24 @@ void Server::handleSignals()
 //         return;
 //     }
 //     addFd(newFd, POLLIN);
+//     cli.setFd();
+//     cli.SetFd(newFd); //-> set the client file descriptor
+// 		 cli.setipAdd(inet_ntoa((clientAddr.sin_addr))); //-> convert the ip address to string and set it
+// 		 _clients.push_back(cli); //-> add the client to the vector of clients
 // }
 
-// void Server::handleExistingConnection(struct pollfd& pfd) {
+// void Server::addFd(int newFd, short events)
+// {
+// 		struct newPoll;
+// 		newPoll.fd = newFd; //-> set the client file descriptor
+// 		newPoll.events = events; //-> convert the ip address to string and set it
+// 		newPoll.revents = 0;  //-> add the client to the vector of clients
+// 		_fds.push_back(newPoll); //-> add the client socket to the pollfd
+// }
+
+// void Server::handleExistingConnection(int fd) {
 //     char buffer[1024];
+//     memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
 //     int bytes = recv(pfd.fd, buffer, sizeof(buffer), 0);
 
 //     if (bytes <= 0) {
@@ -73,21 +88,21 @@ void Server::handleSignals()
 //         // Handle data...
 //     }
 // }
-// void Sever::startServer()
+// void Server::startServer()
 // {
 //     _isRunning = true;
 //     while (_isRunning)
 //     {
 //       int ready = pollFds();
-//          for (auto it = _fds.begin(); it != _fds.end(); ) {
+//          for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
 //             if (it->revents & POLLIN) {
 //                 if (it->fd == _socket) {
 //                     handleNewConnection();
 //                 } else {
-//                     handleExistingConnection(*it);
+//                     handleExistingConnection(it->fd);
 //                 }
 //             }
-
+//
 //             if (it->fd == -1) {
 //                 it = _fds.erase(it);
 //             } else {
