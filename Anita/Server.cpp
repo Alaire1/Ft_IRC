@@ -72,7 +72,7 @@ void Server::handleSignals()
 // void Server::handleExistingConnection(int fd) {
 //     char buffer[1024];
 //     memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
-//     int bytes = recv(pfd.fd, buffer, sizeof(buffer), 0);
+//     int bytes = recv(fd, buffer, sizeof(buffer), 0);
 
 //     if (bytes <= 0) {
 //         // Client disconnected or error
@@ -82,8 +82,8 @@ void Server::handleSignals()
 //             // Error
 //         }
 
-//         close(pfd.fd);
-//         pfd.fd = -1; // Mark for removal
+//         close(fd);
+//         fd = -1; // Mark for removal
 //     } else {
 //         // Handle data...
 //     }
