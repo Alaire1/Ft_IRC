@@ -77,7 +77,7 @@ void Server::handleSignals()
 //     if (bytes <= 0) {
 //         // Client disconnected or error
 //         if (bytes == 0) {
-//             // Client disconnected
+//             // clearClients(fd);
 //         } else {
 //             // Error
 //         }
@@ -110,8 +110,44 @@ void Server::handleSignals()
 //             }
 //         }
 //     }
+//  	closeFds();
 // }
- 
+
+//void Server::closeFds()
+//{
+//	for(size_t i = 0; i < _clients.size(); i++){ //-> close all the clients
+//		std::cout << "Client <" << _clients[i].getFd() << "> Disconnected" << std::endl;
+//		close(_clients[i].getFd());
+//	}
+//	if (_socket != -1){ //-> close the server socket
+//		std::cout << "Server <" << _socket << "> Disconnected" << std::endl;
+//		close(_socket);
+//	}
+//}
+
+//void Server::clearClients(int fd) //-> clear the clients
+//{
+//	for(std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end();)//-> remove the client from the pollfd
+//	{
+//		if (it->fd == fd)
+//		{
+//			_fds.erase(it);
+//			break;
+//		}
+//		else
+//			it++;
+//	}
+//	for (std::vector<struct Client>::iterator it = _clients.begin(); it != _clients.end();)
+//	{
+//		if (it->getFd() == fd)
+//		{
+//			_clients.erase(it);
+//			break;
+//		}
+//		else
+//			it++;
+//	}
+//}
 
 void Server::initializeHints()
 {
@@ -207,10 +243,11 @@ int Server::getSocket() const
 {
     return (_socket);
 }
-
+bool Server::_signal = false; //-> initialize the static boolean
 void Server::signalHandler(int signum)
 {
     std::cout  <<"Signal received" << signum  << std::endl;
+		Server::_signal = true; //-> set the static boolean to true to stop the server
 }
  
 void Server::printPassword()

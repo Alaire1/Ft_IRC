@@ -22,6 +22,7 @@ class Server
     private:
         struct addrinfo *_servInfo; // struct needed to create a socket
         int _socket;
+				static bool _signal; //-> static boolean for signal
         bool _isRunning;
         std::string _password;
         int _port;
@@ -52,6 +53,8 @@ class Server
         void    listenSocket();
         int     createAndSetSocket();
         void    initialize_pollfd();
+				void 		closeFds();
+				void 		clearClients(int fd);
 
         //signal handling
         void   handleSignals();
