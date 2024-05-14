@@ -91,7 +91,7 @@ void Server::handleSignals()
 // void Server::startServer()
 // {
 //     _isRunning = true;
-//     while (_isRunning)
+//     while (_isRunning)// maybe while(_signal == false)
 //     {
 //       int ready = pollFds(); //what is the usage of this ready var??
 //          for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
