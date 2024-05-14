@@ -9,6 +9,7 @@
 #include <cstring>
 #include <map>
 #include <errno.h>
+#include <poll.h>
 #include <fcntl.h>
 #include <vector>
 #include <cstdlib>
@@ -24,7 +25,7 @@ class Server
         std::string _password;
         int _port;
         std::vector<struct Client> clients;
-        //std::vector<struct pollfd> _fds;
+        std::vector<struct pollfd> _fds;
     
     public:
         Server();

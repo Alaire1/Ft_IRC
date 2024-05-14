@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <string>
 
 
 Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL), _port(6667), _password("1234")
@@ -99,14 +100,14 @@ void Server::handleSignals()
 
 void Server::initializeHints()
 {
-    struct addrinfo hints; // freed by itself because it is a local variable
+    struct addrinfo hints, *res; // freed by itself because it is a local variable
     memset(&hints, 0, sizeof(hints)); // hints are better to be local variable since they are just used once 
     hints.ai_family = AF_UNSPEC; // use IPv4 or IPv6, AF_INET or AF_INET6 , AF_UNSPEC is the most flexible, but might need to be changed due to allegedly not working and being unsafe
     hints.ai_socktype = SOCK_STREAM; // use TCP, which guarantees delivery
-    hints.ai_flags = AI_PASSIVE; // fill in my IP for me
-    int status = getaddrinfo(NULL, "6667", &hints, &_servInfo); // later we can change the port to be a parameter
-    if (status != 0) {
-        errorPrintGetaddrinfo(status);
+		std::string str = std::to_string(_port); //transforming int _port to const char*
+		const char* cstr = str.c_str(); // getaddrinfo resolves a hostname and service name (like a port number) into a list of address structures. These structures can then be used directly with socket functions such as socket, bind, connect, sendto, and recvfrom.
+    if (getaddrinfo(NULL, cstr, &hints, &res) != 0) {
+        errorPrintGetaddrinfo(1);
         exit(1);
     }
 }
@@ -148,7 +149,7 @@ void Server::bindSocket()
     if (bind(_socket, _servInfo->ai_addr, _servInfo->ai_addrlen) == -1)
     {
         errorSocketBinding(errno);
-        close(_socket); // Close the socket on error
+        //close(_socket); // Close the socket on error
         exit(1);
     }
 }
@@ -161,13 +162,14 @@ void Server::listenSocket()
         exit(1);
     }
 }
-// void Server::initialize_pollfd() 
-// {
-//    struct pollfd fd; 
-//     fd.fd = _socket;   // the socket we are listening on
-//     fd.events = POLL_IN; // wait for an incoming connection
-//     _fds.push_back(fd); // add the socket to the pollfd vector
-// }
+ void Server::initialize_pollfd() 
+ {
+    struct pollfd newPoll; 
+     newPoll.fd = _socket;   // the socket we are listening on
+     newPoll.events = POLLIN; // wait for an incoming connection
+     newPoll.revents = 0; // set revents to 0
+     _fds.push_back(newPoll); // add the socket to the pollfd vector
+ }
 
 int Server::createAndSetSocket() // may split into smaller fumnctions
 {
@@ -180,7 +182,7 @@ int Server::createAndSetSocket() // may split into smaller fumnctions
     bindSocket();
     // Start listening on the socket 
     listenSocket();
-    //initialize_pollfd();
+    initialize_pollfd();
     return (0);
 }
 
