@@ -125,7 +125,7 @@ void Server::errorListen(int status)
     }
     std::cerr << std::endl;
 }
-void errorPoll(int status)
+void Server::errorPoll(int status)
 {
     std::map<int, std::string> poll_errors;
     poll_errors[EBADF] = "The fd member of one of the elements of the fds array is negative.";
@@ -143,3 +143,5 @@ void errorPoll(int status)
     }
     std::cerr << std::endl;
 }
+
+

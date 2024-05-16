@@ -1,6 +1,5 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
-
 #include <sys/socket.h>
 #include <ostream>
 #include <netdb.h>
@@ -9,6 +8,7 @@
 #include <cstring>
 #include <string.h>
 #include <map>
+#include <arpa/inet.h> //-> for inet_ntoa()
 #include <errno.h>
 #include <poll.h>
 #include <fcntl.h>
@@ -68,6 +68,7 @@ class Server
         void    errorSocketBinding(int status);
         void    errorListen(int status);
         void    errorPoll(int status);
+//				void 		errorAccept(int status);
 
         //testing
         void    printPassword();

@@ -1,5 +1,8 @@
 #include "Server.hpp"
+#include <asm-generic/socket.h>
+#include <netdb.h>
 #include <string>
+#include <sys/socket.h>
 
 
 Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL), _port(6667), _password("1234")
@@ -22,8 +25,10 @@ void Server::createServer()
 {
     initializeHints();
     handleSignals();
+	 //std::cout << " create  sockets.." << std::endl;
     createAndSetSocket();
-    //startServer();  .
+	 //std::cout << "Before Starting server .." << std::endl;
+    startServer();
 }
 void Server::handleSignals()
 {
@@ -32,132 +37,135 @@ void Server::handleSignals()
 }
 
 
-// void Server::pollFds()
-// {
-//     int timeout = 1000; // 1 second timeout // random value
-//     int ready = poll(&_fds[0], _fds.size(), timeout);
-//     if (ready == -1)
-//     {
-//         errorPoll(errno);
-//         exit(1);
-//     }
-// }
+ void Server::pollFds()
+ {
+     int timeout = 1000; // 1 second timeout // random value
+     int ready = poll(&_fds[0], _fds.size(), timeout);
+     if (ready == -1)
+     {
+         errorPoll(errno);
+         exit(1);
+     }
+ }
 
-// void Server::handleNewConnection() {
-//     Client cli;
-//     struct sockaddr_storage clientAddr;
-//     socklen_t addrLen = sizeof(clientAddr);
-//     int newFd = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
+ void Server::handleNewConnection() {
+     Client cli;
+     struct sockaddr_in clientAddr;
+     socklen_t addrLen = sizeof(clientAddr);
+     int newFd = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
 
-//     if (newFd == -1) {
-//         errorAccept(errno);
-//         return;
-//     }
-//     addFd(newFd, POLLIN);
-//     cli.setFd();
-//     cli.SetFd(newFd); //-> set the client file descriptor
-// 		 cli.setipAdd(inet_ntoa((clientAddr.sin_addr))); //-> convert the ip address to string and set it
-// 		 _clients.push_back(cli); //-> add the client to the vector of clients
-// }
+     if (newFd == -1) {
+         //errorAccept(errno);
+			 std::cout << "error accept"  << std::endl;
+         return;
+     }
+     addFd(newFd, POLLIN);
+     cli.setFd(newFd);//-> set the client file descriptor
+ 		 cli.setIpAdd(inet_ntoa(clientAddr.sin_addr)); //-> convert the ip address to string and set it
+ 		 _clients.push_back(cli); //-> add the client to the vector of clients
+ }
 
-// void Server::addFd(int newFd, short events)
-// {
-// 		struct newPoll;
-// 		newPoll.fd = newFd; //-> set the client file descriptor
-// 		newPoll.events = events; //-> convert the ip address to string and set it
-// 		newPoll.revents = 0;  //-> add the client to the vector of clients
-// 		_fds.push_back(newPoll); //-> add the client socket to the pollfd
-// }
+ void Server::addFd(int newFd, short events)
+ {
+			struct pollfd newPoll;
+			newPoll.fd = newFd; //-> set the client file descriptor
+			newPoll.events = events; //-> convert the ip address to string and set it
+			newPoll.revents = 0;  //-> add the client to the vector of clients
+			_fds.push_back(newPoll); //-> add the client socket to the pollfd
+ }
 
-// void Server::handleExistingConnection(int fd) {
-//     char buffer[1024];
-//     memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
-//     int bytes = recv(fd, buffer, sizeof(buffer), 0);
+void Server::handleExistingConnection(int fd) {
+		char buffer[1024];
+		memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
+		int bytes = recv(fd, buffer, sizeof(buffer), 0);
 
-//     if (bytes <= 0) {
-//         // Client disconnected or error
-//         if (bytes == 0) {
-//             // clearClients(fd);
-//         } else {
-//             // Error
-//         }
+		if (bytes <= 0) {
+			// Client disconnected or error
+			if (bytes == 0) {
+				clearClients(fd);
+			} else {
+				std::cout << "Error on recv and negative bytes" << std::endl;
+				// Error
+			}
+			close(fd);
+			fd = -1; // Mark for removal
+		} else {
+				std::cout << "Here we should be handling incoming data..." << std::endl;
+			// Handle data...
+		}
+}
+ void Server::startServer()
+ {
+     //_isRunning = true;
+	 std::cout << "Starting server .." << std::endl;
+     while (_signal == false)// maybe while(_signal == false)
+     {
+			 //      int ready = pollFds(); //what is the usage of this ready var??
+			 for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
+				 if (it->revents & POLLIN) {
+					 if (it->fd == _socket) {
+						 handleNewConnection();
+					 } else {
+						 handleExistingConnection(it->fd);
+					 }
+				 }
+				 if (it->fd == -1) {
+					 it = _fds.erase(it);
+				 } else {
+					 ++it;
+				 }
+			 }
+     }
+		 closeFds();
+ }
 
-//         close(fd);
-//         fd = -1; // Mark for removal
-//     } else {
-//         // Handle data...
-//     }
-// }
-// void Server::startServer()
-// {
-//     _isRunning = true;
-//     while (_isRunning)// maybe while(_signal == false)
-//     {
-//       int ready = pollFds(); //what is the usage of this ready var??
-//          for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
-//             if (it->revents & POLLIN) {
-//                 if (it->fd == _socket) {
-//                     handleNewConnection();
-//                 } else {
-//                     handleExistingConnection(it->fd);
-//                 }
-//             }
-//
-//             if (it->fd == -1) {
-//                 it = _fds.erase(it);
-//             } else {
-//                 ++it;
-//             }
-//         }
-//     }
-//  	closeFds();
-// }
+void Server::closeFds()
+{
+	for(size_t i = 0; i < _clients.size(); i++){ //-> close all the clients
+		std::cout << "Client <" << _clients[i].getFd() << "> Disconnected" << std::endl;
+		close(_clients[i].getFd());
+	}
+	if (_socket != -1){ //-> close the server socket
+		std::cout << "Server <" << _socket << "> Disconnected" << std::endl;
+		close(_socket);
+	}
+}
 
-//void Server::closeFds()
-//{
-//	for(size_t i = 0; i < _clients.size(); i++){ //-> close all the clients
-//		std::cout << "Client <" << _clients[i].getFd() << "> Disconnected" << std::endl;
-//		close(_clients[i].getFd());
-//	}
-//	if (_socket != -1){ //-> close the server socket
-//		std::cout << "Server <" << _socket << "> Disconnected" << std::endl;
-//		close(_socket);
-//	}
-//}
-
-//void Server::clearClients(int fd) //-> clear the clients
-//{
-//	for(std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end();)//-> remove the client from the pollfd
-//	{
-//		if (it->fd == fd)
-//		{
-//			_fds.erase(it);
-//			break;
-//		}
-//		else
-//			it++;
-//	}
-//	for (std::vector<struct Client>::iterator it = _clients.begin(); it != _clients.end();)
-//	{
-//		if (it->getFd() == fd)
-//		{
-//			_clients.erase(it);
-//			break;
-//		}
-//		else
-//			it++;
-//	}
-//}
+void Server::clearClients(int fd) //-> clear the clients
+{
+	for(std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end();)//-> remove the client from the pollfd
+	{
+		if (it->fd == fd)
+		{
+			_fds.erase(it);
+			break;
+		}
+		else
+			it++;
+	}
+	for (std::vector<struct Client>::iterator it = _clients.begin(); it != _clients.end();)
+	{
+		if (it->getFd() == fd)
+		{
+			_clients.erase(it);
+			break;
+		}
+		else
+			it++;
+	}
+}
 
 void Server::initializeHints()
 {
-    struct addrinfo hints, *res; // freed by itself because it is a local variable
+    struct addrinfo hints;  // freed by itself because it is a local variable
     memset(&hints, 0, sizeof(hints)); // hints are better to be local variable since they are just used once 
     hints.ai_family = AF_UNSPEC; // use IPv4 or IPv6, AF_INET or AF_INET6 , AF_UNSPEC is the most flexible, but might need to be changed due to allegedly not working and being unsafe
     hints.ai_socktype = SOCK_STREAM; // use TCP, which guarantees delivery
 		std::string str = std::to_string(_port); //transforming int _port to const char*
 		const char* cstr = str.c_str(); // getaddrinfo resolves a hostname and service name (like a port number) into a list of address structures. These structures can then be used directly with socket functions such as socket, bind, connect, sendto, and recvfrom.
-    if (getaddrinfo(NULL, cstr, &hints, &res) != 0) {
+		int status = getaddrinfo(NULL, cstr, &hints, &_servInfo);
+    if (status != 0) 
+		{
         errorPrintGetaddrinfo(1);
         exit(1);
     }
@@ -165,6 +173,10 @@ void Server::initializeHints()
 
 void Server::createSocket()
 {
+	//std::cout << "in createSocket" << std::endl;
+//	std::cout << _servInfo->ai_family << std::endl;
+//	std::cout << _servInfo->ai_socktype << std::endl;
+//	std::cout << _servInfo->ai_protocol << std::endl;
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
     if (_socket == -1)
     {
@@ -225,6 +237,7 @@ void Server::listenSocket()
 int Server::createAndSetSocket() // may split into smaller fumnctions
 {
     createSocket();
+    //std::cout  <<"After created socket"  << std::endl;
     // Set the socket to be reusable, so we can bind it again even if it is in TIME_WAIT state
     setSocketReusable();
     // Set the socket to non-blocking mode
@@ -233,6 +246,7 @@ int Server::createAndSetSocket() // may split into smaller fumnctions
     bindSocket();
     // Start listening on the socket 
     listenSocket();
+		// Start the loop waiting for connections
     initialize_pollfd();
     return (0);
 }
@@ -246,7 +260,7 @@ int Server::getSocket() const
 bool Server::_signal = false; //-> initialize the static boolean
 void Server::signalHandler(int signum)
 {
-    std::cout  <<"Signal received" << signum  << std::endl;
+    std::cout  << "Signal received: " << signum  << std::endl;
 		Server::_signal = true; //-> set the static boolean to true to stop the server
 }
  
