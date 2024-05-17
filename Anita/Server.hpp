@@ -42,6 +42,7 @@ class Server
 				void 		handleExistingConnection(int fd);
 				void 		handleNewConnection();
 				void 		addFd(int fd, short events);
+				void 		setIpAdd(std::string ipadd);
         
         // socket handling
         void    initializeHints();

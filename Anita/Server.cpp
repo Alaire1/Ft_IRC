@@ -5,12 +5,12 @@
 #include <sys/socket.h>
 
 
-Server::Server() : _isRunning(false), _socket(0), _servInfo(NULL), _port(6667), _password("1234")
+Server::Server() : _isRunning(false), _socket(-1), _servInfo(NULL), _port(6667), _password("1234")
 {
    
 }
 
-Server::Server(int port, std::string password) : _isRunning(false), _socket(0), _servInfo(NULL)
+Server::Server(int port, std::string password) : _isRunning(false), _socket(-1), _servInfo(NULL)
 {
     _port = port;
     _password = password;
@@ -69,7 +69,7 @@ void Server::handleSignals()
  {
 			struct pollfd newPoll;
 			newPoll.fd = newFd; //-> set the client file descriptor
-			newPoll.events = events; //-> convert the ip address to string and set it
+			newPoll.events = events; //
 			newPoll.revents = 0;  //-> add the client to the vector of clients
 			_fds.push_back(newPoll); //-> add the client socket to the pollfd
  }
@@ -163,7 +163,7 @@ void Server::initializeHints()
     hints.ai_socktype = SOCK_STREAM; // use TCP, which guarantees delivery
 		std::string str = std::to_string(_port); //transforming int _port to const char*
 		const char* cstr = str.c_str(); // getaddrinfo resolves a hostname and service name (like a port number) into a list of address structures. These structures can then be used directly with socket functions such as socket, bind, connect, sendto, and recvfrom.
-		int status = getaddrinfo(NULL, cstr, &hints, &_servInfo);
+		int status = getaddrinfo(NULL, cstr, &hints, &_servInfo);//When the first argument to getaddrinfo is NULL, it indicates that you are not specifying a particular IP address to bind to. Instead, it allows the system to automatically select the appropriate IP address based on the hints you provide. 
     if (status != 0) 
 		{
         errorPrintGetaddrinfo(1);
@@ -250,7 +250,6 @@ int Server::createAndSetSocket() // may split into smaller fumnctions
     initialize_pollfd();
     return (0);
 }
-
 
 
 int Server::getSocket() const

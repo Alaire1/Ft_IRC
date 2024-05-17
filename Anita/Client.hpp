@@ -1,12 +1,20 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 #include <string>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <iostream>
+#include <netdb.h>
+#include <netinet/in.h>
 
 class Client 
 {
 	private:
 		// Add your private members here
 		int 				_fd;
+		std::string	_port;
 		std::string _ipAdd;
 
 		std::string _operatorPassword;
@@ -21,6 +29,7 @@ class Client
 
 	public:
 		Client(void);
+		Client(const std::string& ipAdd, const std::string& port); 
 		~Client(void);
 
 		// GETTERS UND SETTERS
@@ -34,6 +43,11 @@ class Client
 		std::string getNickname() const;
 		std::string getUsername() const;
 		void setOperator(bool status);
+
+		//CONNECTING TO SERVER
+		bool connectServer();
+ 		void sendMessage(std::string& message);
+		void receiveMessage();
 
 		//operator commands
 		// KICK
