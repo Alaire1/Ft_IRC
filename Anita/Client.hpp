@@ -46,7 +46,7 @@ class Client
 
 		//CONNECTING TO SERVER
 		bool connectServer();
- 		void sendMessage(std::string& message);
+ 		void sendMessage(const std::string& message);
 		void receiveMessage();
 
 		//operator commands
