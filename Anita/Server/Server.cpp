@@ -37,7 +37,7 @@ void Server::handleSignals()
 }
 
 
- void Server::pollFds()
+ int Server::pollFds()
  {
      int timeout = 1000; // 1 second timeout // random value
      int ready = poll(&_fds[0], _fds.size(), timeout);
@@ -46,19 +46,24 @@ void Server::handleSignals()
          errorPoll(errno);
          exit(1);
      }
+		 return ready;
  }
 
  void Server::handleNewConnection() {
+	 std::cout << "inside new Connection" << std::endl;
      Client cli;
      struct sockaddr_in clientAddr;
      socklen_t addrLen = sizeof(clientAddr);
      int newFd = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
 
-     if (newFd == -1) {
-         //errorAccept(errno);
+		 if (newFd == -1) 
+		 {
+			 //errorAccept(errno);
 			 std::cout << "error accept"  << std::endl;
-         return;
-     }
+			 return;
+		 }
+		 else
+			 std::cout << "Accept success!!" << std::endl;
      addFd(newFd, POLLIN);
      cli.setFd(newFd);//-> set the client file descriptor
  		 cli.setIpAdd(inet_ntoa(clientAddr.sin_addr)); //-> convert the ip address to string and set it
@@ -75,6 +80,7 @@ void Server::handleSignals()
  }
 
 void Server::handleExistingConnection(int fd) {
+	 std::cout << "inside existing Connection" << std::endl;
 		char buffer[1024];
 		memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
 		int bytes = recv(fd, buffer, sizeof(buffer), 0);
@@ -100,12 +106,16 @@ void Server::handleExistingConnection(int fd) {
 	 std::cout << "Starting server .." << std::endl;
      while (_signal == false)// maybe while(_signal == false)
      {
-			 //      int ready = pollFds(); //what is the usage of this ready var??
+			 int ready = pollFds();
 			 for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
-				 if (it->revents & POLLIN) {
-					 if (it->fd == _socket) {
+				 if (it->revents & POLLIN) 
+				 {
+					 if (it->fd == _socket) 
+					 {
 						 handleNewConnection();
-					 } else {
+					 } 
+					 else 
+					 {
 						 handleExistingConnection(it->fd);
 					 }
 				 }
@@ -159,8 +169,9 @@ void Server::initializeHints()
 {
     struct addrinfo hints;  // freed by itself because it is a local variable
     memset(&hints, 0, sizeof(hints)); // hints are better to be local variable since they are just used once 
-    hints.ai_family = AF_UNSPEC; // use IPv4 or IPv6, AF_INET or AF_INET6 , AF_UNSPEC is the most flexible, but might need to be changed due to allegedly not working and being unsafe
+    hints.ai_family = AF_INET; // use IPv4 or IPv6, AF_INET or AF_INET6 , AF_UNSPEC is the most flexible, but might need to be changed due to allegedly not working and being unsafe
     hints.ai_socktype = SOCK_STREAM; // use TCP, which guarantees delivery
+		hints.ai_flags = AI_PASSIVE;
 		std::string str = std::to_string(_port); //transforming int _port to const char*
 		const char* cstr = str.c_str(); // getaddrinfo resolves a hostname and service name (like a port number) into a list of address structures. These structures can then be used directly with socket functions such as socket, bind, connect, sendto, and recvfrom.
 		int status = getaddrinfo(NULL, cstr, &hints, &_servInfo);//When the first argument to getaddrinfo is NULL, it indicates that you are not specifying a particular IP address to bind to. Instead, it allows the system to automatically select the appropriate IP address based on the hints you provide. 

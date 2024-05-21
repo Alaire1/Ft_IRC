@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include <vector>
 #include <cstdlib>
-#include "Client.hpp"
+#include "../Client/Client.hpp"
 
 #define BACKLOG 10 // common choice between 5 and 10 // may be changed
 class Server
@@ -38,7 +38,7 @@ class Server
 
         // 	starting server & accepting clients/data
         void   	startServer();
-        void    pollFds();
+        int 		pollFds();
 				void 		handleExistingConnection(int fd);
 				void 		handleNewConnection();
 				void 		addFd(int fd, short events);

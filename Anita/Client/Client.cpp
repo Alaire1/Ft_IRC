@@ -44,6 +44,7 @@ bool Client::connectServer()
 			perror("connect");
 			continue;
 		}
+		std::cout << "Successfully connected to the server" << std::endl;
 		break;
 	}
 	freeaddrinfo(res);
@@ -52,7 +53,7 @@ bool Client::connectServer()
 		std::cerr << "Failed to connect" << std::endl;
 		return false;
 	}
-	std::cout << "Connect to the server" << std::endl;
+	std::cout << "Connected to the server" << std::endl;
 	return true;
 }
 
