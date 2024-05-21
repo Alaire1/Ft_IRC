@@ -2,7 +2,7 @@
 
 int main (void)
 {
-	Client ourclient("127.0.0.1", "4444");
+	Client ourclient("127.0.0.1", "6660");
 	
 	if(ourclient.connectServer())
 	{
