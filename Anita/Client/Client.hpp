@@ -13,9 +13,9 @@ class Client
 {
 	private:
 		// Add your private members here
-		int 				_fd;
-		std::string	_port;
 		std::string _ipAdd;
+		std::string	_port;
+		int 				_fd;
 
 		std::string _operatorPassword;
 		std::string _operatorNickname;

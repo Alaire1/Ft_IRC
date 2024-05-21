@@ -20,12 +20,12 @@
 class Server
 {
     private:
-        struct addrinfo *_servInfo; // struct needed to create a socket
-        int _socket;
-				static bool _signal; //-> static boolean for signal
-        bool _isRunning;
-        std::string _password;
-        int _port;
+				static bool 			_signal; //-> static boolean for signal
+        int 							_socket;
+        struct addrinfo 	*_servInfo; // struct needed to create a socket
+        int 							_port;
+        std::string 			_password;
+        //bool _isRunning = false;
         std::vector<struct Client> _clients;
         std::vector<struct pollfd> _fds;
     
@@ -38,7 +38,7 @@ class Server
 
         // 	starting server & accepting clients/data
         void   	startServer();
-        int 		pollFds();
+        void 		pollFds();
 				void 		handleExistingConnection(int fd);
 				void 		handleNewConnection();
 				void 		addFd(int fd, short events);

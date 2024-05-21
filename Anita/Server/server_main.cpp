@@ -6,7 +6,7 @@ int main(int ac, char **av)
 {
     if (ac != 3)
     {
-        std::cerr << "Usage: ./server [port] [password]" << std::endl;
+        std::cerr << "Usage: ./server [port] [password]" << std::endl;//Currently is the client set to port 4444
         return (1);
     }
     checkIfPortIsValid(av[1]);

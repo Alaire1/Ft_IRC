@@ -5,12 +5,12 @@
 #include <sys/socket.h>
 
 
-Server::Server() : _isRunning(false), _socket(-1), _servInfo(NULL), _port(6667), _password("1234")
+Server::Server() : _socket(-1), _servInfo(NULL), _port(6667), _password("1234")
 {
    
 }
 
-Server::Server(int port, std::string password) : _isRunning(false), _socket(-1), _servInfo(NULL)
+Server::Server(int port, std::string password) :  _socket(-1), _servInfo(NULL)
 {
     _port = port;
     _password = password;
@@ -37,7 +37,7 @@ void Server::handleSignals()
 }
 
 
- int Server::pollFds()
+ void Server::pollFds()
  {
      int timeout = 1000; // 1 second timeout // random value
      int ready = poll(&_fds[0], _fds.size(), timeout);
@@ -46,7 +46,6 @@ void Server::handleSignals()
          errorPoll(errno);
          exit(1);
      }
-		 return ready;
  }
 
  void Server::handleNewConnection() {
@@ -102,11 +101,11 @@ void Server::handleExistingConnection(int fd) {
 }
  void Server::startServer()
  {
-     //_isRunning = true;
+     //_signal = true;
 	 std::cout << "Starting server .." << std::endl;
      while (_signal == false)// maybe while(_signal == false)
      {
-			 int ready = pollFds();
+			 pollFds();
 			 for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
 				 if (it->revents & POLLIN) 
 				 {
