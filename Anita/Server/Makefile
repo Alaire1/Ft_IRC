@@ -34,6 +34,6 @@ fclean : clean
 re : fclean all
 
 run : 
-	./$(NAME) 6660 1234
+	./$(NAME) 6667 1234
 
 .PHONY: all fclean clean re run

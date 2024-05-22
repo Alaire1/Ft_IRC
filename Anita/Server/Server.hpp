@@ -38,7 +38,7 @@ class Server
 
         // 	starting server & accepting clients/data
         void   	startServer();
-        void 		pollFds();
+        int 		pollFds();
 				void 		handleExistingConnection(int fd);
 				void 		handleNewConnection();
 				void 		addFd(int fd, short events);

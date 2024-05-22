@@ -36,15 +36,18 @@ void Server::handleSignals()
 }
 
 
- void Server::pollFds()
+ int Server::pollFds()
  {
      int timeout = 1000; // 1 second timeout // random value
      int ready = poll(&_fds[0], _fds.size(), timeout);
      if (ready == -1)
      {
-         errorPoll(errno);
-         exit(1);
+			 if(errno == EINTR)
+				 return 0;
+			 errorPoll(errno);
+			 return (-1);
      }
+		 return ready;
  }
 
  void Server::handleNewConnection() {
@@ -52,9 +55,10 @@ void Server::handleSignals()
      Client cli;
      struct sockaddr_in clientAddr;
      socklen_t addrLen = sizeof(clientAddr);
-     int newFd = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
+     int clientSocket = accept(_socket, (struct sockaddr*)&clientAddr, &addrLen);
 
-		 if (newFd == -1) 
+		 std::cout << "New fd: " << clientSocket << std::endl;
+		 if (clientSocket == -1) 
 		 {
 			 if (errno == EAGAIN || errno == EWOULDBLOCK) 
 			 {
@@ -70,8 +74,8 @@ void Server::handleSignals()
 		 }
 		 else
 			 std::cout << "Accept success!!" << std::endl;
-     addFd(newFd, POLLIN);
-     cli.setFd(newFd);//-> set the client file descriptor
+     addFd(clientSocket, POLLIN);
+     cli.setFd(clientSocket);//-> set the client file descriptor
  		 cli.setIpAdd(inet_ntoa(clientAddr.sin_addr)); //-> convert the ip address to string and set it
  		 _clients.push_back(cli); //-> add the client to the vector of clients
 		 std::cout << "client fd added to vector!!" << std::endl;
@@ -109,6 +113,7 @@ void Server::handleSignals()
 //                // Other errors
 //                std::cout << "Error on recv and negative bytes" << std::endl;
 //                close(fd);
+//
 //                fd = -1; // Mark for removal
 //                break;
 //            }
@@ -133,40 +138,40 @@ void Server::handleExistingConnection(int fd)
 	memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
 	while (true)
 	{
+		std::cout << "before recv this is fd: " << fd << std::endl;
 		int bytes = recv(fd, buffer, sizeof(buffer), 0);
 		if (bytes == -1)
 		{
-			std::cout << "bytes == -1" << bytes << std::endl;
+			std::cout << "bytes == " << bytes << std::endl;
 			std::cerr << "recv() error: " << strerror(errno) << std::endl;
 			// Client disconnected or error
 			if (errno == EINTR) 
-			{
-				// Interrupted by a signal, try again
-				continue;
-			} 
+				return;
+			if (errno == EAGAIN || errno == EWOULDBLOCK) 
+				return;
 			else 
 			{
-				std::cout << "Error on recv and negative bytes" << std::endl;
+				std::cout << "ERROR on recv" << std::endl;
 				close(fd);
 				fd = -1; // Mark for removal
 				return;
 				// Error
 			}
-			if (bytes == 0) 
-			{
-				std::cout << "Client disconnected" << std::endl;
-				close(fd);
-				fd = -1; // Mark for removal
-				return;
-				//clearClients(fd);
-			} 
-			else 
-			{
-				std::cout << "Here we should be handling incoming data..." << std::endl;
-				std::cout << "Number of received bytes: " << bytes << std::endl;
-				std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
-				// Handle data...
-			}
+		}
+		if (bytes == 0) 
+		{
+			std::cout << "Client disconnected" << std::endl;
+			close(fd);
+			fd = -1; // Mark for removal
+			return;
+			//clearClients(fd);
+		} 
+		else 
+		{
+			std::cout << "Here we should be handling incoming data..." << std::endl;
+			std::cout << "Number of received bytes: " << bytes << std::endl;
+			std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
+			// Handle data...
 		}
 	}
 }
@@ -175,9 +180,15 @@ void Server::handleExistingConnection(int fd)
  {
      //_signal = true;
 	 std::cout << "Starting server .." << std::endl;
+	 //std::cout << "number of pollfd " << _fds.size() << std::endl;
      while (!_signal)// maybe while(_signal == false)
      {
-			 pollFds();
+			 int ready = pollFds();
+			 if (ready == -1)
+			 {
+				 perror("poll");
+				 break;
+			 }
 			 for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) 
 			 {
 				 if (it->revents & POLLIN) 
@@ -191,7 +202,8 @@ void Server::handleExistingConnection(int fd)
 						 handleExistingConnection(it->fd);
 					 }
 				 }
-				 if (it->fd == -1) {
+				 if (it->fd == -1) 
+				 {
 					 it = _fds.erase(it);
 				 } 
 				 else 
@@ -301,7 +313,7 @@ void Server::bindSocket()
     if (bind(_socket, _servInfo->ai_addr, _servInfo->ai_addrlen) == -1)
     {
         errorSocketBinding(errno);
-        //close(_socket); // Close the socket on error
+        close(_socket); // Close the socket on error
         exit(1);
     }
 }
