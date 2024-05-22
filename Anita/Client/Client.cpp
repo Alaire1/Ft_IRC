@@ -1,5 +1,5 @@
 #include "Client.hpp"
-#include <netdb.h>
+
 
 Client::Client(void) {}
 

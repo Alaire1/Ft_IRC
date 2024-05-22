@@ -25,7 +25,7 @@ class Server
         struct addrinfo 	*_servInfo; // struct needed to create a socket
         int 							_port;
         std::string 			_password;
-        //bool _isRunning = false;
+        //bool 							_isRunning;
         std::vector<struct Client> _clients;
         std::vector<struct pollfd> _fds;
     
@@ -73,6 +73,7 @@ class Server
 
         //testing
         void    printPassword();
+				void 		printclientfds(std::vector<struct Client> clients);
        
 };
 

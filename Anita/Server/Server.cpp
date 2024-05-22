@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include <asm-generic/socket.h>
+#include <cstring>
 #include <netdb.h>
 #include <string>
 #include <sys/socket.h>
@@ -47,7 +48,7 @@ void Server::handleSignals()
  }
 
  void Server::handleNewConnection() {
-	 std::cout << "inside new Connection" << std::endl;
+	 std::cout << "Handle new connection" << std::endl;
      Client cli;
      struct sockaddr_in clientAddr;
      socklen_t addrLen = sizeof(clientAddr);
@@ -55,9 +56,17 @@ void Server::handleSignals()
 
 		 if (newFd == -1) 
 		 {
-			 //errorAccept(errno);
-			 std::cout << "error accept"  << std::endl;
-			 return;
+			 if (errno == EAGAIN || errno == EWOULDBLOCK) 
+			 {
+				 // No pending connections, not an error
+				 return;
+			 }
+			 else
+			 {
+				 //errorAccept(errno);
+				 std::cout << "error accept " << strerror(errno) << std::endl;
+				 return;
+			 }
 		 }
 		 else
 			 std::cout << "Accept success!!" << std::endl;
@@ -65,6 +74,8 @@ void Server::handleSignals()
      cli.setFd(newFd);//-> set the client file descriptor
  		 cli.setIpAdd(inet_ntoa(clientAddr.sin_addr)); //-> convert the ip address to string and set it
  		 _clients.push_back(cli); //-> add the client to the vector of clients
+		 std::cout << "client fd added to vector!!" << std::endl;
+		 printclientfds(_clients);
  }
 
  void Server::addFd(int newFd, short events)
@@ -76,99 +87,99 @@ void Server::handleSignals()
 			_fds.push_back(newPoll); //-> add the client socket to the pollfd
  }
 
-void Server::handleExistingConnection(int fd) {
-    std::cout << "inside existing Connection" << std::endl;
-    char buffer[1024];
-    memset(buffer, 0, sizeof(buffer)); // Clear the buffer
-
-    while (true) {
-        int bytes = recv(fd, buffer, sizeof(buffer), 0);
-
-        if (bytes == -1) {
-            std::cout << "Bytes is " << bytes << std::endl;
-            std::cerr << "recv() error: " << strerror(errno) << std::endl;
-
-            if (errno == EINTR) {
-                // Interrupted by a signal, try again
-                continue;
-            } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                // No data available for non-blocking socket
-                break;
-            } else {
-                // Other errors
-                std::cout << "Error on recv and negative bytes" << std::endl;
-                close(fd);
-                fd = -1; // Mark for removal
-                break;
-            }
-        } else if (bytes == 0) {
-            // Client disconnected
-            std::cout << "Client disconnected" << std::endl;
-            close(fd);
-            fd = -1; // Mark for removal
-            break;
-        } else {
-            // Handle the received data
-            std::cout << "Here we should be handling incoming data..." << std::endl;
-            std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
-        }
-    }
-}
 //void Server::handleExistingConnection(int fd) {
-//	 std::cout << "inside existing Connection" << std::endl;
-//		char buffer[1024];
-//		memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
-//		int bytes = recv(fd, buffer, sizeof(buffer), 0);
-//		if (bytes == -1)
-//			std::cout << "Bytes is -1" << std::endl;
-//		while (1)
-//		{
-//			if (bytes <= 0) 
-//			{
-//				// Client disconnected or error
-//				if (bytes == 0) 
-//				{
-//					//clearClients(fd);
-//					continue;
-//				} 
-//				else 
-//				{
-//					std::cout << "Error on recv and negative bytes" << std::endl;
-//					break;
-//					// Error
-//				}
-//				close(fd);
-//				fd = -1; // Mark for removal
-//			} 
-//			else 
-//			{
-//				std::cout << "Here we should be handling incoming data..." << std::endl;
-//				// Handle data...
-//			}
-//		}
-////		if (bytes <= 0) {
-////			// Client disconnected or error
-////			if (bytes == 0) {
-////				clearClients(fd);
-////			} else {
-////				std::cout << "Error on recv and negative bytes" << std::endl;
-////				// Error
-////			}
-////			close(fd);
-////			fd = -1; // Mark for removal
-////		} else {
-////				std::cout << "Here we should be handling incoming data..." << std::endl;
-////			// Handle data...
-////		}
+//    std::cout << "inside existing Connection" << std::endl;
+//    char buffer[1024];
+//    memset(buffer, 0, sizeof(buffer)); // Clear the buffer
+//
+//    while (true) {
+//        int bytes = recv(fd, buffer, sizeof(buffer), 0);
+//
+//        if (bytes == -1) {
+//            std::cout << "Bytes is " << bytes << std::endl;
+//            std::cerr << "recv() error: " << strerror(errno) << std::endl;
+//
+//            if (errno == EINTR) {
+//                // Interrupted by a signal, try again
+//                continue;
+//            } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+//                // No data available for non-blocking socket
+//                break;
+//            } else {
+//                // Other errors
+//                std::cout << "Error on recv and negative bytes" << std::endl;
+//                close(fd);
+//                fd = -1; // Mark for removal
+//                break;
+//            }
+//        } else if (bytes == 0) {
+//            // Client disconnected
+//            std::cout << "Client disconnected" << std::endl;
+//            close(fd);
+//            fd = -1; // Mark for removal
+//            break;
+//        } else {
+//            // Handle the received data
+//            std::cout << "Here we should be handling incoming data..." << std::endl;
+//            std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
+//        }
+//    }
 //}
+
+void Server::handleExistingConnection(int fd) 
+{
+	std::cout << "Handle existing Connectionnnnnnnnnnnnnnnnnnnnnnnnnnnn" << std::endl;
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
+	while (true)
+	{
+		int bytes = recv(fd, buffer, sizeof(buffer), 0);
+		if (bytes == -1)
+		{
+			std::cout << "bytes == -1" << bytes << std::endl;
+			std::cerr << "recv() error: " << strerror(errno) << std::endl;
+			// Client disconnected or error
+			if (errno == EINTR) 
+			{
+				// Interrupted by a signal, try again
+				continue;
+			} 
+			else 
+			{
+				std::cout << "Error on recv and negative bytes" << std::endl;
+				close(fd);
+				fd = -1; // Mark for removal
+				return;
+				// Error
+			}
+			if (bytes == 0) 
+			{
+				std::cout << "Client disconnected" << std::endl;
+				close(fd);
+				fd = -1; // Mark for removal
+				return;
+				//clearClients(fd);
+			} 
+			else 
+			{
+				std::cout << "Here we should be handling incoming data..." << std::endl;
+				std::cout << "Number of received bytes: " << bytes << std::endl;
+				std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
+				// Handle data...
+			}
+		}
+	}
+}
+
  void Server::startServer()
  {
      //_signal = true;
 	 std::cout << "Starting server .." << std::endl;
-     while (_signal == false)// maybe while(_signal == false)
+     while (!_signal)// maybe while(_signal == false)
      {
 			 pollFds();
-			 for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) {
+			 for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ) 
+			 {
 				 if (it->revents & POLLIN) 
 				 {
 					 if (it->fd == _socket) 
@@ -186,7 +197,7 @@ void Server::handleExistingConnection(int fd) {
 				 else 
 				 {
 					 //std::cout << "it revents: " << it->revents << std::endl;
-					 std::cout << "it : " << it->fd << std::endl;
+					 //std::cout << "it : " << it->fd << std::endl;
 					 //std::cout << "it events: " << it->events << std::endl;
 					 ++it;
 				 }
@@ -255,7 +266,7 @@ void Server::createSocket()
 //	std::cout << _servInfo->ai_socktype << std::endl;
 //	std::cout << _servInfo->ai_protocol << std::endl;
     _socket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
-		std::cout << "_socket: " << _socket << std::endl;
+		//std::cout << "_socket: " << _socket << std::endl;
     if (_socket == -1)
     {
         errorSocketCreation(errno);
@@ -334,14 +345,28 @@ int Server::getSocket() const
 {
     return (_socket);
 }
-bool Server::_signal = false; //-> initialize the static boolean
+bool Server::_signal = false;
 void Server::signalHandler(int signum)
 {
     std::cout  << "Signal received: " << signum  << std::endl;
-		Server::_signal = true; //-> set the static boolean to true to stop the server
+		_signal = true;
+
 }
  
 void Server::printPassword()
 {
     std::cout << "Password: " << _password << std::endl;
 }
+
+void Server::printclientfds(std::vector<struct Client> clients)
+{
+	int i = 0;
+	for(std::vector<struct Client>::iterator it = clients.begin(); it != clients.end();)
+	{
+		std::cout << "Client " << i << " fd: " << it->getFd() << std::endl;
+		it++;
+		i++;
+	}
+}
+
+
