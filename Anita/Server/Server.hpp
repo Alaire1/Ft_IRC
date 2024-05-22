@@ -28,12 +28,12 @@ class Server
         //bool 							_isRunning;
         std::vector<struct Client> _clients;
         std::vector<struct pollfd> _fds;
-    
+
     public:
         Server();
         Server(int port, std::string password);
         ~Server();
-     
+
         void    createServer();
 
         // 	starting server & accepting clients/data
@@ -43,7 +43,8 @@ class Server
 				void 		handleNewConnection();
 				void 		addFd(int fd, short events);
 				void 		setIpAdd(std::string ipadd);
-        
+				int 		clientAccept();
+
         // socket handling
         void    initializeHints();
         void    createSocket();
@@ -74,7 +75,8 @@ class Server
         //testing
         void    printPassword();
 				void 		printclientfds(std::vector<struct Client> clients);
-       
+				void        printfds(std::vector<struct pollfd> fds);
+
 };
 
 #endif

@@ -5,9 +5,9 @@ Client::Client(void) {}
 
 Client::Client(const std::string& ipAdd, const std::string& port) : _ipAdd(ipAdd), _port(port), _fd(-1) {}
 
-Client::~Client(void) 
+Client::~Client(void)
 {
-	if (_fd != -1) 
+	if (_fd != -1)
 		close(_fd);
 }
 
@@ -57,27 +57,29 @@ bool Client::connectServer()
 	return true;
 }
 
-void Client::sendMessage(const std::string& message) 
+void Client::sendMessage(const std::string& message)
 {
-	if (send(_fd, message.c_str(), message.length(), 0) == -1) 
+	if (send(_fd, message.c_str(), message.length(), 0) == -1)
 		perror("send");
+	std::cout << "Message sent" << std::endl;
+
 }
 
-void Client::receiveMessage() 
+void Client::receiveMessage()
 {
 	char buffer[1024];
-	while (true) 
+	while (true)
 	{
 		memset(buffer, 0, sizeof(buffer));
 		int bytes_received = recv(_fd, buffer, sizeof(buffer) - 1, 0);
 		if (bytes_received > 0)
 			std::cout << "Server: " << buffer << std::endl;
-		else if (bytes_received == 0) 
+		else if (bytes_received == 0)
 		{
 			std::cout << "Connection closed by server." << std::endl;
 			break;
 		}
-		else 
+		else
 		{
 			perror("recv");
 			break;
