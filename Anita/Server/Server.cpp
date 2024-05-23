@@ -30,10 +30,18 @@ void Server::createServer()
 	createAndSetSocket();
 	startServer();
 }
+void Server::handle_sigstop(int sig)
+{
+    if (sig == SIGTSTP)
+    {
+        std::cout << "SIGTSTP received. Stopping server..." << std::endl;
+        _signal = true;
+    }
+}
 void Server::handleSignals()
 {
-    signal(SIGINT, signalHandler);
-    signal(SIGTERM, signalHandler);
+    // signal(SIGINT, signalHandler);
+	signal(SIGTSTP, handle_sigstop);
 }
 
 
@@ -146,7 +154,7 @@ void Server::handleExistingConnection(int fd)
 {
 	std::cout << "Handle existing Connectionnnnnnnnnnnnnnnnnnnnnnnnnnnn" << std::endl;
 	char buffer[1024];
-	memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
+	
 	while (true)
 	{
 		std::cout << "before recv this is fd: " << fd << std::endl;
@@ -174,8 +182,8 @@ void Server::handleExistingConnection(int fd)
 			std::cout << "Client disconnected" << std::endl;
 			close(fd);
 			fd = -1; // Mark for removal
-			return;
 			clearClients(fd);
+			return;
 		}
 		else
 		{
@@ -183,54 +191,35 @@ void Server::handleExistingConnection(int fd)
 			std::cout << "Number of received bytes: " << bytes << std::endl;
 			std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
 
-			// Handle data...
 		}
+		memset(buffer, 0, sizeof(buffer)); //-> clear the buffer
 	}
 }
 
 void Server::startServer()
 {
-	//char buffer[1024];
-	std::cout << "Starting server .." << std::endl;
-    while (!_signal)
-    {
-			int ready = pollFds();
-			if (ready == -1)
+	
+	while (!_signal)
+	{
+		if (poll(&_fds[0], _fds.size(), -1) == -1 && !_signal)
+			std::cerr << "Error polling" << std::endl;
+		else 
+		{
+			if (_fds[0].revents & POLLIN)
+				clientAccept(); // creating new client
+			for (size_t i = 1; i < _fds.size(); i++)
 			{
-				 perror("poll");
-				 break;
-			}
-			for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end();)
-			{
-				if (it->revents & POLLIN)
+				//std::cout << "  connection" << std::endl;
+
+				if (_fds[i].revents & POLLIN)
 				{
-				clientAccept();
-				std::cout << "New Iteration of it ()" << std::endl;
-				//	 bzero(buffer, sizeof(buffer));
-				//	 recv(it->fd, buffer, sizeof(buffer), 0);
-					if (it->fd == _socket)
-					{
-						 handleNewConnection();
-						 break;
-					}
-					else
-					{
-						std::cout << "before Handleexistingco... it->fd: " << it->fd << std::endl;
-						handleExistingConnection(it->fd);
-						break;
-					}
-				}
-				//if (it->fd == -1)
-				//{
-				//	it = _fds.erase(it);
-				//}
-				else
-				{
-					++it;
+					std::cout << "Handling existing connection" << std::endl;
+					handleExistingConnection(_clients[i - 1].getFd()); // reading data from client
 				}
 			}
-     }
-		closeFds();
+	
+		}
+	}
 }
 
 void Server::closeFds()
@@ -387,6 +376,7 @@ void Server::printclientfds(std::vector<struct Client> clients)
 	for(std::vector<struct Client>::iterator it = clients.begin(); it != clients.end();)
 	{
 		std::cout << "Client " << i << " fd: " << it->getFd() << std::endl;
+		
 		it++;
 		i++;
 	}
@@ -397,14 +387,18 @@ void Server::printfds(std::vector<struct pollfd> fds)
 	for(std::vector<struct pollfd>::iterator it = fds.begin(); it != fds.end(); it++)
 	{
 		std::cout <<  " fd: " << it->fd << std::endl;
+		std::cout << " revents: " << it->revents << std::endl;
 	}
 }
 
 int Server::clientAccept()
 {
+	std::cout << "Client Accept" << std::endl;
 	struct sockaddr_in	addr;
+	socklen_t			addrLength = sizeof(addr);
 	Client cli;
 	int clientSocket = accept(_socket, (struct sockaddr *)&addr, &addrLength);
+	std::cout << "Client socket: " << clientSocket << std::endl;
 	if (clientSocket < 0) {
 		std::cerr <<"Error accepting client" << std::endl;
 		return (1);
@@ -417,13 +411,15 @@ int Server::clientAccept()
 	struct pollfd	newClientFD;
 	newClientFD.fd = clientSocket;
 	newClientFD.events = POLLIN;
-	newClientFD.revents = 0;
+	//newClientFD.revents = 0;
 	cli.setFd(clientSocket);					  //-> set the client file descriptor
 	//cli.setIpAdd(inet_ntoa(clientAddr.sin_addr));
 	//Client	newClient(clientSocket);
 
 	_clients.push_back(cli);
 	_fds.push_back(newClientFD);
+	printclientfds(_clients);
+	printfds(_fds);
 	return (0);
 }
 

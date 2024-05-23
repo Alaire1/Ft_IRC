@@ -61,6 +61,8 @@ class Server
         //signal handling
         void   handleSignals();
         static void	signalHandler(int signum);
+        static void   handle_sigstop(int sig);
+      
 
         //error handling
         void    errorPrintGetaddrinfo(int status);
