@@ -22,39 +22,39 @@ class Server
     private:
 				static bool 			_signal; //-> static boolean for signal
         int 							_socket;
-        struct addrinfo 	*_servInfo; // struct needed to create a socket
         int 							_port;
         std::string 			_password;
-        //bool 							_isRunning;
-        std::vector<struct Client> _clients;
+				struct addrinfo*  _servInfo;
         std::vector<struct pollfd> _fds;
+        std::vector<struct Client> _clients;
 
     public:
         Server();
         Server(int port, std::string password);
         ~Server();
 
-        void    createServer();
 
         // 	starting server & accepting clients/data
+        void    createServer();
         void   	startServer();
-        int 		pollFds();
-				void 		handleExistingConnection(int fd);
 				void 		handleNewConnection();
-				void 		addFd(int fd, short events);
-				void 		setIpAdd(std::string ipadd);
-				int 		clientAccept();
+				void 		handleExistingConnection(int fd);
+				//void 		clientAccept();
 
+				//Functions
+				void 		addFd(int fd, short events);
+        int 		pollFds();
+				
         // socket handling
         void    initializeHints();
-        void    createSocket();
+        void    createAndSetSocket();
+        //void    createSocket();
         int     getSocket() const;
-        void    setSocketReusable();
-        void    nonBlockingSocket();
-        void    bindSocket();
-        void    listenSocket();
-        int     createAndSetSocket();
-        void    initialize_pollfd();
+        //void    setSocketReusable();
+        //void    nonBlockingSocket();
+        //void    bindSocket();
+        //void    listenSocket();
+        //void    initialize_pollfd();
 				void 		closeFds();
 				void 		clearClients(int fd);
 
@@ -77,7 +77,7 @@ class Server
         //testing
         void    printPassword();
 				void 		printclientfds(std::vector<struct Client> clients);
-				void        printfds(std::vector<struct pollfd> fds);
+				void    printfds(std::vector<struct pollfd> fds);
 
 };
 
