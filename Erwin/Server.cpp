@@ -66,6 +66,7 @@ void Server::startServer() {
 }
 
 void Server::handleNewConnection() {
+    std::cout << "Handle NEWWWW" << std::endl;
     struct sockaddr_in addr;
     socklen_t addrLen = sizeof(addr);
     int clientSocket = accept(_socket, (struct sockaddr *)&addr, &addrLen);
@@ -90,8 +91,10 @@ void Server::handleNewConnection() {
 }
 
 void Server::handleExistingConnection(int fd) {
+    std::cout << "Handle existing Connectionnnnnnnnnnnnnnnnnnnnnnnnnnnn" << std::endl;
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
+    std::cout << "FD: " << fd << std::endl;
     int bytes = recv(fd, buffer, sizeof(buffer), 0);
     if (bytes < 0) {
         perror("Recv failed");

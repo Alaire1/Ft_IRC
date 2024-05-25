@@ -91,7 +91,6 @@ void Server::handleSignals()
 void Server::handleExistingConnection(int fd)
 {
 	std::cout << "Handle existing Connectionnnnnnnnnnnnnnnnnnnnnnnnnnnn" << std::endl;
-
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 	std::cout << "before recv this is fd: " << fd << std::endl;
@@ -112,23 +111,21 @@ void Server::handleExistingConnection(int fd)
 	}
 	else
 	{
-		buffer[bytes] = '\0';
+		//buffer[bytes] = '\0';
 		std::cout << "Here we should be handling incoming data..." << std::endl;
-		std::cout << "[Client " << fd << " ]";
+		std::cout << "[Client " << fd << " ] ";
 		std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
 
 	}
-	closeFds();
 }
 
 void Server::startServer()
 {
 	std::cout << "Server < " << _socket << " > waiting for connection... " << std::endl;
 
-
 	while (!Server::_signal)
 	{
-		if ((poll(&_fds[0], _fds.size(), -1) == -1) && !_signal)
+		if ((poll(_fds.data(), _fds.size(), -1) == -1) && !_signal)
 		{
 			std::cerr << "Error polling" << std::endl;
 			break;
@@ -142,14 +139,14 @@ void Server::startServer()
 				if(_fds[i].fd == _socket)
 				{
 					std::cout << "Client accepted" << std::endl;
-					handleExistingConnection(_fds[i].fd);
-					break;
+					handleNewConnection();
+					//break;
 				}
 				else
 				{
 					std::cout << "Handling existing connection" << std::endl;
 					handleExistingConnection(_fds[i].fd); // reading data from client
-					break;
+					//break;
 				}
 			}
 		}

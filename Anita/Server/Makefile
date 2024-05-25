@@ -22,7 +22,6 @@ PRUNE = git fetch --prune
 all : $(NAME)
 
 $(NAME) : $(OBJ)
-	$(PRUNE)
 	$(CXX) $(CXXFLAGS) $(STDFLAG) $(OBJ) -o $(NAME)
 
 clean :
