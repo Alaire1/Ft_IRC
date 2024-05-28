@@ -1,5 +1,6 @@
 NAME = ircserv
 
+
 #SRC_DIR = src
 
 SRC = server_main.cpp \

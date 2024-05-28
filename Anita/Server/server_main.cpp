@@ -2,6 +2,7 @@
 #include "HelperFunctions.hpp"
 
 #include <cstring>
+#include <exception>
 int main(int ac, char **av)
 {
     if (ac != 3)
@@ -12,9 +13,17 @@ int main(int ac, char **av)
     checkIfPortIsValid(av[1]);
     checkPassword(av[2]);
     Server ourServer(atoi(av[1]), av[2]); 
-
-    ourServer.createServer();
-    std::cout << "socket: " << ourServer.getSocket() << std::endl;
-    ourServer.printPassword();
+		try
+		{
+			signal(SIGINT, Server::signalHandler);
+			signal(SIGQUIT, Server::signalHandler);
+			ourServer.createServer();
+		}
+		catch(const std::exception& e)
+		{
+			ourServer.closeFds();
+			std::cerr << e.what() << std::endl;
+		}
+		std::cout << "The Server destroyed" << std::endl;
     return (0);
 }

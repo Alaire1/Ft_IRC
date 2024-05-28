@@ -2,6 +2,7 @@
 # define SERVER_HPP
 #include <sys/socket.h>
 #include <ostream>
+#include <cstdlib>
 #include <netdb.h>
 #include <signal.h>
 #include <iostream>
@@ -13,20 +14,18 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <vector>
-#include <cstdlib>
-#include "../Client/Client.hpp"
+#include "Client.hpp"
 
 #define BACKLOG 10 // common choice between 5 and 10 // may be changed
 class Server
 {
     private:
 				static bool 			_signal; //-> static boolean for signal
-        int 							_socket;
+        int 							_servSocket;
         int 							_port;
         std::string 			_password;
-				struct addrinfo*  _servInfo;
-        std::vector<struct pollfd> _fds;
-        std::vector<struct Client> _clients;
+        std::vector<Client> _clients;
+        std::vector<pollfd> _fds;
 
     public:
         Server();
@@ -35,33 +34,27 @@ class Server
 
 
         // 	starting server & accepting clients/data
-        void    createServer();
+        void    createServer();// server initialization
+        void    createAndSetSocket();
         void   	startServer();
 				void 		handleNewConnection();
 				void 		handleExistingConnection(int fd);
-				//void 		clientAccept();
 
 				//Functions
 				void 		addFd(int fd, short events);
         int 		pollFds();
 				
         // socket handling
-        void    initializeHints();
-        void    createAndSetSocket();
+
         //void    createSocket();
         int     getSocket() const;
-        //void    setSocketReusable();
-        //void    nonBlockingSocket();
-        //void    bindSocket();
-        //void    listenSocket();
-        //void    initialize_pollfd();
+        //signal handling
+
+        static void	signalHandler(int signum);
+
+        //terminating
 				void 		closeFds();
 				void 		clearClients(int fd);
-
-        //signal handling
-        void   handleSignals();
-        static void	signalHandler(int signum);
-        static void   handle_sigstop(int sig);
       
 
         //error handling
