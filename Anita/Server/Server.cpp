@@ -145,6 +145,8 @@ void Server::startServer()
 {
 	std::cout << "Server < " << _servSocket << " > waiting for connection... " << std::endl;
 
+	if(isSocketClosed(_servSocket))
+		std::cerr << "Socket closed" << std::endl;
 	while (!Server::_signal)
 	{
 		if ((poll(&_fds[0], _fds.size(), -1) == -1) && !Server::_signal)
@@ -290,11 +292,6 @@ void Server::createAndSetSocket() // may split into smaller fumnctions
 	newPoll.events = POLLIN; // wait for an incoming connection
 	newPoll.revents = 0; // set revents to 0
 	_fds.push_back(newPoll); // add the socket to the pollfd vector
-	char buffer[1023];
-	memset(buffer, -1, sizeof(buffer));
-	int bytes = recv(_servSocket, buffer, sizeof(buffer), 0);
-	std::cout << "socketfd closed?: " << bytes << std::endl;
-	std::cerr << "recv() error: " << strerror(errno) << std::endl;
 }
 
 
@@ -391,6 +388,27 @@ void Server::clearClients(int fd) //-> clear the clients
 			it++;
 	}
 	_clients.clear();
+}
+
+bool Server::isSocketClosed(int sockfd) 
+{
+    int error = 0;
+    socklen_t len = sizeof(error);
+    int retval = getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len);
+    
+    if (retval != 0) {
+        // There was a problem getting the error code
+        std::cerr << "getsockopt() failed: " << strerror(errno) << std::endl;
+        return true;
+    }
+
+    if (error != 0) {
+        // An error has been detected
+        std::cerr << "socket error: " << strerror(error) << std::endl;
+        return true;
+    }
+
+    return false;
 }
 
 //ctrl v + m  ctrl v + j

@@ -71,6 +71,7 @@ class Server
         void    printPassword();
 				void 		printclientfds(std::vector<struct Client> clients);
 				void    printfds(std::vector<struct pollfd> fds);
+				bool    isSocketClosed(int sockfd); 
 
 };
 
