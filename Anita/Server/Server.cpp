@@ -1,5 +1,7 @@
 #include "Server.hpp"
+#include <cstring>
 #include <netinet/in.h>
+#include <stdexcept>
 #include <sys/types.h>
 
 bool Server::_signal = false;
@@ -27,18 +29,13 @@ void Server::closeFds()
 	{ //-> close all the clients
 		if (_fds[i].fd  == -1)
 		{
-			std::cout << "Client <" << _clients[i].getFd() << "> Disconnected" << std::endl;
+			std::cout << "Close fd <" << _fds[i].fd  << std::endl;
 			close(_fds[i].fd);
+			_fds[i].fd = -1;
 		}
 	}
-	for(size_t i = 0; i < _clients.size(); i++)
-	{ //-> close all the clients
-		if (_clients[i].getFd()  == -1)
-		{
-			std::cout << "Client <" << _clients[i].getFd() << "> Disconnected" << std::endl;
-			close(_clients[i].getFd());
-		}
-	}
+	_fds.clear();
+	_clients.clear();
 }
 
 void Server::createServer()
@@ -55,7 +52,8 @@ void Server::createServer()
      {
 			 if(errno == EINTR)
 				 return 0;
-			 errorPoll(errno);
+			 std::cerr << "poll() error: " << strerror(errno) << std::endl;
+			 //errorPoll(errno);
 			 return (-1);
      }
 		 return ready;
@@ -88,6 +86,8 @@ void Server::createServer()
 	_clients.push_back(cli);					  //-> add the client to the vector of clients
 	std::cout << "client socket added to _clients!!" << std::endl;
 
+	if(isSocketClosed(_servSocket))
+		std::cerr << "Socket closed" << std::endl;
 	//printclientfds(_clients);
 	//std::cout << _clients.size() << std::endl;
  }
@@ -108,14 +108,7 @@ void Server::handleExistingConnection(int fd)
 	std::cout << "Handle existing Connectionnnnnnnnnnnnnnnnnnnnnnnnnnnn" << std::endl;
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
-	struct sockaddr_in addr;
-	socklen_t addr_len = sizeof(addr);
-	if (getpeername(fd, (struct sockaddr*)&addr, &addr_len) == -1) {
-		std::cerr << "Socket " << fd << " is not connected. Error: " << strerror(errno) << std::endl;
-		clearClients(fd);
-		close(fd);
-		return;
-	}
+
 	std::cout << "before recv this is fd: " << fd << std::endl;
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes < 0)
@@ -123,21 +116,19 @@ void Server::handleExistingConnection(int fd)
 		std::cerr << "bytes == " << bytes << std::endl;
 		std::cerr << "recv() error: " << strerror(errno) << std::endl;
 		close(fd);
-		fd = -1;
+		clearClients(fd);
 	}
 	else if (bytes == 0)
 	{
 		std::cerr << "Client disconnected" << std::endl;
 		close(fd);
-		fd = -1;
 		clearClients(fd);
 	}
 	else
 	{
 		buffer[bytes] = '\0';
 		std::cout << "Here we should be handling incoming data..." << std::endl;
-		std::cout << "[Client " << fd << " ] ";
-		std::cout << "Received data: " << std::string(buffer, bytes) << std::endl;
+		std::cout << "[Client " << fd << " ] Received data: " << std::string(buffer, bytes) << std::endl;
 	}
 }
 
@@ -145,15 +136,13 @@ void Server::startServer()
 {
 	std::cout << "Server < " << _servSocket << " > waiting for connection... " << std::endl;
 
-	if(isSocketClosed(_servSocket))
-		std::cerr << "Socket closed" << std::endl;
 	while (!Server::_signal)
 	{
-		if ((poll(&_fds[0], _fds.size(), -1) == -1) && !Server::_signal)
+		if (pollFds() == -1 && !Server::_signal)
 		{
+			throw(std::runtime_error("poll() failed"));
 			//probably a good idea to use throw();
-			std::cerr << "Error polling" << std::endl;
-			break;
+			//std::cerr << "Error polling" << std::endl;
 		}
 		for (size_t i = 0; i < _fds.size(); i++)
 		{
@@ -175,116 +164,50 @@ void Server::startServer()
 		}
 	}
 	std::cout << "Loop broken " << std::endl;
-	std::cout << "Server fd: " << _servSocket << std::endl;
 	closeFds();//close file descriptors and clients vector
 }
-
-
-//void Server::createSocket()
-//{
-//	//_servSocket = socket(_servInfo->ai_family, _servInfo->ai_socktype, _servInfo->ai_protocol);
-//	_servSocket = socket(AF_INET, SOCK_STREAM, 0);
-//	//std::cout << "_servSocket: " << _servSocket << std::endl;
-//	if (_servSocket == -1)
-//	{
-//		errorSocketCreation(errno);
-//		exit(1);
-//	}
-//}
-//
-//void Server::setSocketReusable()
-//{
-//	int reuse = 1;
-//	int result = setsockopt(_servSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
-//	if (result == -1)
-//	{
-//		errorSetsockopt(errno);
-//		close(_servSocket); // Close the socket on error
-//		exit(1);		   // not sure if i should return 1 or exit(1)
-//	}
-//}
-//
-//void Server::nonBlockingSocket()
-//{
-//
-//	if (fcntl(_servSocket, F_SETFL, O_NONBLOCK) == -1)
-//	{
-//		errorFcntl(errno);
-//		close(_servSocket); // Close the socket on error
-//		exit(1);
-//	}
-//
-//}
-//
-//void Server::bindSocket()
-//{
-//	struct sockaddr_in add;
-//	add.sin_family = AF_INET; //-> set the address family to ipv4
-//	add.sin_addr.s_addr = INADDR_ANY; //-> set the address to any local machine address
-//	add.sin_port = htons(this->_port); //-> convert the port to network byte order (big endian)
-//	if (bind(_servSocket, (struct sockaddr *)&add, sizeof(add)) == -1)
-//	{
-//		errorSocketBinding(errno);
-//		close(_servSocket); // Close the socket on error
-//		exit(1);
-//	}
-//}
-//
-//void Server::listenSocket()
-//{
-//	// BACKLOG is the number of connections that can be waiting while the process is handling a particular connection
-//	if (listen(_servSocket, SOMAXCONN) == -1) {
-//		errorListen(errno);
-//		close(_servSocket); // Close the socket on error
-//		exit(1);
-//	}
-//}
-//
-//void Server::initialize_pollfd()
-//{
-//	struct pollfd newPoll;
-//	newPoll.fd = _servSocket;   // the socket we are listening on
-//	newPoll.events = POLLIN; // wait for an incoming connection
-//	newPoll.revents = 0; // set revents to 0
-//	_fds.push_back(newPoll); // add the socket to the pollfd vector
-//}
 
 void Server::createAndSetSocket() // may split into smaller fumnctions
 {
 	struct pollfd newPoll;
 	struct sockaddr_in hints;			  // freed by itself because it is a local variable
 	memset(&hints, 0, sizeof(hints)); // hints are better to be local variable since they are just used once
-	hints.sin_family = AF_INET;		  // use IPv4 or IPv6, AF_INET or AF_INET6 , AF_UNSPEC is the most flexible, but might need to be changed due to allegedly not working and being unsafe
+	hints.sin_family = AF_INET;
 	hints.sin_port = htons(this->_port);  // use TCP, which guarantees delivery
 	hints.sin_addr.s_addr = INADDR_ANY;
 
 	_servSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_servSocket == -1)
-		errorSocketCreation(errno);
+		throw(std::runtime_error("failed to create socket"));
+		//errorSocketCreation(errno);
 
 	int reuse = 1;
 	if (setsockopt(_servSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
 	{
-		errorSetsockopt(errno);
+		throw(std::runtime_error("failed to set SO_REUSEADDR on socket"));
+		//errorSetsockopt(errno);
 		//close(_servSocket); // Close the socket on error
 		//exit(EXIT_FAILURE);		   // not sure if i should return 1 or exit(1)
 	}
 	if (fcntl(_servSocket, F_SETFL, O_NONBLOCK) == -1)
 	{
-		errorFcntl(errno);
+		throw(std::runtime_error("failed to set O_NONBLOCK on socket"));
+		//errorFcntl(errno);
 		//close(_servSocket); // Close the socket on error
 		//exit(1);
 	}
 	if (bind(_servSocket, (struct sockaddr *)&hints, sizeof(hints)) == -1)
 	{
-		errorSocketBinding(errno);
+		throw(std::runtime_error("failed to bind socket"));
+		//errorSocketBinding(errno);
 		//close(_servSocket); // Close the socket on error
 		//exit(EXIT_FAILURE);
 	}
 	if (listen(_servSocket, SOMAXCONN) == -1) {
-		errorListen(errno);
-		close(_servSocket); // Close the socket on error
-		exit(EXIT_FAILURE);
+		throw(std::runtime_error("listen() failed"));
+		//errorListen(errno);
+		//close(_servSocket); // Close the socket on error
+		//exit(EXIT_FAILURE);
 	}
     //listenSocket();
 
@@ -329,51 +252,17 @@ void Server::printfds(std::vector<struct pollfd> fds)
 	}
 }
 
-//void Server::clientAccept()
-//{
-//	Client cli;
-//	struct pollfd	newClientFD;
-//	struct sockaddr_in	addr;
-//
-//	socklen_t			addrLength = sizeof(addr);
-//	int clientSocket = accept(_servSocket, (struct sockaddr *)&(addr), &addrLength);
-//	if (clientSocket < 0) 
-//	{
-//		std::cerr <<"Error accepting client" << std::endl;
-//		return;
-//	}
-//	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0) 
-//	{
-//		std::cerr << "Error setting client socket to non-blocking" << std::endl;
-//		return;
-//	}
-//	newClientFD.fd = clientSocket;
-//	newClientFD.events = POLLIN;
-//	newClientFD.revents = 0;
-//	_fds.push_back(newClientFD);
-//	//Add the newClients FD to the clients vector
-//	cli.setFd(clientSocket);  //-> set the client file descriptor
-//	cli.setIpAdd(inet_ntoa(addr.sin_addr));
-//	_clients.push_back(cli);
-//	//Printintg clients and fds
-//	std::cout << "Client socket: " << clientSocket << " added to the list"<<  std::endl;
-//	printclientfds(_clients);
-//	printfds(_fds);
-//}
-
-
-
 void Server::clearClients(int fd) //-> clear the clients
 {
 	for(std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end();)//-> remove the client from the pollfd
 	{
 		if (it->fd == fd)
 		{
-			_fds.erase(it);
+			it = _fds.erase(it);
 			//break;
 		}
 		else
-			it++;
+			++it;
 	}
 	_fds.clear();
 
@@ -381,13 +270,12 @@ void Server::clearClients(int fd) //-> clear the clients
 	{
 		if (it->getFd() == fd)
 		{
-			_clients.erase(it);
+			it = _clients.erase(it);
 			//break;
 		}
 		else
-			it++;
+			++it;
 	}
-	_clients.clear();
 }
 
 bool Server::isSocketClosed(int sockfd) 
@@ -396,19 +284,22 @@ bool Server::isSocketClosed(int sockfd)
     socklen_t len = sizeof(error);
     int retval = getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len);
     
-    if (retval != 0) {
+    if (retval != 0) 
+		{
         // There was a problem getting the error code
         std::cerr << "getsockopt() failed: " << strerror(errno) << std::endl;
         return true;
     }
 
-    if (error != 0) {
+    if (error != 0) 
+		{
         // An error has been detected
         std::cerr << "socket error: " << strerror(error) << std::endl;
         return true;
     }
-
     return false;
 }
 
 //ctrl v + m  ctrl v + j
+//telnet localhost 6667
+

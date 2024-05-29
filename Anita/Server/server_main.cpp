@@ -24,6 +24,6 @@ int main(int ac, char **av)
 			ourServer.closeFds();
 			std::cerr << e.what() << std::endl;
 		}
-		std::cout << "The Server destroyed" << std::endl;
+		std::cout << "Server destroyed" << std::endl;
     return (0);
 }

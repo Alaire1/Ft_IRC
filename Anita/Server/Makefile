@@ -24,7 +24,6 @@ all : $(NAME)
 
 $(NAME) : $(OBJ)
 	$(CXX) $(CXXFLAGS) $(STDFLAG) $(OBJ) -o $(NAME)
-
 clean :
 	$(RM) -rf $(OBJ)
 
