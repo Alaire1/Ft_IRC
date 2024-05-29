@@ -1,78 +1,58 @@
 #ifndef SERVER_HPP
-# define SERVER_HPP
-#include <sys/socket.h>
-#include <ostream>
-#include <cstdlib>
-#include <netdb.h>
-#include <signal.h>
+#define SERVER_HPP
 #include <iostream>
+#include <sys/poll.h>
+#include <vector>
 #include <cstring>
-#include <string.h>
-#include <map>
-#include <arpa/inet.h> //-> for inet_ntoa()
-#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
 #include <poll.h>
 #include <fcntl.h>
-#include <vector>
+#include <signal.h>
+#define MAX_CLIENTS 10
+#define BUFFER_SIZE 1024
 #include "Client.hpp"
 
-#define BACKLOG 10 // common choice between 5 and 10 // may be changed
-class Server
+
+class Server 
 {
-    private:
-				static bool 			_signal; //-> static boolean for signal
-        int 							_servSocket;
-        int 							_port;
-        std::string 			_password;
-        std::vector<Client> _clients;
-        std::vector<pollfd> _fds;
-
-    public:
-        Server();
-        Server(int port, std::string password);
-        ~Server();
+private:
+    // Add your private members here
+		int _serverFd;
+		int _port;
+		std::string _pwd;
+		std::vector<struct pollfd> _fds;
+		std::vector<Client> _clients;
 
 
-        // 	starting server & accepting clients/data
-        void    createServer();// server initialization
-        void    createAndSetSocket();
-        void   	startServer();
-				void 		handleNewConnection();
-				void 		handleExistingConnection(int fd);
+public:
+    //Server(const std::string& arg); // In case you need to pass an  argument
+//Orthodox canonical begin
+    Server(void);
+    Server(int port, std::string password);
+    ~Server(void);
+//Orthodox canonical end
+		static void	signalHandler(int signum);
 
-				//Functions
-				void 		addFd(int fd, short events);
-        int 		pollFds();
-				
-        // socket handling
+    // Add your class members and methods here
+		int  getSocket() const;
+		void setNonBlocking(int fd);
+		void createSocket();
+		void runServer();
+		void initServer();
+		void acceptClient();
+		void handleData(int fd, size_t idx);
+		void closeFds();
 
-        //void    createSocket();
-        int     getSocket() const;
-        //signal handling
-
-        static void	signalHandler(int signum);
-
-        //terminating
-				void 		closeFds();
-				void 		clearClients(int fd);
-      
-
-        //error handling
-        void    errorPrintGetaddrinfo(int status);
-        void    errorSocketCreation(int status);
-        void    errorSetsockopt(int status);
-        void    errorFcntl(int status);
-        void    errorSocketBinding(int status);
-        void    errorListen(int status);
-        void    errorPoll(int status);
-//				void 		errorAccept(int status);
-
-        //testing
-        void    printPassword();
-				void 		printclientfds(std::vector<struct Client> clients);
-				void    printfds(std::vector<struct pollfd> fds);
-				bool    isSocketClosed(int sockfd); 
-
+//TESTING FUNCTIONS
+		void    printPassword();
+		void 		printclientfds(std::vector<struct Client> clients);
+		void    printfds(std::vector<struct pollfd> fds);
+		bool    isSocketClosed(int sockfd); 
 };
 
-#endif
+
+#endif // SERVER_HPP
+
