@@ -1,23 +1,19 @@
 NAME = ircserv
 
-
-#SRC_DIR = src
-
 SRC = main.cpp \
 			Server.cpp \
-			Client.cpp 
-			#ServerErrors.cpp \
-
+			Client.cpp  \
+			Channel.cpp 
 
 
 CXX = c++
 STDFLAG = -std=c++98 -pedantic
-CXXFLAGS = -Wall -Wextra -Werror -g #-I./inc
+CXXFLAGS = -Wall -Wextra -Werror -g -I./inc
 RM = rm
 
 OBJ = $(SRC:.cpp=.o)
 
-PRUNE = git fetch --prune
+#PRUNE = git fetch --prune
 
 all : $(NAME)
 

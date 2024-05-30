@@ -11,6 +11,9 @@ void Client::setFd(int fd) {_fd = fd;}
 
 void Client::setIpAdd(std::string ipadd) {_ipAdd = ipadd;}
 
+void Client::setNickname(std::string& nickName) {_nick = nickName;}
+
+std::string Client::getNick() {return _nick;}
 //bool Client::connectServer()
 //{
 //	struct addrinfo hints, *res, *p;

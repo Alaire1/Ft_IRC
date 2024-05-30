@@ -1,7 +1,8 @@
 #ifndef CLIENT_HPP
-#define CLIENT_HPP
+# define CLIENT_HPP
 #include <string>
-
+#include <iostream>
+#include <ostream>
 class Client 
 {
 	private:
@@ -9,6 +10,7 @@ class Client
 		std::string _ipAdd;
 		std::string	_port;
 		int 				_fd;
+		std::string _nick;
 
 	//	std::string _operatorPassword;
 	//	std::string _operatorNickname;
@@ -29,12 +31,13 @@ class Client
 		void setFd(int fd);
 		void setIpAdd(std::string ipadd);
 	//	void setPassword(std::string& password);
-	//	void setNickname(std::string& nickName);
+		void setNickname(std::string& nickName);
 	//	void setUsername(std::string& userName);
 	//	std::string getPassword() const;
 	//	std::string getNickname() const;
 	//	std::string getUsername() const;
 	//	void setOperator(bool status);
+	    std::string getNick();
 
 		//CONNECTING TO SERVER
 	//	bool connectServer();
