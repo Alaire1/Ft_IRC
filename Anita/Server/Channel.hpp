@@ -10,8 +10,8 @@ class Channel
 {
     private:
         std::string _name;
-        std::string _topic;
-        std::string _key;
+        std::string _topic; 
+        std::string _key; // password
 
         bool _isInviteOnly;
         bool _restrictTopic;
@@ -19,12 +19,22 @@ class Channel
         
         std::vector<Client> _clients;
         std::string _operatorNick;
+
     public:
         Channel(std::string name);
         ~Channel();
         void join(Client& client); 
         void kick(Client& client); 
-        void leave(Client& client); 
+        void leave(Client& client);
+        void invite(Client& client);
+
+        //setters
+        void setInviteOnly(bool isInviteOnly);
+        void setRestrictTopic(bool restrictTopic);
+        void setMaxUsers(int maxUsers);
+
+        void setOperator(Client& client);
+        void setTopic(std::string topic);
 };
 
 #endif
