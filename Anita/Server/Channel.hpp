@@ -35,6 +35,8 @@ class Channel
 
         void setOperator(Client& client);
         void setTopic(std::string topic);
+	   void setKey(std::string key);
+
 };
 
 #endif

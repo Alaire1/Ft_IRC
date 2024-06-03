@@ -95,7 +95,7 @@ void Channel::setMaxUsers(int maxUsers) //MODE +l maxUsers
 }
 void Channel::setKey(std::string key) //MODE +k key
 {
-    _key = key;
+    this->_key = key;
 }
 void Cahnnel::removeKey() //MODE -k
 {
