@@ -33,7 +33,7 @@ void parser(std::string clentData, Client& client)
               // MODE #channel +o nickname, etc.
   
     // sending messages whe have to add prefix to the message because client is sending stuff without prefix to the server, then server is fowarding the message to channle or a clinet and then we have to add prefix to the message
-  
+  // build a reply : + sender + " " + command + " " + params + "\r\n"
     
 
     
