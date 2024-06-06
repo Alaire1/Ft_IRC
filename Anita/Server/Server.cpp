@@ -105,7 +105,10 @@ void Server::handleData(int fd, size_t idx)
 	if (bytesRead <= 0) 
 	{
 		if (bytesRead == 0) 
+		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
+			clearChannelsNoUsers();
+		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
 
@@ -214,14 +217,16 @@ bool Server::isSocketClosed(int sockfd)
 }
 
 
-//int	Server::clearEmptyChannels()
-//{
-//	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
-//		if (it->getUserCount() == 0) {
-//			_channels.erase(it--);
-//		}
-//	}
-//	return (1);
-//}
+int	Server::clearChannelsNoUsers()
+{
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end();) 
+	{
+		if (it->getUsernum() == 0) 
+			_channels.erase(it);
+		else
+			it++;
+	}
+	return (1);
+}
 
 

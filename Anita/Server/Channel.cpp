@@ -18,7 +18,8 @@ void Channel::invite(Client& client) // before that function in parsing we have 
 {
     _clients.push_back(client);
 }
-void Channel::topicCommand(Client& client, std::string topic = "")
+
+void Channel::topicCommand(Client& client, std::string topic)
 {
    if (topic == "")
    {
@@ -39,7 +40,7 @@ void Channel::topicCommand(Client& client, std::string topic = "")
 }
 void Channel::kick(Client& client) // before that function in parsing we have to check if someone that is using the kick command is an operator //
 {
-    client_kicked = false; 
+    bool client_kicked = false; 
     for (std::vector<Client>::iterator it = _clients.begin() ; it != _clients.end();)
     {
         if (it->getNick() == client.getNick()) 
@@ -113,3 +114,8 @@ void Channel::setTopic(std::string topic)
     _topic = topic;
 }
 
+
+size_t Channel::getUsernum()
+{
+	return _users;
+}
