@@ -16,17 +16,44 @@ bool isValidChannelName(std::string channel_name)
 	{
 		return false;
 	}
-	if (channel_name[0] != '#')
+	if ((channel_name[0] != '#') &&  (channel_name[0] != '&') &&  (channel_name[0] != '+') && (channel_name[0] != '!'))
 	{
 		return false;
 	}
-	if (channel_name.find(' ') != std::string::npos) || (channel_name.find(',') != std::string::npos) || (channel_name.find(7) != std::string::npos)
+	if ((channel_name.find(' ') != std::string::npos) || ((channel_name.find(',') != std::string::npos)) || (channel_name.find(7) != std::string::npos))
 	{
 		return false;
 	}
 	return true;
 }
 
+void channelJoiningAttempt(std::string prefix, std::vector<std::string> params)
+{
+	if (params.size() == 0)
+	{
+		std::cout << "Not enough parameters" << std::endl;
+		return ;
+	}
+	if (params.size() > 0)
+	{
+		if (isValidChannelName(params[0]) == false)
+		{
+			std::cout << "Invalid channel name" << std::endl;
+			return ;
+		}
+		std::cout << "Channel name is valid" << std::endl;
+	}
+	if (channelExists(params[0]))
+	{
+		std::cout << "Channel exists. THE CLIENT WILL TRY TO JOIN IT" << std::endl;
+	}
+	else
+	{
+		std::cout << "Channel does not exist. THE CLIENT WILL TRY TO CREATE IT" << std::endl;
+	
+	}
+
+}
 
 
 void ircMessageParser (std::string message)
@@ -75,7 +102,7 @@ void ircMessageParser (std::string message)
 	}
 	if (command == "JOIN")
 	{
-		//add joining
+		channelJoiningAttempt(prefix, params);
 	}
 	
 
