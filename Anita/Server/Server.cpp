@@ -212,3 +212,16 @@ bool Server::isSocketClosed(int sockfd)
     }
     return false;
 }
+
+
+//int	Server::clearEmptyChannels()
+//{
+//	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
+//		if (it->getUserCount() == 0) {
+//			_channels.erase(it--);
+//		}
+//	}
+//	return (1);
+//}
+
+

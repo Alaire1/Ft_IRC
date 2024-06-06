@@ -25,6 +25,7 @@ private:
 		std::string _pwd;
 		std::vector<struct pollfd> _fds;
 		std::vector<Client> _clients;
+		//std::vector<Channel> _channels;
 
 
 public:
