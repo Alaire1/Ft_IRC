@@ -75,7 +75,7 @@ void ircMessageParser (std::string message)
 	}
 	if (command == "JOIN")
 	{
-		
+		//add joining
 	}
 	
 
