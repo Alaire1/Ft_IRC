@@ -26,7 +26,7 @@ class Server
 		std::string _pwd;
 		std::vector<struct pollfd> _fds;
 		std::vector<Client> _clients;
-		std::vector<Channel> _channels;
+		std::vector<Channel> _channels;//List of channels created
 
 
 	public:
@@ -47,7 +47,7 @@ class Server
 		void acceptClient();
 		void handleData(int fd, size_t idx);
 		void closeFds();
-		int	 clearChannelsNoUsers();
+		int	 clearChannelsNoUsers();//Clears channels with no users inside.
 
 		//TESTING FUNCTIONS
 		void    printPassword();

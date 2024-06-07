@@ -16,7 +16,7 @@ class Channel
 		bool _isInviteOnly;
 		bool _restrictTopic;
 		int _maxUsers;
-		size_t _users;
+		size_t _users;//number of users/members in a channel.
 
 		std::vector<Client> _clients;
 		std::string _operatorNick;
