@@ -1,10 +1,10 @@
 #ifndef CHANNEL_HPP
-# define CHANNEL_HPP
+#define CHANNEL_HPP
 #include <vector>
 #include <string>
 #include <iostream>
 #include "Client.hpp"
-#include "Server.hpp"
+//#include "Server.hpp"
 
 class Channel
 {
@@ -16,12 +16,12 @@ class Channel
 		bool _isInviteOnly;
 		bool _restrictTopic;
 		int _maxUsers;
-		size_t _users;//number of users/members in a channel.
 
 		std::vector<Client> _clients;
 		std::string _operatorNick;
 
 	public:
+		//Channel();
 		Channel(std::string name);
 		~Channel();
 		void join(Client& client); 
@@ -38,9 +38,10 @@ class Channel
 		void setTopic(std::string topic);
 		void setKey(std::string key);
 		void topicCommand(Client& client, std::string topic);
+		void removeKey(); //MODE -k
 
 		//getters
-		size_t getUsernum();
+		size_t getUsernum();//number of users in the channel
 
 };
 

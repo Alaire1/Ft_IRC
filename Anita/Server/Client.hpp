@@ -1,6 +1,7 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 #include <string>
+#include <sys/socket.h>
 #include <iostream>
 #include <ostream>
 class Client 
@@ -12,15 +13,15 @@ class Client
 		int 				_fd;
 		std::string _nick;
 
-	//	std::string _operatorPassword;
-	//	std::string _operatorNickname;
-	//	std::string _operatorUsername;
-	//	std::string _password;
-	//	std::string _username;
-	//	std::string _nickname;
+		//	std::string _operatorPassword;
+		//	std::string _operatorNickname;
+		//	std::string _operatorUsername;
+		//	std::string _password;
+		//	std::string _username;
+		//	std::string _nickname;
 
-	//	bool _isoperator;
-	//	bool _registrationcomplete;
+		//	bool _isoperator;
+		//	bool _registrationcomplete;
 
 	public:
 		Client(void);
@@ -30,19 +31,20 @@ class Client
 		int getFd() const; 
 		void setFd(int fd);
 		void setIpAdd(std::string ipadd);
-	//	void setPassword(std::string& password);
+		//	void setPassword(std::string& password);
 		void setNickname(std::string& nickName);
-	//	void setUsername(std::string& userName);
-	//	std::string getPassword() const;
-	//	std::string getNickname() const;
-	//	std::string getUsername() const;
-	//	void setOperator(bool status);
-	    std::string getNick();
+		//	void setUsername(std::string& userName);
+		//	std::string getPassword() const;
+		//	std::string getNickname() const;
+		//	std::string getUsername() const;
+		//	void setOperator(bool status);
+		std::string getNick() const;
+		void sendMessage(const std::string& message); //function to send to
 
 		//CONNECTING TO SERVER
-	//	bool connectServer();
- 	//	void sendMessage(const std::string& message);
-	//	void receiveMessage();
+		//	bool connectServer();
+		//	void sendMessage(const std::string& message);
+		//	void receiveMessage();
 
 		//operator commands
 		// KICK

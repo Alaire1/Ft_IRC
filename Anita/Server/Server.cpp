@@ -171,11 +171,11 @@ void Server::printPassword()
     std::cout << "Password: " << _pwd << std::endl;
 }
 
-void Server::printclientfds(std::vector<struct Client> clients)
+void Server::printclientfds(std::vector<Client> clients)
 {
 	std::cout << "Print clients" << std::endl;
 	int i = 0;
-	for(std::vector<struct Client>::iterator it = clients.begin(); it != clients.end();)
+	for(std::vector<Client>::iterator it = clients.begin(); it != clients.end();)
 	{
 		std::cout << "Client " << i << " fd: " << it->getFd() << std::endl;
 		

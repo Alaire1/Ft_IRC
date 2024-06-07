@@ -1,8 +1,8 @@
 NAME = ircserv
 
-SRC = main.cpp \
-			Server.cpp \
-			Client.cpp  \
+SRC = main.cpp\
+			Server.cpp\
+			Client.cpp\
 			Channel.cpp 
 
 

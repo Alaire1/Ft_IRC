@@ -1,13 +1,8 @@
 #include "Channel.hpp"
-#include "Client.hpp"
 
-Channel::Channel(std::string name) :_name(name), _topic("No topic set"), _isInviteOnly(false), _restrictTopic(false)
-{
-}
+Channel::Channel(std::string name) :_name(name), _topic("No topic set"), _isInviteOnly(false), _restrictTopic(false) {}
 
-Channel::~Channel()
-{
-}
+Channel::~Channel() {}
 
 void Channel::join(Client& client)
 {
@@ -55,7 +50,7 @@ void Channel::kick(Client& client) // before that function in parsing we have to
     }
     if (client_kicked)
     {
-        client.send("KICK " + _name + " " + client.getNick() + " :You have been kicked from " + _name);
+        //client.sendMessage("KICK " + _name + " " + client.getNick() + " :You have been kicked from " + _name);
     }
 }
 
@@ -98,7 +93,7 @@ void Channel::setKey(std::string key) //MODE +k key
 {
     this->_key = key;
 }
-void Cahnnel::removeKey() //MODE -k
+void Channel::removeKey() //MODE -k
 {
     _key = "";
 }
@@ -117,5 +112,6 @@ void Channel::setTopic(std::string topic)
 
 size_t Channel::getUsernum()
 {
-	return _users;
+	return _clients.size();
 }
+

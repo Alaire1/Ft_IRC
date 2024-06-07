@@ -13,7 +13,14 @@ void Client::setIpAdd(std::string ipadd) {_ipAdd = ipadd;}
 
 void Client::setNickname(std::string& nickName) {_nick = nickName;}
 
-std::string Client::getNick() {return _nick;}
+std::string Client::getNick() const {return _nick;}
+
+void Client::sendMessage(const std::string& message)
+{
+	const char* cmessage = message.c_str();
+
+	send(_fd, cmessage, message.size(), 0);
+}
 //bool Client::connectServer()
 //{
 //	struct addrinfo hints, *res, *p;
