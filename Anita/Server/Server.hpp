@@ -11,6 +11,7 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <string>
 #include "Channel.hpp"
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024

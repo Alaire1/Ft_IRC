@@ -118,9 +118,17 @@ void Server::handleData(int fd, size_t idx)
 	} 
 	else 
 	{
-		std::cout << "Received message: " << buffer << " from fd: " << fd << std::endl;
+		std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		// Echo message back to client
-		send(fd, buffer, bytesRead, 0);
+		//send(fd, buffer, BUFFER_SIZE, 0);
+		//std::cout << "client size message: " << _clients.size() << std::endl;
+	//	if(_clients.size() == 2)
+	//	{
+	//		const char message[BUFFER_SIZE] = ":ft_irc 001 TheOne :Welcome to ft_irc server!";
+
+	//		size_t value = send(fd, message, BUFFER_SIZE, 0);
+	//		std::cout << fd <<" Sent "<< value << " : " << message << std::endl;
+	//	}
 	}
 
 }
@@ -137,6 +145,7 @@ void Server::acceptClient()
 		std::cerr << "ERROR on accept" << std::endl;
 	else 
 	{
+
 		std::cout << "New connection accepted (fd: " << newSocket << ")" << std::endl;
 		setNonBlocking(newSocket);
 		struct pollfd clientPollFd;
