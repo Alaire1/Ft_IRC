@@ -1,6 +1,7 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include "Client.hpp"
@@ -29,6 +30,9 @@ class Channel
 		void leave(Client& client);
 		void invite(Client& client);
 
+		//added by Nikola
+		bool clientNotInChannel(Client& client);
+
 		//setters
 		void setInviteOnly(bool isInviteOnly);
 		void setRestrictTopic(bool restrictTopic);
@@ -42,6 +46,8 @@ class Channel
 
 		//getters
 		size_t getUsernum();//number of users in the channel
+		std::string getChannelName();
+
 
 };
 

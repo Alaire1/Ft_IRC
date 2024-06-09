@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "parsing_plan.cpp"
 #include <cstddef>
 
 Server::Server(){}
@@ -111,7 +112,6 @@ void Server::handleData(int fd, size_t idx)
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
-
 		close(fd);
 		_fds.erase(_fds.begin() + idx);
 		--idx; // Adjust index after erasing
@@ -119,6 +119,9 @@ void Server::handleData(int fd, size_t idx)
 	else 
 	{
 		std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
+		ircMessageParser(buffer, *this);
+
+
 		// Echo message back to client
 		//send(fd, buffer, BUFFER_SIZE, 0);
 		//std::cout << "client size message: " << _clients.size() << std::endl;
@@ -131,6 +134,20 @@ void Server::handleData(int fd, size_t idx)
 	//	}
 	}
 
+}
+
+
+
+
+
+bool Server::channelExists(std::string channelName)
+{
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (it->getChannelName() == channelName)
+			return true;
+	}
+	return false;
 }
 
 void Server::acceptClient()

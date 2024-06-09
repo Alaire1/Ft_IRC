@@ -21,6 +21,12 @@ void Client::sendMessage(const std::string& message)
 
 	send(_fd, cmessage, message.size(), 0);
 }
+
+bool Client::operator==(const Client& other) const
+{
+    return this->_nick == other._nick; // Assuming id is a member variable of Client
+}
+
 //bool Client::connectServer()
 //{
 //	struct addrinfo hints, *res, *p;

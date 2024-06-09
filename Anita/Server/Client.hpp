@@ -51,6 +51,9 @@ class Client
 		// INVITE
 		// TOPIC
 		// MODE: i = Set/ remove Invite-only channel ; 
+
+		bool operator==(const Client& other) const;
+
 };
 
 #endif // CLIENT_HPP!

@@ -50,6 +50,8 @@ class Server
 		void closeFds();
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
 
+		bool channelExists(std::string channelName);
+
 		//TESTING FUNCTIONS
 		void    printPassword();
 		void 		printclientfds(std::vector<Client> clients);

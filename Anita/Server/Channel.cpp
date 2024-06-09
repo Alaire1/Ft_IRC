@@ -4,10 +4,24 @@ Channel::Channel(std::string name) :_name(name), _topic("No topic set"), _isInvi
 
 Channel::~Channel() {}
 
+bool Channel::clientNotInChannel(Client& client)
+{
+    return std::find(_clients.begin(), _clients.end(), client) == _clients.end();
+}
+
 void Channel::join(Client& client)
 {
-    _clients.push_back(client);
+	if (clientNotInChannel(client))
+    		_clients.push_back(client);
+	else
+		client.sendMessage("442 " + _name + " :You're already in that channel"); // 442 is a numeric code for sending a message that user is already in the channel
 }
+
+std::string Channel::getChannelName()
+{
+	return _name;
+}
+
 
 void Channel::invite(Client& client) // before that function in parsing we have to check if someone that is using the invite command is an operator //
 {

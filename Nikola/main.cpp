@@ -91,7 +91,7 @@ void ircMessageParser (std::string message)
 	}
 	std::cout << "Trailing: " << trailing << std::endl;
 
-	if (std::find(valid_commands.begin(), valid_commands.end(), command) != valid_commands.end())
+	if (std::find(valid_commands.begin(), valid_commands.end(), command) == valid_commands.end())
 	{
 		std::cout << "Command is valid" << std::endl;
 	}
