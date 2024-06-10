@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "parsing_plan.cpp"
 #include <cstddef>
+#include <sstream>
 
 Server::Server(){}
 
@@ -124,14 +125,15 @@ void Server::handleData(int fd, size_t idx)
 
 		// Echo message back to client
 		//send(fd, buffer, BUFFER_SIZE, 0);
-		//std::cout << "client size message: " << _clients.size() << std::endl;
-	//	if(_clients.size() == 2)
-	//	{
-	//		const char message[BUFFER_SIZE] = ":ft_irc 001 TheOne :Welcome to ft_irc server!";
+		//std::cout << "client size message: " << buf.str().size() << std::endl;
+		//if(!strncmp(buffer, "test", 4))
+		//{
+		//	//const char message[BUFFER_SIZE] = ":ft_irc 001 TheOne :Welcome to ft_irc server!";
+		//	std::string str = serverReply(SERVER, "001", {_clients[0].getNick()}, "Welcome to ft_irc server!");
 
-	//		size_t value = send(fd, message, BUFFER_SIZE, 0);
-	//		std::cout << fd <<" Sent "<< value << " : " << message << std::endl;
-	//	}
+		//	size_t value = send(fd, str.c_str(), str.length(), 0);
+		//	std::cout << fd <<" Sent "<< value << " -> " << str << std::endl;
+		//}
 	}
 
 }
@@ -256,3 +258,48 @@ int	Server::clearChannelsNoUsers()
 }
 
 
+std::string Server::serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam)
+{
+	std::stringstream message;
+	// Build the message components
+		message << ":" << prefix << " " << cmd;
+	//message << Channel/Client;
+	// Add parameters if any
+	if (!params.empty()) 
+	{
+		for(size_t i = 0; i < params.size(); i++)
+			message << " " << params[i];
+	}
+
+	// Add trailing parameter if provided
+	if (!trailingParam.empty()) {
+		message << " :" << trailingParam;
+	}
+	// Return the complete server reply string
+	return message.str();
+}
+
+//#include <string>
+//#include <sstream>
+//
+//std::string buildServerReply(const std::string& prefix, const std::string& command, const std::vector<std::string>& params = {}, const std::string& trailingParam = "") 
+//{
+// // Build the message components
+//  std::stringstream message;
+//  message << prefix << " " << command;
+//
+//  // Add parameters if any
+//  if (!params.empty()) {
+//    message << " " << std::join(" ", params);
+//  }
+//
+//  // Add trailing parameter if provided
+//  if (!trailingParam.empty()) {
+//    message << " :" << trailingParam;
+//  }
+//
+//  // Return the complete server reply string
+//  return message.str();
+//}
+//``
+//

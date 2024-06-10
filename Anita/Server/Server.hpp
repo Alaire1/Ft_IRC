@@ -1,6 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 #include <iostream>
+#include <sstream>
 #include <sys/poll.h>
 #include <vector>
 #include <cstring>
@@ -13,9 +14,10 @@
 #include <signal.h>
 #include <string>
 #include "Channel.hpp"
-#define MAX_CLIENTS 10
-#define BUFFER_SIZE 1024
 #include "Client.hpp"
+#define MAX_CLIENTS 	10
+#define BUFFER_SIZE 	1024
+#define SERVER 				"ourSuperServer"
 
 
 class Server 
@@ -51,6 +53,7 @@ class Server
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
 
 		bool channelExists(std::string channelName);
+		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam); //STD_IRC_Format: Prefix(optional), No.Code(optional), NICK, Trailing params
 
 		//TESTING FUNCTIONS
 		void    printPassword();
