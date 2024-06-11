@@ -11,7 +11,8 @@ class Client
 		std::string _ipAdd;
 		std::string	_port;
 		int 				_fd;
-		std::string _nick;
+		std::string _nickName;
+		std::string _userName;
 
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
@@ -32,13 +33,15 @@ class Client
 		void setFd(int fd);
 		void setIpAdd(std::string ipadd);
 		//	void setPassword(std::string& password);
-		void setNickname(std::string& nickName);
-		//	void setUsername(std::string& userName);
+		void setNickName(std::string& nickName);
+
+		void setUserName(std::string& userName);
 		//	std::string getPassword() const;
 		//	std::string getNickname() const;
 		//	std::string getUsername() const;
 		//	void setOperator(bool status);
 		std::string getNick() const;
+		std::string getUser() const;
 		void sendMessage(const std::string& message); //function to send to
 
 		//CONNECTING TO SERVER

@@ -3,16 +3,16 @@
 #include <string>
 #include <sys/socket.h>
 #include <iostream>
-#include <ostream>
+
 class Client 
 {
 	private:
 		// Add your private members here
 		std::string _ipAdd;
 		std::string	_port;
-		int 				_fd;
-		std::string _nick;
-		std::string _user;
+		int 					_fd;
+		std::string 	_nickName;
+		std::string 	_userName;
 
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
@@ -36,7 +36,7 @@ class Client
 		void setIpAdd(std::string ipadd);
 		//	void setPassword(std::string& password);
 		void setNickname(std::string& nickName);
-			void setUsername(std::string& userName);
+		void setUsername(std::string& userName);
 		//	std::string getPassword() const;
 		//	std::string getNickname() const;
 		//	std::string getUsername() const;

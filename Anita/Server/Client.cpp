@@ -1,19 +1,25 @@
 #include "Client.hpp"
 
-
-Client::Client(void) {_ipAdd = "127.0.0.1";}
+Client::Client(void) : _fd(-1), _nickName(" "), _userName(" ")
+{
+	_ipAdd = "127.0.0.1";
+}
 
 Client::~Client(void) {}
 
 int Client::getFd() const {return _fd;}
 
+std::string Client::getNick() const {return _nickName;}
+
+std::string Client::getUser() const {return _userName;}
+
 void Client::setFd(int fd) {_fd = fd;}
 
 void Client::setIpAdd(std::string ipadd) {_ipAdd = ipadd;}
 
-void Client::setNickname(std::string& nickName) {_nick = nickName;}
+void Client::setNickName(std::string& nickName) {_nickName = nickName;}
 
-std::string Client::getNick() const {return _nick;}
+void Client::setUserName(std::string& userName) {_userName = userName;}
 
 void Client::sendMessage(const std::string& message)
 {
@@ -24,7 +30,7 @@ void Client::sendMessage(const std::string& message)
 
 bool Client::operator==(const Client& other) const
 {
-    return this->_nick == other._nick; // Assuming id is a member variable of Client
+    return this->_nickName == other._nickName; // Assuming id is a member variable of Client
 }
 
 //bool Client::connectServer()

@@ -119,20 +119,20 @@ void Server::handleData(int fd, size_t idx)
 	} 
 	else 
 	{
+		buffer[bytesRead] = '\r';
 		std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		ircMessageParser(buffer, *this);
 
 
 		// Echo message back to client
-		//send(fd, buffer, BUFFER_SIZE, 0);
-		//std::cout << "client size message: " << buf.str().size() << std::endl;
 		//if(!strncmp(buffer, "test", 4))
 		//{
-		//	//const char message[BUFFER_SIZE] = ":ft_irc 001 TheOne :Welcome to ft_irc server!";
-		//	std::string str = serverReply(SERVER, "001", {_clients[0].getNick()}, "Welcome to ft_irc server!");
+		//	std::string str = serverReply(SERVER, "001", {"exampleNick"}, "Welcome to ft_irc serverrrr!");
 
-		//	size_t value = send(fd, str.c_str(), str.length(), 0);
-		//	std::cout << fd <<" Sent "<< value << " -> " << str << std::endl;
+		//	//const char buf[48] = ":ft_irc 001 :Welcome to ft_irc server!\n";
+		//	//send(fd, buf, 48, 0);
+		//	int value = send(fd, str.c_str(), str.length(), 0);
+		//	std::cout << fd <<"[fd] sent "<< value << " -> " << str << std::endl;
 		//}
 	}
 
@@ -275,6 +275,7 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 	if (!trailingParam.empty()) {
 		message << " :" << trailingParam;
 	}
+	message << "\r\n";
 	// Return the complete server reply string
 	return message.str();
 }
@@ -302,4 +303,3 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 //  return message.str();
 //}
 //``
-//
