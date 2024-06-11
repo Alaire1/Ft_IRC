@@ -11,7 +11,8 @@ class Client
 		int 				_fd;
 		std::string _nick;
 		std::string _user;
-
+		bool _isRegistered;
+		bool _hasPassword;
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
 		//	std::string _operatorUsername;
@@ -26,21 +27,23 @@ class Client
 		Client(void);
 		~Client(void);
 
-		bool isRegistered;
-		bool hasPassword;
+		
 		// GETTERS UND SETTERS
 		int getFd() const; 
 		void setFd(int fd);
 		//	void setPassword(std::string& password);
 		void setNickName(std::string& nick);
-
 		void setUserName(std::string& user);
+		void setIsRegistered(bool status);
+		void setHasPassword(bool status);
 		//	std::string getPassword() const;
 		//	std::string getNickname() const;
 		//	std::string getUsername() const;
 		//	void setOperator(bool status);
 		std::string getNick() const;
 		std::string getUser() const;
+		bool getIsRegistered() const;
+		bool getHasPassword() const;
 		void sendMessage(const std::string& message); //function to send to
 
 		//CONNECTING TO SERVER

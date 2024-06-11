@@ -328,7 +328,7 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 	else if (command == "PASS")
 	{
 		//std::cout << "PASS" << std::endl;
-		sender.hasPassword = true;
+		sender.setHasPassword(true);
 	}
 	
 }
@@ -375,15 +375,15 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		std::string command, param1, param2, param3;
 		iss >> command >> param1 >> param2 >> param3;
 		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
-		if (sender.isRegistered == false)
+		if (sender.getIsRegistered() == false)
 		{
 			//std::cout << "password : " << sender.hasPassword << std::endl;
 			//std::cout << "NICK : " << sender.getNick() << std::endl;
 			//std::cout << "USER : " << sender.getUser() << std::endl;
 			commandsRegister(sender, command, param1);
-			if (sender.hasPassword == true && sender.getNick().compare(" ") && sender.getUser().compare(" "))
+			if (sender.getHasPassword() == true && sender.getNick().compare(" ") && sender.getUser().compare(" "))
 			{
-				sender.isRegistered = true;
+				sender.setIsRegistered(true);
 				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
 				send(sender.getFd(), str.c_str(), str.length(), 0);
 				//std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";

@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client(void) : _fd(-1), _nick(" "), _user(" "), isRegistered(false), hasPassword(false) {}
+Client::Client(void) : _fd(-1), _nick(" "), _user(" "), _isRegistered(false), _hasPassword(false) {}
 
 Client::~Client(void) {}
 
@@ -10,12 +10,20 @@ std::string Client::getNick() const {return _nick;}
 
 std::string Client::getUser() const {return _user;}
 
+bool Client::getIsRegistered() const {return _isRegistered;}
+
+bool Client::getHasPassword() const {return _hasPassword;}
+
 void Client::setFd(int fd) {_fd = fd;}
 
 
 void Client::setNickName(std::string& nick) {_nick= nick;}
 
 void Client::setUserName(std::string& user) {_user= user;}
+
+void Client::setIsRegistered(bool status) {_isRegistered= status;}
+
+void Client::setHasPassword(bool status) {_hasPassword= status;}
 
 void Client::sendMessage(const std::string& message)
 {
