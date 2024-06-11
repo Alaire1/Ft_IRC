@@ -13,6 +13,7 @@ class Client
 		int 					_fd;
 		std::string 	_nick;
 		std::string 	_user;
+		std::string 	_pass_word;
 
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
