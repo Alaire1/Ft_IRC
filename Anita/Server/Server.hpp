@@ -68,6 +68,8 @@ class Server
 		int checkNick(std::string nick);
 		void commandsRegister(Client &sender, std::string command, std::string param1);
 		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3);
+		int sendToClient(const std::string& message, const Client& client) const;
+		void deleteClient(int fd);
 
 };
 

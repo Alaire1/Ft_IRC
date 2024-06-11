@@ -308,30 +308,47 @@ int Server::checkNick(std::string nick){
 		return (1);
 
 }
+
+
+int	Server::sendToClient(const std::string& message, const Client& client) const
+{
+	if (send(client.getFd(), message.c_str(), message.length(), 0) < 0)
+	{
+		std::cout << "Error sending message"  << std::endl;
+		return (-1);
+	}
+	std::cout << "Sent: " << message << " to " << client.getNick() << std::endl;
+	return (0);
+}
 void Server::commandsRegister(Client& sender, std::string command, std::string param1){
-	//std::cout << "Commands register by anita" <<  std::endl;
-	//std::cout << "Command: " << command <<  std::endl;
 	if (command == "NICK")
 	{
-		//std::cout << "NICK" << std::endl;
 		if (checkNick(param1) == false)
 			return;
 		sender.setNickName(param1);
-		//std::cout << "Nick: " << sender.getNick() << std::endl;
 	}
 	else if (command == "USER")
 	{
-		//std::cout << "USER" << std::endl;
 		sender.setUserName(param1);
-		//std::cout << "User: " << sender.getUser() << std::endl;
 	}
 	else if (command == "PASS")
 	{
-		//std::cout << "PASS" << std::endl;
-		sender.setHasPassword(true);
+		if (param1 == _pwd)
+			sender.setHasPassword(true);
+		else
+		{
+			std::string errorMessage = serverReply(SERVER, "464", {sender.getNick()}, "Password wjdhwdw dwdrjbwgyufw fnwe4vgfyfr");
+			sendToClient(errorMessage, sender); // we have to handle errors while sending
+		}
 	}
-	
+	else if (command == "QUIT")
+		{
+			close(sender.getFd());
+
+		}
 }
+	
+	
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3)
 {
 	(void)parameter2;
@@ -361,7 +378,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	{
 		std::string errorMessage = "421 " + sender.getNick() + " " + command + " :Unknown command\r\n";
 		std::cout << errorMessage;
-		// sendToClient(sender.getFd(), errorMessage);
+		//sendToClient(sender.getFd(), errorMessage);
 	}
 }
 
@@ -385,10 +402,10 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			{
 				sender.setIsRegistered(true);
 				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
-				send(sender.getFd(), str.c_str(), str.length(), 0);
+
 				//std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";
 				//std::cout << welcomeMessage;
-				// sendToClient(sender.getFd(), welcomeMessage);
+				 //sendToClient(str, sender);
 			}
 		}
 		else
