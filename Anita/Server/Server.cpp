@@ -91,7 +91,7 @@ void Server::runServer()
 				if (_fds[i].fd == _serverFd)
 					acceptClient();
 				else 
-					handleData(_fds[i].fd, i);
+					handleData(_fds[i].fd, _clients[i - 1], i);
 			}
 		}
 	}
@@ -99,7 +99,7 @@ void Server::runServer()
 	close(_serverFd);
 }
 
-void Server::handleData(int fd, size_t idx)
+void Server::handleData(int fd, Client &sender, size_t idx)
 {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
@@ -119,9 +119,10 @@ void Server::handleData(int fd, size_t idx)
 	} 
 	else 
 	{
-		buffer[bytesRead] = '\r';
-		std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
-		ircMessageParser(buffer, *this);
+		//buffer[bytesRead] = '\r';
+		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
+	//	ircMessageParser(buffer, *this);
+		parseCommand(buffer, sender);
 
 
 		// Echo message back to client
@@ -280,26 +281,159 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 	return message.str();
 }
 
-//#include <string>
-//#include <sstream>
-//
-//std::string buildServerReply(const std::string& prefix, const std::string& command, const std::vector<std::string>& params = {}, const std::string& trailingParam = "") 
-//{
-// // Build the message components
-//  std::stringstream message;
-//  message << prefix << " " << command;
-//
-//  // Add parameters if any
-//  if (!params.empty()) {
-//    message << " " << std::join(" ", params);
-//  }
-//
-//  // Add trailing parameter if provided
-//  if (!trailingParam.empty()) {
-//    message << " :" << trailingParam;
-//  }
-//
-//  // Return the complete server reply string
-//  return message.str();
-//}
-//``
+//PARSING FUNCTIONS
+
+
+// Client Server::findClientByFd(int fd){
+// 	for (size_t i = 0; i < _clients.size(); i++) {
+// 		if (_clients[i].getFd() == fd) {
+// 			return &_clients[i];
+// 		}
+// 	}
+// 	return nullptr;
+// }
+
+// void printCommands(std::vector<std::string> commands){
+// 	for (const std::string& command : commands) {
+// 		std::cout << command << '\n';
+// 	}
+// }
+int Server::checkNick(std::string nick){
+	  for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+            if (it->getNick() == nick) {
+                std::cout << "Nick is already in use" << std::endl;
+                return 0;
+            }
+        }
+		return (1);
+
+}
+void Server::commandsRegister(Client& sender, std::string command, std::string param1){
+	//std::cout << "Commands register by anita" <<  std::endl;
+	//std::cout << "Command: " << command <<  std::endl;
+	if (command == "NICK")
+	{
+		//std::cout << "NICK" << std::endl;
+		if (checkNick(param1) == false)
+			return;
+		sender.setNickName(param1);
+		//std::cout << "Nick: " << sender.getNick() << std::endl;
+	}
+	else if (command == "USER")
+	{
+		//std::cout << "USER" << std::endl;
+		sender.setUserName(param1);
+		//std::cout << "User: " << sender.getUser() << std::endl;
+	}
+	else if (command == "PASS")
+	{
+		//std::cout << "PASS" << std::endl;
+		sender.hasPassword = true;
+	}
+	
+}
+void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3)
+{
+	(void)parameter2;
+	(void)parameter3;
+	(void)parameter1;
+	std::cout << "Command: " << command << std::endl;
+	if (command == "JOIN")
+	{
+		//joinChannel(parameter, message, client);
+		std::cout << "JOIN" << std::endl;
+	}
+	// else if (command == "PART")
+	// 	//part();
+	// else if (command == "TOPIC")
+	// 	//channelTopic(parameter, message, client);
+	// else if (comamnd == "PRIVMSG")
+	// 	//sendMessage(parameter, message, client);
+	// else if (command == "WHO")
+	// 	//names(client, parameter);
+	// else if (command == "KICK")
+	// 	//kickClient(parameter, parameter2, message, client);
+	// else if (command == "INVITE")
+	// 	//inviteChannel(parameter, parameter2, client);
+	// else if (command == "MODE") 
+	// 	//mode(parameter, parameter2, parameter3, client);
+	else
+	{
+		std::string errorMessage = "421 " + sender.getNick() + " " + command + " :Unknown command\r\n";
+		std::cout << errorMessage;
+		// sendToClient(sender.getFd(), errorMessage);
+	}
+}
+
+void Server::parseCommand(std::string clientData, Client& sender){
+	std::cout << "Current client : " << sender.getFd() << std::endl;
+	std::vector<std::string> commands = splitString(clientData, "\r\n");
+	std::vector<std::string>::const_iterator it;
+	for (it = commands.begin(); it != commands.end(); ++it) 
+	{
+		std::istringstream iss(removeNonPrintable(*it));
+		std::string command, param1, param2, param3;
+		iss >> command >> param1 >> param2 >> param3;
+		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
+		if (sender.isRegistered == false)
+		{
+			//std::cout << "password : " << sender.hasPassword << std::endl;
+			//std::cout << "NICK : " << sender.getNick() << std::endl;
+			//std::cout << "USER : " << sender.getUser() << std::endl;
+			commandsRegister(sender, command, param1);
+			if (sender.hasPassword == true && sender.getNick().compare(" ") && sender.getUser().compare(" "))
+			{
+				sender.isRegistered = true;
+				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
+				send(sender.getFd(), str.c_str(), str.length(), 0);
+				//std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";
+				//std::cout << welcomeMessage;
+				// sendToClient(sender.getFd(), welcomeMessage);
+			}
+		}
+		else
+		{
+			//std::cout << "else" << std::endl;
+			std::cout << "Nick: " << sender.getNick()  << std::endl;
+			std::cout << "User: " << sender.getUser() << std::endl;
+		}
+		// else if (command == "QUIT")
+		// {
+		// 	close(sender.getFd());
+		// 	//other functions for clearing all the data
+		// }
+		// else
+		// {
+		// 	//commandsAll(sender, command, param1, param2, param3);
+		// 	std::cout << "Nick: " << sender.getNick()  << std::endl;
+		// 	std::cout << "User: " << sender.getUser() << std::endl;
+		// }
+	}
+}
+
+
+
+//helper functions
+std::string removeNonPrintable(const std::string& input) {
+    std::string result;
+    for (char c : input) {
+        if (std::isprint(static_cast<unsigned char>(c))) {
+            result += c;
+        }
+    }
+    return result;
+}
+
+std::vector<std::string> splitString(std::string str, std::string delimiter) {
+    std::vector<std::string> result;
+    size_t pos = 0;
+    std::string token;
+
+    while ((pos = str.find(delimiter)) != std::string::npos) {
+        token = str.substr(0, pos);
+        result.push_back(token);
+        str.erase(0, pos + delimiter.length());
+    }
+    result.push_back(str);
+    return result;
+}

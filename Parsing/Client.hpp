@@ -11,8 +11,8 @@ class Client
 		std::string _ipAdd;
 		std::string	_port;
 		int 					_fd;
-		std::string 	_nickName;
-		std::string 	_userName;
+		std::string 	_nick;
+		std::string 	_user;
 
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
@@ -28,15 +28,15 @@ class Client
 		Client(void);
 		~Client(void);
 
-		bool isRegistered = false;
-		bool hasPassword = false;
+		bool isRegistered ;
+		bool hasPassword ;
 		// GETTERS UND SETTERS
 		int getFd() const; 
 		void setFd(int fd);
 		void setIpAdd(std::string ipadd);
 		//	void setPassword(std::string& password);
-		void setNickname(std::string& nickName);
-		void setUsername(std::string& userName);
+		void setNickname(std::string& nick);
+		void setUsername(std::string& user);
 		//	std::string getPassword() const;
 		//	std::string getNickname() const;
 		//	std::string getUsername() const;

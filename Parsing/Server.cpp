@@ -266,9 +266,9 @@ int Server::checkNick(std::string nick){
 		return (1);
 
 }
-void Server::commandsRegister(Client sender, std::string command, std::string param1){
-	std::cout << "Commands register " <<  std::endl;
-	std::cout << "Command: " << command <<  std::endl;
+void Server::commandsRegister(Client& sender, std::string command, std::string param1){
+	//std::cout << "Commands register by anita" <<  std::endl;
+	//std::cout << "Command: " << command <<  std::endl;
 	if (command == "NICK")
 	{
 		//std::cout << "NICK" << std::endl;
@@ -324,28 +324,35 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 }
 
 void Server::parseCommand(std::string clientData, Client &sender){
-    std::cout << "Current client : " << sender.getFd() << std::endl;
-    std::vector<std::string> commands = splitString(clientData, "\r\n");
-    std::vector<std::string>::const_iterator it;
-    for (it = commands.begin(); it != commands.end(); ++it) {
-        std::istringstream iss(removeNonPrintable(*it));
-    	std::string command, param1, param2, param3;
-    	iss >> command >> param1 >> param2 >> param3;
-    	//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
+	std::cout << "Current client : " << sender.getFd() << std::endl;
+	std::vector<std::string> commands = splitString(clientData, "\r\n");
+	std::vector<std::string>::const_iterator it;
+	for (it = commands.begin(); it != commands.end(); ++it) 
+	{
+		std::istringstream iss(removeNonPrintable(*it));
+		std::string command, param1, param2, param3;
+		iss >> command >> param1 >> param2 >> param3;
+		std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
 		if (sender.isRegistered == false)
+		{
+			std::cout << "password : " << sender.hasPassword << std::endl;
+			std::cout << "NICK : " << sender.getNick() << std::endl;
+			std::cout << "USER : " << sender.getUser() << std::endl;
+			commandsRegister(sender, command, param1);
+			if (sender.hasPassword == true && sender.getNick().compare("") && sender.getUser().compare(""))
 			{
-				commandsRegister(sender, command, param1);
-				if (sender.hasPassword == true && sender.getNick() != "" && sender.getUser() != "")
-				{
-					sender.isRegistered = true;
-					std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";
-					std::cout << welcomeMessage;
-					// sendToClient(sender.getFd(), welcomeMessage);
-				}
+				sender.isRegistered = true;
+				std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";
+				std::cout << welcomeMessage;
+				// sendToClient(sender.getFd(), welcomeMessage);
 			}
+		}
 		else
-			{std::cout << "Nick: " << sender.getNick()  << std::endl;
-			std::cout << "User: " << sender.getUser() << std::endl;}
+		{
+			std::cout << "else" << std::endl;
+			std::cout << "Nick: " << sender.getNick()  << std::endl;
+			std::cout << "User: " << sender.getUser() << std::endl;
+		}
 		// else if (command == "QUIT")
 		// {
 		// 	close(sender.getFd());
@@ -359,6 +366,7 @@ void Server::parseCommand(std::string clientData, Client &sender){
 		// }
 	}
 }
+
 
 
 //helper functions

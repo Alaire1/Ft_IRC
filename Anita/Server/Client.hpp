@@ -8,11 +8,9 @@ class Client
 {
 	private:
 		// Add your private members here
-		std::string _ipAdd;
-		std::string	_port;
 		int 				_fd;
-		std::string _nickName;
-		std::string _userName;
+		std::string _nick;
+		std::string _user;
 
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
@@ -28,14 +26,15 @@ class Client
 		Client(void);
 		~Client(void);
 
+		bool isRegistered;
+		bool hasPassword;
 		// GETTERS UND SETTERS
 		int getFd() const; 
 		void setFd(int fd);
-		void setIpAdd(std::string ipadd);
 		//	void setPassword(std::string& password);
-		void setNickName(std::string& nickName);
+		void setNickName(std::string& nick);
 
-		void setUserName(std::string& userName);
+		void setUserName(std::string& user);
 		//	std::string getPassword() const;
 		//	std::string getNickname() const;
 		//	std::string getUsername() const;

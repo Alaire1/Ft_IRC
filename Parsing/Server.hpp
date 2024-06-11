@@ -66,7 +66,7 @@ class Server
 		Client findClientByFd(int fd);
 		void parseCommand(std::string clientData, Client &sender);
 		int checkNick(std::string nick);
-		void commandsRegister(Client sender, std::string command, std::string param1);
+		void commandsRegister(Client &sender, std::string command, std::string param1);
 		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3);
 
 };

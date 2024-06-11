@@ -15,6 +15,7 @@
 #include <string>
 #include "Channel.hpp"
 #include "Client.hpp"
+//#include <iomanip>
 #define MAX_CLIENTS 	10
 #define BUFFER_SIZE 	1024
 #define SERVER 				"ourSuperServer"
@@ -48,7 +49,7 @@ class Server
 		void runServer();
 		void initServer();
 		void acceptClient();
-		void handleData(int fd, size_t idx);
+		void handleData(int fd, Client &sender, size_t idx);
 		void closeFds();
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
 
@@ -60,8 +61,20 @@ class Server
 		void 		printclientfds(std::vector<Client> clients);
 		void    printfds(std::vector<pollfd> fds);
 		bool    isSocketClosed(int sockfd); 
+
+		//PARSING FUNCTIONS
+		Client findClientByFd(int fd);
+		void parseCommand(std::string clientData, Client &sender);
+		int checkNick(std::string nick);
+		void commandsRegister(Client &sender, std::string command, std::string param1);
+		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3);
+
 };
 
+std::string removeNonPrintable(const std::string& input);
+
+// Function to split a string by a given delimiter into a vector of strings
+std::vector<std::string> splitString(std::string str, std::string delimiter);
 
 #endif // SERVER_HPP
 
