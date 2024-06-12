@@ -119,12 +119,10 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	} 
 	else 
 	{
-		//buffer[bytesRead] = '\r';
-		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
-	//	ircMessageParser(buffer, *this);
 		parseCommand(buffer, sender);
-
-
+		//buffer[bytesRead] = '\r';
+		//	std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
+		//	ircMessageParser(buffer, *this);
 		// Echo message back to client
 		//if(!strncmp(buffer, "test", 4))
 		//{
@@ -263,14 +261,20 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 {
 	std::stringstream message;
 	// Build the message components
-		message << ":" << prefix << " " << cmd;
-	//message << Channel/Client;
+	message << ":" << prefix << " " << cmd;
 	// Add parameters if any
 	if (!params.empty()) 
 	{
 		for(size_t i = 0; i < params.size(); i++)
-			message << " " << params[i];
+		{
+			if (params[i] == " ")
+				message << " " << "*";
+			else
+				message << " " << params[i];
+		}
 	}
+	else
+		message << " " << "*";
 
 	// Add trailing parameter if provided
 	if (!trailingParam.empty()) {
@@ -320,6 +324,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	std::cout << "Sent: " << message << " to " << client.getNick() << std::endl;
 	return (0);
 }
+
 void Server::commandsRegister(Client& sender, std::string command, std::string param1){
 	if (command == "NICK")
 	{
@@ -333,6 +338,7 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 	}
 	else if (command == "PASS")
 	{
+		//std::cout << "NICK : " << sender.getNick() << std::endl;
 		if (param1 == _pwd)
 			sender.setHasPassword(true);
 		else
@@ -401,11 +407,12 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			if (sender.getHasPassword() == true && sender.getNick().compare(" ") && sender.getUser().compare(" "))
 			{
 				sender.setIsRegistered(true);
+			//	std::cout << "NICK : " << sender.getNick() << std::endl;
 				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
 
 				//std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";
-				//std::cout << welcomeMessage;
-				 //sendToClient(str, sender);
+				//std::cout << str;
+				sendToClient(str, sender);
 			}
 		}
 		else
