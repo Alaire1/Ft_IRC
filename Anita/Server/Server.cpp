@@ -5,7 +5,10 @@
 
 Server::Server(){}
 
-Server::Server(int port, std::string password) : _serverFd(-1), _port(port), _pwd(password){}
+Server::Server(int port, std::string password) : _serverFd(-1), _port(port), _pwd(password)
+{
+	_myValidCommands = listValidCommands();
+}
 
 Server::~Server(){}
 
@@ -471,11 +474,18 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			}
 		}
 		else
-		{
-			//std::cout << "else" << std::endl;
-			std::cout << "Nick: " << sender.getNick()  << std::endl;
-			std::cout << "User: " << sender.getUser() << std::endl;
-			commandsAll(sender, command, param1, param2, param3);
+		{	
+			if (isValidCommand(command) == false)
+			{
+				std::string errorMessage = "421 " + sender.getNick() + " " + command + " :Unknown command\r\n";
+				std::cout << errorMessage;
+				sendToClient(errorMessage, sender);
+			}
+			else
+			{
+				commandsAll(sender, command, param1, param2, param3);
+			}
+			
 		}
 		// else if (command == "QUIT")
 		// {
@@ -517,4 +527,30 @@ std::vector<std::string> splitString(std::string str, std::string delimiter) {
     result.push_back(str);
     return result;
 }
-//some change
+
+
+bool isValidCommand(const std::string& inputCommand) {
+	std::vector<std::string>::const_iterator it;
+	for (it = valid_commands.begin(); it != valid_commands.end(); ++it) {
+		if (*it == inputCommand)
+			return true;
+	}
+	return false;
+}
+std::vector<std::string> listValidCommands()
+{
+ 	valid_commands.push_back("JOIN");
+ 	valid_commands.push_back("PART");
+ 	valid_commands.push_back("PRIVMSG");
+ 	valid_commands.push_back("QUIT");
+ 	valid_commands.push_back("NICK");
+ 	valid_commands.push_back("USER");
+ 	valid_commands.push_back("KICK");
+ 	valid_commands.push_back("MODE");
+ 	valid_commands.push_back("INVITE");
+ 	valid_commands.push_back("TOPIC");
+ 	valid_commands.push_back("PASS");
+ 	valid_commands.push_back("NOTICE");
+ 	valid_commands.push_back("WHO");
+	return (valid_commands);
+}

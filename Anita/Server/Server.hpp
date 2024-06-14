@@ -31,6 +31,7 @@ class Server
 		std::vector<struct pollfd> _fds;
 		std::vector<Client> _clients;
 		std::vector<Channel> _channels;
+		std::vector<std::string> _myValidCommands;
 
 
 	public:
@@ -70,6 +71,8 @@ class Server
 		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3);
 		int sendToClient(const std::string& message, const Client& client) const;
 		void deleteClient(int fd);
+		std::vector<std::string> listValidCommands();
+		bool isValidCommand(const std::string& inputCommand);
 
 		//CHANNEL FUNCTIONS
 		void joinChannel(Client &sender, std::string channelName);
