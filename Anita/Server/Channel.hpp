@@ -15,8 +15,12 @@ class Channel
 		std::string _key; // password
 
 		bool _isInviteOnly;
-		bool _restrictTopic;
+		std::vector<Client> _invitees;
+
+		bool _hasMaxUsers;
 		int _maxUsers;
+
+		bool _restrictTopic;
 
 		std::vector<Client> _clients;
 		std::string _operatorNick;
@@ -32,6 +36,7 @@ class Channel
 
 		//added by Nikola
 		bool clientNotInChannel(Client& client);
+		bool isInvitedToChannel(Client& client);
 
 		//setters
 		void setInviteOnly(bool isInviteOnly);
@@ -43,10 +48,16 @@ class Channel
 		void setKey(std::string key);
 		void topicCommand(Client& client, std::string topic);
 		void removeKey(); //MODE -k
+		bool containsClient(Client& client);
 
+		void addUser(Client& client);
+		void addOperator(Client& client);
 		//getters
 		size_t getUsernum();//number of users in the channel
 		std::string getChannelName();
+		bool isInviteOnly();
+		bool hasMaxUsers();
+		size_t maxNumOfUsers();
 
 
 };

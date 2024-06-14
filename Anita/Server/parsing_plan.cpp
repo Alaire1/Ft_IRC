@@ -159,87 +159,86 @@ bool isValidChannelName(std::string channel_name)
 	return true;
 }
 
-void channelJoiningAttempt(std::string &prefix, std::vector<std::string> &params, Server& server)
-{
-	std::string placeholder_for_using_prefix_so_that_it_does_not_give_warning = prefix;
-	if (params.size() == 0)
-	{
-		std::cout << "Not enough parameters" << std::endl;
-		return ;
-	}
-	if (params.size() > 0)
-	{
-		if (isValidChannelName(params[0]) == false)
-		{
-			std::cout << "Invalid channel name" << std::endl;
-			return ;
-		}
-		std::cout << "Channel name is valid" << std::endl;
-	}
-	if (server.channelExists(params[0]))
-	{
-		std::cout << "Channel exists. THE CLIENT WILL TRY TO JOIN IT" << std::endl;
-	}
-	else
-	{
-		std::cout << "Channel does not exist. THE CLIENT WILL TRY TO CREATE IT" << std::endl;
+// void channelJoiningAttempt(std::string &prefix, std::vector<std::string> &params, Server& server)
+// {
+// 	std::string placeholder_for_using_prefix_so_that_it_does_not_give_warning = prefix;
+// 	if (params.size() <= 0)
+// 	{
+// 		std::cout << "Not enough parameters" << std::endl;
+// 		return ;
+// 	}
 	
-	}
+// 	if (isValidChannelName(params[0]) == false)
+// 	{
+// 		std::cout << "Invalid channel name" << std::endl;
+// 		return ;
+// 	}
+// 	std::cout << "Channel name is valid" << std::endl;	
+// 	if (server.channelExists(params[0]))
+// 	{
+// 		std::cout << "Channel exists. THE CLIENT WILL TRY TO JOIN IT" << std::endl;
+// 		server.joinChannel(prefix, params[0]);
+// 	}
+// 	else
+// 	{
+// 		std::cout << "Channel does not exist. THE CLIENT WILL TRY TO CREATE IT" << std::endl;
+	
+// 	}
 
-}
+// }
 
 
-void ircMessageParser (std::string message, Server& server)
-{
-	std::string prefix;
-	std::string command;
-	std::vector<std::string> params;
-	std::string trailing;
+// void ircMessageParser (std::string message, Server& server)
+// {
+// 	std::string prefix;
+// 	std::string command;
+// 	std::vector<std::string> params;
+// 	std::string trailing;
 
-	listValidCommands(); //should be moved to server's constructor
+// 	listValidCommands(); //should be moved to server's constructor
 
-	if (message[0] == ':')
-		prefix = message.substr(1, message.find(' ') - 1);
+// 	if (message[0] == ':')
+// 		prefix = message.substr(1, message.find(' ') - 1);
 
-	command = message.substr(0, message.find(' '));
-	message = message.substr(message.find(' ') + 1);
+// 	command = message.substr(0, message.find(' '));
+// 	message = message.substr(message.find(' ') + 1);
 
-	while (message[0] == ':')
-	{
-		params.push_back(message.substr(1, message.find(' ') - 1));
-		message = message.substr(message.find(' ') + 1);
-	}
+// 	while (message[0] == ':')
+// 	{
+// 		params.push_back(message.substr(1, message.find(' ') - 1));
+// 		message = message.substr(message.find(' ') + 1);
+// 	}
 
-	while (message.find(' ') != std::string::npos)
-	{
-		 params.push_back(message.substr(0, message.find(' ')));
-		 message = message.substr(message.find(' ') + 1);
-	}
+// 	while (message.find(' ') != std::string::npos)
+// 	{
+// 		 params.push_back(message.substr(0, message.find(' ')));
+// 		 message = message.substr(message.find(' ') + 1);
+// 	}
 
-	trailing = message;
+// 	trailing = message;
 
-	std::cout << "Prefix: " << prefix << std::endl;
-	std::cout << "Command(" << command << ")" << std::endl;
-	for (unsigned long i = 0; i < params.size(); i++)
-	{
-		std::cout << "Param " << i << ": " << params[i] << std::endl;
-	}
-	std::cout << "Trailing: " << trailing << std::endl;
+// 	std::cout << "Prefix: " << prefix << std::endl;
+// 	std::cout << "Command(" << command << ")" << std::endl;
+// 	for (unsigned long i = 0; i < params.size(); i++)
+// 	{
+// 		std::cout << "Param " << i << ": " << params[i] << std::endl;
+// 	}
+// 	std::cout << "Trailing: " << trailing << std::endl;
 
-	if (std::find(valid_commands.begin(), valid_commands.end(), command) != valid_commands.end())
-	{
-		std::cout << "Command is valid" << std::endl;
-	}
-	else
-	{
-		std::cout << "Command is invalid" << std::endl;
-		return ;
-	}
-	if (command == "JOIN")
-	{
-		channelJoiningAttempt(prefix, params, server);
-	}
+// 	if (std::find(valid_commands.begin(), valid_commands.end(), command) != valid_commands.end())
+// 	{
+// 		std::cout << "Command is valid" << std::endl;
+// 	}
+// 	else
+// 	{
+// 		std::cout << "Command is invalid" << std::endl;
+// 		return ;
+// 	}
+// 	if (command == "JOIN")
+// 	{
+// 		channelJoiningAttempt(prefix, params, server);
+// 	}
 	
 
-}
+// }
 

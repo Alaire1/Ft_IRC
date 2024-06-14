@@ -119,7 +119,13 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	} 
 	else 
 	{
+
 		parseCommand(buffer, sender);
+
+
+
+
+
 		//buffer[bytesRead] = '\r';
 		//	std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		//	ircMessageParser(buffer, *this);
@@ -353,17 +359,69 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 
 		}
 }
+
+Channel *Server::returnExistingChannel(std::string &channelName)
+{
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (it->getChannelName() == channelName)
+			return &(*it);
+	}
+	return nullptr;
+} 
+
+
+
+
+void Server::joinChannel(Client &sender, std::string channelName)
+{
+	std::cout << "Joining channel: " << channelName << std::endl;
+	if (channelExists(channelName))
+	{
+		Channel *channel = returnExistingChannel(channelName);
+		if (channel->containsClient(sender) == true)
+		{
+			std::string errorMessage = serverReply(SERVER, "403", {sender.getNick(), channelName}, "You are already in that channel");
+			sendToClient(errorMessage, sender);
+			return;
+		}
+		if (channel->isInviteOnly() && channel->isInvitedToChannel(sender) == false)
+		{
+			std::string errorMessage = serverReply(SERVER, "473", {sender.getNick(), channelName}, "Channel is invite only, and you are not invited");
+			sendToClient(errorMessage, sender);
+			return;
+		}
+		if (channel->hasMaxUsers() && channel->getUsernum() >= channel->maxNumOfUsers())
+		{
+			std::string errorMessage = serverReply(SERVER, "471", {sender.getNick(), channelName}, "Channel is full");
+			sendToClient(errorMessage, sender);
+			return;
+		}
+		channel->addUser(sender);
+		std::string successMessage = serverReply(SERVER, "JOIN", {sender.getNick(), channelName}, "Channel joined successfully");
+		sendToClient(successMessage, sender);
+	}
+	else
+	{
+		Channel newChannel(channelName);
+		newChannel.addUser(sender);
+		newChannel.addOperator(sender);
+		_channels.push_back(newChannel);
+		std::string successMessage = serverReply(SERVER, "JOIN", {sender.getNick(), channelName}, "Channel created and joined successfully");
+		sendToClient(successMessage, sender);
+	}
+}
+
 	
 	
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3)
 {
 	(void)parameter2;
 	(void)parameter3;
-	(void)parameter1;
 	std::cout << "Command: " << command << std::endl;
 	if (command == "JOIN")
 	{
-		//joinChannel(parameter, message, client);
+		joinChannel(sender, parameter1);
 		std::cout << "JOIN" << std::endl;
 	}
 	// else if (command == "PART")
@@ -397,12 +455,9 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		std::istringstream iss(removeNonPrintable(*it));
 		std::string command, param1, param2, param3;
 		iss >> command >> param1 >> param2 >> param3;
-		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
+		std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
 		if (sender.getIsRegistered() == false)
 		{
-			//std::cout << "password : " << sender.hasPassword << std::endl;
-			//std::cout << "NICK : " << sender.getNick() << std::endl;
-			//std::cout << "USER : " << sender.getUser() << std::endl;
 			commandsRegister(sender, command, param1);
 			if (sender.getHasPassword() == true && sender.getNick().compare(" ") && sender.getUser().compare(" "))
 			{
@@ -420,6 +475,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			//std::cout << "else" << std::endl;
 			std::cout << "Nick: " << sender.getNick()  << std::endl;
 			std::cout << "User: " << sender.getUser() << std::endl;
+			commandsAll(sender, command, param1, param2, param3);
 		}
 		// else if (command == "QUIT")
 		// {

@@ -71,6 +71,11 @@ class Server
 		int sendToClient(const std::string& message, const Client& client) const;
 		void deleteClient(int fd);
 
+		//CHANNEL FUNCTIONS
+		void joinChannel(Client &sender, std::string channelName);
+		Channel *returnExistingChannel(std::string &channelName);
+		
+
 };
 
 std::string removeNonPrintable(const std::string& input);

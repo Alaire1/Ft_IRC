@@ -22,11 +22,35 @@ std::string Channel::getChannelName()
 	return _name;
 }
 
+bool Channel::isInviteOnly()
+{
+	return _isInviteOnly;
+}
+
+bool Channel::hasMaxUsers()
+{
+	return _hasMaxUsers;
+}
 
 void Channel::invite(Client& client) // before that function in parsing we have to check if someone that is using the invite command is an operator //
 {
     _clients.push_back(client);
 }
+
+bool Channel::isInvitedToChannel(Client& client)
+{
+    return std::find(_invitees.begin(), _invitees.end(), client) != _invitees.end();
+}
+
+void Channel::addUser(Client& client)
+{
+    _clients.push_back(client);
+}
+void Channel::addOperator(Client& client)
+{
+    _clients.push_back(client);
+}
+
 
 void Channel::topicCommand(Client& client, std::string topic)
 {
@@ -91,6 +115,12 @@ void Channel::leave(Client& client)
         }
     }
 }
+
+
+bool Channel::containsClient(Client& client)
+{
+    return std::find(_clients.begin(), _clients.end(), client) != _clients.end();
+}
 void Channel::setInviteOnly(bool isInviteOnly) //MODE +i or Mode -i
 {
     _isInviteOnly = isInviteOnly;
@@ -128,4 +158,9 @@ size_t Channel::getUsernum()
 {
 	return _clients.size();
 }
+
+
+size_t Channel::maxNumOfUsers()
+{
+	return _maxUsers;}
 
