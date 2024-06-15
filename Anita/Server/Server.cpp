@@ -441,12 +441,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// 	//inviteChannel(parameter, parameter2, client);
 	// else if (command == "MODE") 
 	// 	//mode(parameter, parameter2, parameter3, client);
-	else
-	{
-		std::string errorMessage = "421 " + sender.getNick() + " " + command + " :Unknown command\r\n";
-		std::cout << errorMessage;
-		//sendToClient(sender.getFd(), errorMessage);
-	}
+	
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){
