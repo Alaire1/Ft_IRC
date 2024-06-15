@@ -575,23 +575,6 @@ bool Server::isValidCommand(const std::string& inputCommand) {
 }
 std::vector<std::string> Server::listValidCommands()
 {
-<<<<<<< HEAD
- 	valid_commands.push_back("JOIN");
- 	valid_commands.push_back("PART");
- 	valid_commands.push_back("PRIVMSG");
- 	valid_commands.push_back("QUIT");
- 	valid_commands.push_back("NICK");
- 	valid_commands.push_back("USER");
- 	valid_commands.push_back("KICK");
- 	valid_commands.push_back("MODE");
- 	valid_commands.push_back("INVITE");
- 	valid_commands.push_back("TOPIC");
- 	valid_commands.push_back("PASS");
- 	valid_commands.push_back("NOTICE");
- 	valid_commands.push_back("WHO");
-	return (valid_commands);
-
-=======
  	_myValidCommands.push_back("JOIN");
  	_myValidCommands.push_back("PART");
  	_myValidCommands.push_back("PRIVMSG");
@@ -607,4 +590,3 @@ std::vector<std::string> Server::listValidCommands()
  	_myValidCommands.push_back("WHO");
 	return (_myValidCommands);
 }
->>>>>>> ae2ada5 (errors due to not making functions in the scope of Server object has been corrected)
