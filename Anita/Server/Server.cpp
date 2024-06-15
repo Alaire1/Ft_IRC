@@ -477,8 +477,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		{	
 			if (isValidCommand(command) == false)
 			{
-				std::string errorMessage = "421 " + sender.getNick() + " " + command + " :Unknown command\r\n";
-				std::cout << errorMessage;
+				std::string errorMessage = serverReply(SERVER, "421", {sender.getNick(), command}, "Unknown command");
 				sendToClient(errorMessage, sender);
 			}
 			else
