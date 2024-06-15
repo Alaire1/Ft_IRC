@@ -295,10 +295,14 @@ std::string Server::numReplyGenerator(const std::string& client, const std::vect
 {
 	std::string intStr;
 	std::stringstream cmd;
+	std::cout << "Error code: " << errorCode << std::endl;
 	cmd << errorCode;
+	
 	cmd >> intStr;
+	std::cout << "intStr: " << intStr << std::endl;
 	if(params.empty())
 		return (serverReply(client, intStr, {""}, numericReplyMap.find(errorCode)->second));
+
 	return (serverReply(client, intStr, params, numericReplyMap.find(errorCode)->second));
 	;
 }
@@ -393,8 +397,11 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 			sender.setHasPassword(true);
 		else
 		{
+			std::cout << "Password is incorrect" << std::endl;
 			std::string errorMessage = numReplyGenerator(SERVER, {sender.getNick()}, 464);
+			std::cout << "test 1" << std::endl;
 			sendToClient(errorMessage, sender); // we have to handle errors while sending
+			std::cout << "Password is incorrect test2" << std::endl;
 		}
 	}
 	else if (command == "QUIT")
@@ -499,7 +506,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		if (sender.getIsRegistered() == false)
 		{
 			commandsRegister(sender, command, param1);
-			if (sender.getHasPassword() == true && sender.getNick().compare(" ") && sender.getUser().compare(" "))
+			if (sender.getHasPassword() == true && sender.getNick().compare("") && sender.getUser().compare(""))
 			{
 				sender.setIsRegistered(true);
 			//	std::cout << "NICK : " << sender.getNick() << std::endl;
@@ -575,6 +582,7 @@ bool Server::isValidCommand(const std::string& inputCommand) {
 }
 std::vector<std::string> Server::listValidCommands()
 {
+	std::cout << "List of valid commands" << std::endl;
  	_myValidCommands.push_back("JOIN");
  	_myValidCommands.push_back("PART");
  	_myValidCommands.push_back("PRIVMSG");
@@ -588,5 +596,6 @@ std::vector<std::string> Server::listValidCommands()
  	_myValidCommands.push_back("PASS");
  	_myValidCommands.push_back("NOTICE");
  	_myValidCommands.push_back("WHO");
+	std::cout << "List of valid commands end" << std::endl;
 	return (_myValidCommands);
 }

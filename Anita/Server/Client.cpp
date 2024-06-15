@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client(void) : _fd(-1), _nick(" "), _user(" "), _isRegistered(false), _hasPassword(false) {}
+Client::Client(void) : _fd(-1), _nick(""), _user(""), _isRegistered(false), _hasPassword(false) {}
 
 Client::~Client(void) {}
 
