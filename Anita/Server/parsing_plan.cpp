@@ -116,48 +116,48 @@
 //     return true;
 // }
 
-std::vector<std::string> valid_commands;
+// std::vector<std::string> valid_commands;
 
-std::vector<std::string> listValidCommands() //should be moved to server's constructor
-{
- 	valid_commands.push_back("JOIN");
- 	valid_commands.push_back("PART");
- 	valid_commands.push_back("PRIVMSG");
- 	valid_commands.push_back("QUIT");
- 	valid_commands.push_back("NICK");
- 	valid_commands.push_back("USER");
- 	valid_commands.push_back("KICK");
- 	valid_commands.push_back("MODE");
- 	valid_commands.push_back("INVITE");
- 	valid_commands.push_back("TOPIC");
- 	valid_commands.push_back("PASS");
- 	valid_commands.push_back("NOTICE");
- 	valid_commands.push_back("WHO");
-	return (valid_commands);
-}
+// std::vector<std::string> listValidCommands() //should be moved to server's constructor
+// {
+//  	valid_commands.push_back("JOIN");
+//  	valid_commands.push_back("PART");
+//  	valid_commands.push_back("PRIVMSG");
+//  	valid_commands.push_back("QUIT");
+//  	valid_commands.push_back("NICK");
+//  	valid_commands.push_back("USER");
+//  	valid_commands.push_back("KICK");
+//  	valid_commands.push_back("MODE");
+//  	valid_commands.push_back("INVITE");
+//  	valid_commands.push_back("TOPIC");
+//  	valid_commands.push_back("PASS");
+//  	valid_commands.push_back("NOTICE");
+//  	valid_commands.push_back("WHO");
+// 	return (valid_commands);
+// }
 
 
 
-bool isValidChannelName(std::string channel_name)
-{
-	if (channel_name.size() == 0)
-	{
-		return false;
-	}
-	if (channel_name.size() > 50)
-	{
-		return false;
-	}
-	if ((channel_name[0] != '#') &&  (channel_name[0] != '&') &&  (channel_name[0] != '+') && (channel_name[0] != '!'))
-	{
-		return false;
-	}
-	if ((channel_name.find(' ') != std::string::npos) || ((channel_name.find(',') != std::string::npos)) || (channel_name.find(7) != std::string::npos))
-	{
-		return false;
-	}
-	return true;
-}
+// bool isValidChannelName(std::string channel_name)
+// {
+// 	if (channel_name.size() == 0)
+// 	{
+// 		return false;
+// 	}
+// 	if (channel_name.size() > 50)
+// 	{
+// 		return false;
+// 	}
+// 	if ((channel_name[0] != '#') &&  (channel_name[0] != '&') &&  (channel_name[0] != '+') && (channel_name[0] != '!'))
+// 	{
+// 		return false;
+// 	}
+// 	if ((channel_name.find(' ') != std::string::npos) || ((channel_name.find(',') != std::string::npos)) || (channel_name.find(7) != std::string::npos))
+// 	{
+// 		return false;
+// 	}
+// 	return true;
+// }
 
 // void channelJoiningAttempt(std::string &prefix, std::vector<std::string> &params, Server& server)
 // {

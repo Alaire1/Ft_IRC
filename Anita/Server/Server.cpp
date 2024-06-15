@@ -565,16 +565,17 @@ std::vector<std::string> splitString(std::string str, std::string delimiter) {
 }
 
 
-bool isValidCommand(const std::string& inputCommand) {
+bool Server::isValidCommand(const std::string& inputCommand) {
 	std::vector<std::string>::const_iterator it;
-	for (it = valid_commands.begin(); it != valid_commands.end(); ++it) {
+	for (it = _myValidCommands.begin(); it != _myValidCommands.end(); ++it) {
 		if (*it == inputCommand)
 			return true;
 	}
 	return false;
 }
-std::vector<std::string> listValidCommands()
+std::vector<std::string> Server::listValidCommands()
 {
+<<<<<<< HEAD
  	valid_commands.push_back("JOIN");
  	valid_commands.push_back("PART");
  	valid_commands.push_back("PRIVMSG");
@@ -590,3 +591,20 @@ std::vector<std::string> listValidCommands()
  	valid_commands.push_back("WHO");
 	return (valid_commands);
 
+=======
+ 	_myValidCommands.push_back("JOIN");
+ 	_myValidCommands.push_back("PART");
+ 	_myValidCommands.push_back("PRIVMSG");
+ 	_myValidCommands.push_back("QUIT");
+ 	_myValidCommands.push_back("NICK");
+ 	_myValidCommands.push_back("USER");
+ 	_myValidCommands.push_back("KICK");
+ 	_myValidCommands.push_back("MODE");
+ 	_myValidCommands.push_back("INVITE");
+ 	_myValidCommands.push_back("TOPIC");
+ 	_myValidCommands.push_back("PASS");
+ 	_myValidCommands.push_back("NOTICE");
+ 	_myValidCommands.push_back("WHO");
+	return (_myValidCommands);
+}
+>>>>>>> ae2ada5 (errors due to not making functions in the scope of Server object has been corrected)
