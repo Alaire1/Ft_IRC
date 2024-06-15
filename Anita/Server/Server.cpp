@@ -1,9 +1,35 @@
 #include "Server.hpp"
 #include "parsing_plan.cpp"
-#include <cstddef>
-#include <sstream>
 
-Server::Server(){}
+//Server.cpp
+void Server::initializeReplyMap()
+{
+	numericReplyMap[331] = {code_331};
+	numericReplyMap[366] = {code_366};
+	numericReplyMap[401] = {code_401};
+	numericReplyMap[403] = {code_403};
+	numericReplyMap[404] = {code_404};
+	numericReplyMap[411] = {code_411};
+	numericReplyMap[412] = {code_412};
+	numericReplyMap[421] = {code_421};
+	numericReplyMap[431] = {code_431};
+	numericReplyMap[432] = {code_432};
+	numericReplyMap[433] = {code_433};
+	numericReplyMap[441] = {code_441};
+	numericReplyMap[442] = {code_442};
+	numericReplyMap[443] = {code_443};
+	numericReplyMap[461] = {code_461};
+	numericReplyMap[462] = {code_462};
+	numericReplyMap[464] = {code_464};
+	numericReplyMap[471] = {code_471};
+	numericReplyMap[473] = {code_473};
+	numericReplyMap[482] = {code_482};
+}
+
+Server::Server()
+{
+	void initializeReplyMap();
+}
 
 Server::Server(int port, std::string password) : _serverFd(-1), _port(port), _pwd(password)
 {
@@ -265,6 +291,17 @@ int	Server::clearChannelsNoUsers()
 	return (1);
 }
 
+std::string Server::numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode)
+{
+	std::string intStr;
+	std::stringstream cmd;
+	cmd << errorCode;
+	cmd >> intStr;
+	if(params.empty())
+		return (serverReply(client, intStr, {""}, numericReplyMap.find(errorCode)->second));
+	return (serverReply(client, intStr, params, numericReplyMap.find(errorCode)->second));
+	;
+}
 
 std::string Server::serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam)
 {
@@ -276,7 +313,7 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 	{
 		for(size_t i = 0; i < params.size(); i++)
 		{
-			if (params[i] == " ")
+			if (params[i] == "")
 				message << " " << "*";
 			else
 				message << " " << params[i];
@@ -292,8 +329,12 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 	message << "\r\n";
 	// Return the complete server reply string
 	return message.str();
-}
+		//e.g. 	std::string str = serverReply(SERVER, "001", {"exampleNick"}, "Welcome to ft_irc serverrrr!");
+		//":ft_irc 001 exampleNick :Welcome to ft_irc server!\n";
+		//":clientNick JOIN #thisChannel ("NULL");
+		//:ircserver.com 433 *  Nickname is already in use;
 
+}
 //PARSING FUNCTIONS
 
 
@@ -352,7 +393,7 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 			sender.setHasPassword(true);
 		else
 		{
-			std::string errorMessage = serverReply(SERVER, "464", {sender.getNick()}, "Password wjdhwdw dwdrjbwgyufw fnwe4vgfyfr");
+			std::string errorMessage = numReplyGenerator(SERVER, {sender.getNick(), 464);
 			sendToClient(errorMessage, sender); // we have to handle errors while sending
 		}
 	}
@@ -384,7 +425,8 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		Channel *channel = returnExistingChannel(channelName);
 		if (channel->containsClient(sender) == true)
 		{
-			std::string errorMessage = serverReply(SERVER, "403", {sender.getNick(), channelName}, "You are already in that channel");
+			std::string errorMessage = numReplyGenerator(SERVER, {sender.getNick(), channelName}, 464);
+			//std::string errorMessage = serverReply(SERVER, "403", {sender.getNick(), channelName}, "You are already in that channel");
 			sendToClient(errorMessage, sender);
 			return;
 		}
@@ -472,7 +514,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		{	
 			if (isValidCommand(command) == false)
 			{
-				std::string errorMessage = serverReply(SERVER, "421", {sender.getNick(), command}, "Unknown command");
+				std::string errorMessage = numReplyGenerator(sender.getNick(), "", 421);
 				sendToClient(errorMessage, sender);
 			}
 			else
@@ -547,4 +589,4 @@ std::vector<std::string> listValidCommands()
  	valid_commands.push_back("NOTICE");
  	valid_commands.push_back("WHO");
 	return (valid_commands);
-}
+

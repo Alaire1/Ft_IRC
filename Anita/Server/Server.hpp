@@ -13,9 +13,12 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <string>
+#include <map>
+#include <cstddef>
+#include <sstream>
+//#include <iomanip>
 #include "Channel.hpp"
 #include "Client.hpp"
-//#include <iomanip>
 #define MAX_CLIENTS 	10
 #define BUFFER_SIZE 	1024
 #define SERVER 				"ourSuperServer"
@@ -32,6 +35,10 @@ class Server
 		std::vector<Client> _clients;
 		std::vector<Channel> _channels;
 		std::vector<std::string> _myValidCommands;
+		//
+		//struct replyMessage {std::string& message;};
+		std::map<int, std::string>  numericReplyMap;//numericReplies Map
+		void initializeReplyMap();
 
 
 	public:
@@ -55,7 +62,11 @@ class Server
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
 
 		bool channelExists(std::string channelName);
-		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam); //STD_IRC_Format: Prefix(optional), No.Code(optional), NICK, Trailing params
+
+		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
+
+		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
+
 
 		//TESTING FUNCTIONS
 		void    printPassword();
@@ -80,7 +91,27 @@ class Server
 		
 
 };
-
+//Static strings numeric replies 
+static std::string code_331 = "No topic is set";
+static std::string code_366 = "End of /NAMES list";
+static std::string code_401 = "No such nick/channel";
+static std::string code_403 = "No such channel";
+static std::string code_404 = "Cannot send to channel";
+static std::string code_411 = "No recipient given PRIVMSG";
+static std::string code_412 = "No text to send";
+static std::string code_421 = "Unknown command";
+static std::string code_431 = "No nickname given";
+static std::string code_432 = "Erroneus nickname";
+static std::string code_433 = "Nickname is already in use";
+static std::string code_441 = "They aren't on that channel";
+static std::string code_442 = "You're not on that channel";
+static std::string code_443 = "is already on channel";
+static std::string code_461 = "Not enough parameters";
+static std::string code_462 = "You may not reregister";
+static std::string code_464 = "Password incorrect";
+static std::string code_471 = "Cannot join channel (+l)";
+static std::string code_473 = "Cannot join channel (+i)";
+static std::string code_482 = "You're not a channel operator";
 std::string removeNonPrintable(const std::string& input);
 
 // Function to split a string by a given delimiter into a vector of strings
