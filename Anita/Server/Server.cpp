@@ -28,12 +28,12 @@ void Server::initializeReplyMap()
 
 Server::Server()
 {
-	void initializeReplyMap();
 }
 
 Server::Server(int port, std::string password) : _serverFd(-1), _port(port), _pwd(password)
 {
 	_myValidCommands = listValidCommands();
+	initializeReplyMap();
 }
 
 Server::~Server(){}
