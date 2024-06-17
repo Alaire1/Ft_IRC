@@ -293,18 +293,22 @@ int	Server::clearChannelsNoUsers()
 
 std::string Server::numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode)
 {
-	std::string intStr;
-	std::stringstream cmd;
-	//std::cout << "Error code: " << errorCode << std::endl;
-	cmd << errorCode;
-	
-	cmd >> intStr;
-	//std::cout << "intStr: " << intStr << std::endl;
-	if(params.empty())
-		return (serverReply(client, intStr, {""}, numericReplyMap[errorCode]));
+	if(numericReplyMap.find(errorCode) != numericReplyMap.end())
+	{
 
-	return (serverReply(client, intStr, params, numericReplyMap[errorCode]));
-	;
+		std::string intStr;
+		std::stringstream cmd;
+		//std::cout << "Error code: " << errorCode << std::endl;
+		cmd << errorCode;
+
+		cmd >> intStr;
+		//std::cout << "intStr: " << intStr << std::endl;
+		if(params.empty())
+			return (serverReply(client, intStr, {""}, numericReplyMap[errorCode]));
+
+		return (serverReply(client, intStr, params, numericReplyMap[errorCode]));
+	}
+	return ("No error Code found in numReplyGenerator");
 }
 
 std::string Server::serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam)
@@ -314,7 +318,7 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 	message << ":" << prefix << " " << cmd;
 	// Add parameters if any
 	if (!params.empty()) 
-	{	
+	{
 		for(size_t i = 0; i < params.size(); i++)
 		{
 			if (params[i] == "")
@@ -325,11 +329,9 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 	}
 	else
 		message << " " << "*";
+
 	// Add trailing parameter if provided
-	std::cout << "trailingParam: " << trailingParam << std::endl;
 	if (!trailingParam.empty()) {
-		std::cout << "test" << std::endl;
-		std::cout << "trailingParam: " << trailingParam << std::endl;
 		message << " :" << trailingParam;
 	}
 	message << "\r\n";
@@ -465,67 +467,8 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		sendToClient(successMessage, sender);
 	}
 }
-// void Server::operatorMode(std::string channel, std::string parameter, Client &sender)
-// {
-// 	if (!isOperator(sender))
-// 	{
-// 		std::string errorMessage = serverReply(SERVER, "482", {sender.getNick(), channel}, "You are not a channel operator");
-// 		sendToClient(errorMessage, sender);
-// 		return;
-// 	}
-// }
-void Server::chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender)
-{
-	(void)sender;
-	(void)channel;
-	(void)parameter;
 
-	if (mode == "o")
-	{
-		//operatorMode(channel, parameter, sender);
-	}
-	else if (mode == "k")
-	{
-		//setKey();
-	}
-	else if (mode == "l")
-	{
-		//setLimit();
-	}
-	else if (mode == "i")
-	{
-		//setInviteOnly();
-	}
-	else if (mode == "t")
-	{
-		//setTopicProtection();
-	}
-}
-bool Server::modeExist(std::string mode)
-{
-	if (mode == "o" || mode == "k" || mode == "l" || mode == "i" ||  mode == "t")
-		{
-			return true;
-		}
-	return false;
-}
-void  Server::mode(std::string channelName, std::string mode, std::string parameter, Client &sender)
-{
-	if (channelExists(channelName) == false)
-	{
-		std::string errorMessage = serverReply(SERVER, "403", {sender.getNick(), channelName}, "Channel does not exist");
-		sendToClient(errorMessage, sender);
-		return;
-	}
-	if (modeExist(mode) == false)
-	{
-		std::string errorMessage = serverReply(SERVER, "472", {sender.getNick(), mode}, "Unknown mode");
-		sendToClient(errorMessage, sender);
-		return;
-	}
-	chooseMode(channelName, mode, parameter, sender);
-
-}
+	
 	
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3)
 {
