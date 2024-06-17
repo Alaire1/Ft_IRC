@@ -295,15 +295,15 @@ std::string Server::numReplyGenerator(const std::string& client, const std::vect
 {
 	std::string intStr;
 	std::stringstream cmd;
-	std::cout << "Error code: " << errorCode << std::endl;
+	//std::cout << "Error code: " << errorCode << std::endl;
 	cmd << errorCode;
 	
 	cmd >> intStr;
-	std::cout << "intStr: " << intStr << std::endl;
+	//std::cout << "intStr: " << intStr << std::endl;
 	if(params.empty())
-		return (serverReply(client, intStr, {""}, numericReplyMap.find(errorCode)->second));
+		return (serverReply(client, intStr, {""}, numericReplyMap[errorCode]));
 
-	return (serverReply(client, intStr, params, numericReplyMap.find(errorCode)->second));
+	return (serverReply(client, intStr, params, numericReplyMap[errorCode]));
 	;
 }
 
@@ -397,11 +397,11 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 			sender.setHasPassword(true);
 		else
 		{
-			std::cout << "Password is incorrect" << std::endl;
+			//std::cout << "Password is incorrect" << std::endl;
 			std::string errorMessage = numReplyGenerator(SERVER, {sender.getNick()}, 464);
-			std::cout << "test 1" << std::endl;
+			//std::cout << "test 1" << std::endl;
 			sendToClient(errorMessage, sender); // we have to handle errors while sending
-			std::cout << "Password is incorrect test2" << std::endl;
+			//std::cout << "Password is incorrect test2" << std::endl;
 		}
 	}
 	else if (command == "QUIT")
@@ -494,7 +494,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){
-	std::cout << "Current client : " << sender.getFd() << std::endl;
+	//std::cout << "Current client : " << sender.getFd() << std::endl;
 	std::vector<std::string> commands = splitString(clientData, "\r\n");
 	std::vector<std::string>::const_iterator it;
 	for (it = commands.begin(); it != commands.end(); ++it) 
@@ -502,7 +502,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		std::istringstream iss(removeNonPrintable(*it));
 		std::string command, param1, param2, param3;
 		iss >> command >> param1 >> param2 >> param3;
-		std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
+		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
 		if (sender.getIsRegistered() == false)
 		{
 			commandsRegister(sender, command, param1);
