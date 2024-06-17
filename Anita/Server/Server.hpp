@@ -61,8 +61,6 @@ class Server
 		void closeFds();
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
 
-		bool channelExists(std::string channelName);
-
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
@@ -88,8 +86,12 @@ class Server
 		//CHANNEL FUNCTIONS
 		void joinChannel(Client &sender, std::string channelName);
 		Channel *returnExistingChannel(std::string &channelName);
-		
 
+		//MODE COMMAND FUNCTIONS
+		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
+		bool modeExist(std::string mode);
+		void chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);
+		bool channelExists(std::string channelName);
 };
 //Static strings numeric replies 
 static std::string code_331 = "No topic is set";
