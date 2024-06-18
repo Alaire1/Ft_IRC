@@ -149,7 +149,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	else 
 	{
 
-		std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
+		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		parseCommand(buffer, sender);
 
 
@@ -361,6 +361,7 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 // 	}
 // }
 
+
 std::string Server::searchTrailer(const std::string& string)
 {
 		size_t colonPos = string.find(':'); 
@@ -478,21 +479,21 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	}
 }
 
-void Server::channelTopic(Client &sender, std::string param1, std::string param2)
+void Server::channelTopic(Client &sender, std::string param1, std::string trailer)
 {
-	(void)param1;
-	(void)param2;
-	std::cout << "in channel topic function " << sender.getNick() << std::endl;
+	if (param1.find('#') != std::string::npos)
+	{
+		std::cout << trailer << RED << " in channel topic function " << RESET << sender.getNick() << std::endl;
+
+	}
+	else
+		sendToClient(numReplyGenerator(sender.getNick(), {""}, 403), sender);
 }
 	
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
 	(void)parameter2;
 	(void)trailer;
-	//std::cout << "Command: " << command << std::endl;
-	//std::cout << "parameter1: " << parameter1 << std::endl;
-	//std::cout << "parameter2: " << parameter2 << std::endl;
-	//std::cout << "parameter3: " << parameter3 << std::endl;
 	if (command == "JOIN")
 	{
 		joinChannel(sender, parameter1);

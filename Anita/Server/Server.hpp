@@ -22,6 +22,11 @@
 #define MAX_CLIENTS 	10
 #define BUFFER_SIZE 	1024
 #define SERVER 				"ourSuperServer"
+#define RESET	"\033[0m"
+#define YELLOW	"\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define RED     "\033[31m"
 
 
 class Server 
@@ -89,7 +94,7 @@ class Server
 		Channel *returnExistingChannel(std::string &channelName);
 
 		//JOIN FUNCTIONS
-		void channelTopic(Client &sender, std::string param1, std::string param2);
+		void channelTopic(Client &sender, std::string param1, std::string trailer);
 
 		//MODE COMMAND FUNCTIONS
 		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
