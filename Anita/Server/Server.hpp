@@ -87,6 +87,9 @@ class Server
 		void joinChannel(Client &sender, std::string channelName);
 		Channel *returnExistingChannel(std::string &channelName);
 
+		//JOIN FUNCTIONS
+		void channelTopic(Client &sender, std::string param1, std::string param2);
+
 		//MODE COMMAND FUNCTIONS
 		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
 		bool modeExist(std::string mode);

@@ -468,13 +468,21 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	}
 }
 
-	
+void Server::channelTopic(Client &sender, std::string param1, std::string param2)
+{
+	(void)param1;
+	(void)param2;
+	std::cout << "in channel topic function " << sender.getNick() << std::endl;
+}
 	
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3)
 {
 	(void)parameter2;
 	(void)parameter3;
-	std::cout << "Command: " << command << std::endl;
+	//std::cout << "Command: " << command << std::endl;
+	//std::cout << "parameter1: " << parameter1 << std::endl;
+	//std::cout << "parameter2: " << parameter2 << std::endl;
+	//std::cout << "parameter3: " << parameter3 << std::endl;
 	if (command == "JOIN")
 	{
 		joinChannel(sender, parameter1);
@@ -482,8 +490,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	}
 	// else if (command == "PART")
 	// 	//part();
-	// else if (command == "TOPIC")
-	// 	//channelTopic(parameter, message, client);
+	else if (command == "TOPIC")
+		channelTopic(sender, parameter1, parameter2);
 	// else if (comamnd == "PRIVMSG")
 	// 	//sendMessage(parameter, message, client);
 	// else if (command == "WHO")
@@ -504,9 +512,10 @@ void Server::parseCommand(std::string clientData, Client& sender){
 	for (it = commands.begin(); it != commands.end(); ++it) 
 	{
 		std::istringstream iss(removeNonPrintable(*it));
+		std::cout << (*it) << std::endl;
 		std::string command, param1, param2, param3;
 		iss >> command >> param1 >> param2 >> param3;
-		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
+		std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
 		if (sender.getIsRegistered() == false)
 		{
 			commandsRegister(sender, command, param1);
@@ -586,7 +595,7 @@ bool Server::isValidCommand(const std::string& inputCommand) {
 }
 std::vector<std::string> Server::listValidCommands()
 {
-	std::cout << "List of valid commands" << std::endl;
+	//std::cout << "List of valid commands" << std::endl;
  	_myValidCommands.push_back("JOIN");
  	_myValidCommands.push_back("PART");
  	_myValidCommands.push_back("PRIVMSG");
@@ -600,6 +609,7 @@ std::vector<std::string> Server::listValidCommands()
  	_myValidCommands.push_back("PASS");
  	_myValidCommands.push_back("NOTICE");
  	_myValidCommands.push_back("WHO");
-	std::cout << "List of valid commands end" << std::endl;
+	//std::cout << "List of valid commands end" << std::endl;
 	return (_myValidCommands);
 }
+
