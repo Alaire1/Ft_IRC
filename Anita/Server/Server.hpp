@@ -77,11 +77,12 @@ class Server
 		void parseCommand(std::string clientData, Client &sender);
 		int checkNick(std::string nick);
 		void commandsRegister(Client &sender, std::string command, std::string param1);
-		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3);
+		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer);
 		int sendToClient(const std::string& message, const Client& client) const;
 		void deleteClient(int fd);
 		std::vector<std::string> listValidCommands();
 		bool isValidCommand(const std::string& inputCommand);
+		std::string searchTrailer(const std::string& string);
 
 		//CHANNEL FUNCTIONS
 		void joinChannel(Client &sender, std::string channelName);

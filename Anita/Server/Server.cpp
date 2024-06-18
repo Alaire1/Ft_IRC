@@ -149,6 +149,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	else 
 	{
 
+		std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		parseCommand(buffer, sender);
 
 
@@ -156,7 +157,6 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 
 
 		//buffer[bytesRead] = '\r';
-		//	std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		//	ircMessageParser(buffer, *this);
 		// Echo message back to client
 		//if(!strncmp(buffer, "test", 4))
@@ -360,6 +360,16 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 // 		std::cout << command << '\n';
 // 	}
 // }
+
+std::string Server::searchTrailer(const std::string& string)
+{
+		size_t colonPos = string.find(':'); 
+		if (colonPos != std::string::npos) 
+			return (string.substr(colonPos + 1));
+		else
+			return "";
+}
+
 int Server::checkNick(std::string nick){
 	  for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
             if (it->getNick() == nick) {
@@ -475,10 +485,10 @@ void Server::channelTopic(Client &sender, std::string param1, std::string param2
 	std::cout << "in channel topic function " << sender.getNick() << std::endl;
 }
 	
-void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3)
+void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
 	(void)parameter2;
-	(void)parameter3;
+	(void)trailer;
 	//std::cout << "Command: " << command << std::endl;
 	//std::cout << "parameter1: " << parameter1 << std::endl;
 	//std::cout << "parameter2: " << parameter2 << std::endl;
@@ -491,7 +501,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// else if (command == "PART")
 	// 	//part();
 	else if (command == "TOPIC")
-		channelTopic(sender, parameter1, parameter2);
+		channelTopic(sender, parameter1, trailer);
 	// else if (comamnd == "PRIVMSG")
 	// 	//sendMessage(parameter, message, client);
 	// else if (command == "WHO")
@@ -512,10 +522,10 @@ void Server::parseCommand(std::string clientData, Client& sender){
 	for (it = commands.begin(); it != commands.end(); ++it) 
 	{
 		std::istringstream iss(removeNonPrintable(*it));
-		std::cout << (*it) << std::endl;
-		std::string command, param1, param2, param3;
-		iss >> command >> param1 >> param2 >> param3;
-		std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Param3: " << param3 << std::endl;
+		std::string command, param1, param2, trailer;
+		trailer = searchTrailer(iss.str());
+		iss >> command >> param1 >> param2;
+		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << trailer << std::endl;
 		if (sender.getIsRegistered() == false)
 		{
 			commandsRegister(sender, command, param1);
@@ -524,22 +534,19 @@ void Server::parseCommand(std::string clientData, Client& sender){
 				sender.setIsRegistered(true);
 			//	std::cout << "NICK : " << sender.getNick() << std::endl;
 				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
-
-				//std::string welcomeMessage = ":ft_irc 001 " + sender.getNick() + " :Welcome to ft_irc server!\r\n";
-				//std::cout << str;
 				sendToClient(str, sender);
 			}
 		}
 		else
 		{	
-			if (isValidCommand(command) == false)
+			if (isValidCommand(command) == false && !command.empty())
 			{
 				std::string errorMessage = numReplyGenerator(sender.getNick(), {""}, 421);
 				sendToClient(errorMessage, sender);
 			}
 			else
 			{
-				commandsAll(sender, command, param1, param2, param3);
+				commandsAll(sender, command, param1, param2, trailer);
 			}
 			
 		}
@@ -579,6 +586,7 @@ std::vector<std::string> splitString(std::string str, std::string delimiter) {
         token = str.substr(0, pos);
         result.push_back(token);
         str.erase(0, pos + delimiter.length());
+
     }
     result.push_back(str);
     return result;
