@@ -452,11 +452,9 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	{
 		Channel *channel = returnExistingChannel(channelName);
 		if (channel->getTopic() == "")
-		{
-			sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channel->getChannelName()}, 331), sender);
-		}
+			sendToClient(numReplyGenerator(SERVER, {"JOIN", channelName}, 331), sender);
 		else
-			sendToClient(serverReply(sender.getNick(), "332", {channel->getChannelName()}, channel->getTopic()), sender);
+			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, channel->getTopic()), sender);
 		if (channel->containsClient(sender) == true)
 		{
 			std::string errorMessage = numReplyGenerator(SERVER, {"JOIN", sender.getNick(), channelName}, 464);
@@ -477,7 +475,7 @@ void Server::joinChannel(Client &sender, std::string channelName)
 			return;
 		}
 		channel->addUser(sender);
-		std::string successMessage = serverReply(SERVER, "JOIN", {sender.getNick(), channelName}, "Channel joined successfully");
+		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully");
 		sendToClient(successMessage, sender);
 	}
 	else
@@ -486,7 +484,7 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		newChannel.addUser(sender);
 		newChannel.addOperator(sender);
 		_channels.push_back(newChannel);
-		std::string successMessage = serverReply(SERVER, "JOIN", {sender.getNick(), channelName}, "Channel created and joined successfully");
+		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, "Channel created and joined successfully");
 		sendToClient(successMessage, sender);
 	}
 }
