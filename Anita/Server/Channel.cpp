@@ -1,12 +1,17 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name) :_name(name), _topic("No topic set"), _isInviteOnly(false), _restrictTopic(false) {}
+Channel::Channel(std::string name) :_name(name), _topic(""), _isInviteOnly(false), _restrictTopic(false) {}
 
 Channel::~Channel() {}
 
 bool Channel::clientNotInChannel(Client& client)
 {
     return std::find(_clients.begin(), _clients.end(), client) == _clients.end();
+}
+
+bool Channel::clientNotOperator(Client& client)
+{
+    return std::find(_operators.begin(), _operators.end(), client) == _operators.end();
 }
 
 void Channel::join(Client& client)
@@ -17,13 +22,17 @@ void Channel::join(Client& client)
 		client.sendMessage("442 " + _name + " :You're already in that channel"); // 442 is a numeric code for sending a message that user is already in the channel
 }
 
+std::string Channel::getTopic(){return _topic;}
+
+std::vector<Client> Channel::getClientsVector(){return _clients;}
+
 std::string Channel::getChannelName()
 {
 	return _name;
 }
 
 bool Channel::isInviteOnly()
-{
+{ 
 	return _isInviteOnly;
 }
 

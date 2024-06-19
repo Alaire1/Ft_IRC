@@ -20,9 +20,11 @@ class Channel
 		bool _hasMaxUsers;
 		int _maxUsers;
 
-		bool _restrictTopic;
+		bool _restrictTopic; 
 
 		std::vector<Client> _clients;
+		std::vector<Client> _operators;
+
 		std::string _operatorNick;
 
 	public:
@@ -37,7 +39,8 @@ class Channel
 		//added by Nikola
 		bool clientNotInChannel(Client& client);
 		bool isInvitedToChannel(Client& client);
-
+		bool clientNotOperator(Client& client);
+ 	
 		//setters
 		void setInviteOnly(bool isInviteOnly);
 		void setRestrictTopic(bool restrictTopic);
@@ -52,12 +55,16 @@ class Channel
 
 		void addUser(Client& client);
 		void addOperator(Client& client);
+		//
 		//getters
 		size_t getUsernum();//number of users in the channel
+		std::string getTopic();
 		std::string getChannelName();
 		bool isInviteOnly();
 		bool hasMaxUsers();
 		size_t maxNumOfUsers();
+		std::vector<Client> getClientsVector();
+
 
 
 };

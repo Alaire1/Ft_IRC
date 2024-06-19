@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "parsing_plan.cpp"
+#include <string>
 
 //Server.cpp
 void Server::initializeReplyMap()
@@ -413,7 +414,7 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 		else
 		{
 			//std::cout << "Password is incorrect" << std::endl;
-			std::string errorMessage = numReplyGenerator(SERVER, {sender.getNick()}, 464);
+			std::string errorMessage = numReplyGenerator(SERVER, {"PASS", sender.getNick()}, 464);
 			//std::cout << "test 1" << std::endl;
 			sendToClient(errorMessage, sender); // we have to handle errors while sending
 			//std::cout << "Password is incorrect test2" << std::endl;
@@ -433,11 +434,16 @@ Channel *Server::returnExistingChannel(std::string &channelName)
 		if (it->getChannelName() == channelName)
 			return &(*it);
 	}
-	return nullptr;
+	return NULL;
 } 
 
-
-
+void Server::broadcastMessage(const std::vector<Client>& clients, const std::string& param, const std::string& message)
+{
+  for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
+	{
+		sendToClient(serverReply((*it).getNick(), "331" ,{param}, message), *it);
+	}
+}
 
 void Server::joinChannel(Client &sender, std::string channelName)
 {
@@ -445,9 +451,15 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	if (channelExists(channelName))
 	{
 		Channel *channel = returnExistingChannel(channelName);
+		if (channel->getTopic() == "")
+		{
+			sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channel->getChannelName()}, 331), sender);
+		}
+		else
+			sendToClient(serverReply(sender.getNick(), "332", {channel->getChannelName()}, channel->getTopic()), sender);
 		if (channel->containsClient(sender) == true)
 		{
-			std::string errorMessage = numReplyGenerator(SERVER, {sender.getNick(), channelName}, 464);
+			std::string errorMessage = numReplyGenerator(SERVER, {"JOIN", sender.getNick(), channelName}, 464);
 			//std::string errorMessage = serverReply(SERVER, "403", {sender.getNick(), channelName}, "You are already in that channel");
 			sendToClient(errorMessage, sender);
 			return;
@@ -479,15 +491,40 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	}
 }
 
-void Server::channelTopic(Client &sender, std::string param1, std::string trailer)
+void Server::channelTopic(Client &sender, std::string channelName, std::string trailer)
 {
-	if (param1.find('#') != std::string::npos)
+	Channel* topicChannel = returnExistingChannel(channelName);
+	if (channelName.find('#') != std::string::npos && topicChannel)
 	{
-		std::cout << trailer << RED << " in channel topic function " << RESET << sender.getNick() << std::endl;
-
+		if (topicChannel->clientNotInChannel(sender))
+		{
+			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 442), sender); return;
+		}
+		if (topicChannel->clientNotOperator(sender))//CHECK THAT CREATOR OF CHANNEL BECOMES OPERATOR
+		{
+			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 482), sender); return;
+		}
+		
+		if (trailer.empty() && !topicChannel->getTopic().empty())//CALLING TO SHOW CURRENT TOPIC
+			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()), sender);
+		else if (!trailer.empty())//CHANGING THE TOPIC
+		{
+			topicChannel->setTopic(trailer);
+			//TOPIC CHANGED, SEND MESSAGE TO ALL CHANNEL_MEMBERS
+			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()), sender);
+			std::vector<Client> clients = topicChannel->getClientsVector();
+			for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
+			{
+				if((*it).getUser() != sender.getUser())
+					sendToClient(serverReply(SERVER, "333" ,{"TOPIC", channelName }, sender.getNick()), *it);
+			}
+			//broadcastMessage(topicChannel->getClientsVector(), channelName, trailer);
+		}
+		else
+			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 331), sender);//TOPIC IS NOT SET
 	}
 	else
-		sendToClient(numReplyGenerator(sender.getNick(), {""}, 403), sender);
+		sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC"}, 403), sender);
 }
 	
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
@@ -621,4 +658,5 @@ std::vector<std::string> Server::listValidCommands()
 	//std::cout << "List of valid commands end" << std::endl;
 	return (_myValidCommands);
 }
+
 

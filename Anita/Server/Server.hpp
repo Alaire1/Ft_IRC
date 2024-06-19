@@ -33,7 +33,7 @@ class Server
 {
 	private:
 		// Add your private members here
-		int _serverFd;
+		int _serverFd; 
 		int _port;
 		std::string _pwd;
 		std::vector<struct pollfd> _fds;
@@ -55,7 +55,7 @@ class Server
 		//Orthodox canonical end
 		static void	signalHandler(int signum);
 
-		// Add your class members and methods here
+		// Server member functions
 		int  getSocket() const;
 		void setNonBlocking(int fd);
 		void createSocket();
@@ -65,11 +65,6 @@ class Server
 		void handleData(int fd, Client &sender, size_t idx);
 		void closeFds();
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
-
-		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
-
-		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
-
 
 		//TESTING FUNCTIONS
 		void    printPassword();
@@ -88,13 +83,17 @@ class Server
 		std::vector<std::string> listValidCommands();
 		bool isValidCommand(const std::string& inputCommand);
 		std::string searchTrailer(const std::string& string);
+		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
+		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 
 		//CHANNEL FUNCTIONS
 		void joinChannel(Client &sender, std::string channelName);
 		Channel *returnExistingChannel(std::string &channelName);
+		void broadcastMessage(const std::vector<Client>& clients, const std::string& param, const std::string& message);
+
 
 		//JOIN FUNCTIONS
-		void channelTopic(Client &sender, std::string param1, std::string trailer);
+		void channelTopic(Client &sender, std::string channelName, std::string trailer);
 
 		//MODE COMMAND FUNCTIONS
 		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
@@ -129,5 +128,4 @@ std::string removeNonPrintable(const std::string& input);
 std::vector<std::string> splitString(std::string str, std::string delimiter);
 
 #endif // SERVER_HPP
-
 
