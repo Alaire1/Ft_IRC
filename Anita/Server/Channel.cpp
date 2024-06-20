@@ -26,24 +26,17 @@ std::string Channel::getTopic(){return _topic;}
 
 std::vector<Client> Channel::getClientsVector(){return _clients;}
 
-std::string Channel::getChannelName()
-{
-	return _name;
-}
+std::string Channel::getChannelName(){return _name;}
 
-bool Channel::isInviteOnly()
-{ 
-	return _isInviteOnly;
-}
+bool Channel::isInviteOnly(){return _isInviteOnly;}
 
-bool Channel::hasMaxUsers()
-{
-	return _hasMaxUsers;
-}
+bool Channel::hasMaxUsers(){return _hasMaxUsers;}
+
+bool Channel::isrestrictTopic(){return _restrictTopic;}
 
 void Channel::invite(Client& client) // before that function in parsing we have to check if someone that is using the invite command is an operator //
 {
-    _clients.push_back(client);
+    _invitees.push_back(client);
 }
 
 bool Channel::isInvitedToChannel(Client& client)
@@ -57,9 +50,8 @@ void Channel::addUser(Client& client)
 }
 void Channel::addOperator(Client& client)
 {
-    _clients.push_back(client);
+    _operators.push_back(client);
 }
-
 
 void Channel::topicCommand(Client& client, std::string topic)
 {

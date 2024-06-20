@@ -498,8 +498,9 @@ void Server::channelTopic(Client &sender, std::string channelName, std::string t
 		{
 			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 442), sender); return;
 		}
-		if (topicChannel->clientNotOperator(sender))//CHECK THAT CREATOR OF CHANNEL BECOMES OPERATOR
+		if (topicChannel->clientNotOperator(sender) && topicChannel->isrestrictTopic())//CHECK THAT CREATOR OF CHANNEL BECOMES OPERATOR
 		{
+			//std::cout << "CHANNEL restrictTopic: " << topicChannel->isrestrictTopic() << std::endl;
 			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 482), sender); return;
 		}
 		

@@ -60,6 +60,7 @@ class Channel
 		size_t getUsernum();//number of users in the channel
 		std::string getTopic();
 		std::string getChannelName();
+		bool isrestrictTopic();
 		bool isInviteOnly();
 		bool hasMaxUsers();
 		size_t maxNumOfUsers();
