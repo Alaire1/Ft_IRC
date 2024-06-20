@@ -437,11 +437,12 @@ Channel *Server::returnExistingChannel(std::string &channelName)
 	return NULL;
 } 
 
-void Server::broadcastMessage(const std::vector<Client>& clients, const std::string& param, const std::string& message)
+void Server::broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message)
 {
-  for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
+	for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
 	{
-		sendToClient(serverReply((*it).getNick(), "331" ,{param}, message), *it);
+		if((*it).getUser() != sender.getUser())
+			sendToClient(message, *it);
 	}
 }
 
@@ -486,6 +487,7 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		_channels.push_back(newChannel);
 		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, "Channel created and joined successfully");
 		sendToClient(successMessage, sender);
+		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
 	}
 }
 
@@ -512,12 +514,8 @@ void Server::channelTopic(Client &sender, std::string channelName, std::string t
 			//TOPIC CHANGED, SEND MESSAGE TO ALL CHANNEL_MEMBERS
 			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()), sender);
 			std::vector<Client> clients = topicChannel->getClientsVector();
-			for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
-			{
-				if((*it).getUser() != sender.getUser())
-					sendToClient(serverReply(SERVER, "333" ,{"TOPIC", channelName }, sender.getNick()), *it);
-			}
-			//broadcastMessage(topicChannel->getClientsVector(), channelName, trailer);
+			broadcastMessage(clients, sender, serverReply(SERVER, "333" ,{"TOPIC", channelName }, sender.getNick()));
+			broadcastMessage(clients, sender, serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()));
 		}
 		else
 			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 331), sender);//TOPIC IS NOT SET

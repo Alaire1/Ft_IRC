@@ -89,7 +89,7 @@ class Server
 		//CHANNEL FUNCTIONS
 		void joinChannel(Client &sender, std::string channelName);
 		Channel *returnExistingChannel(std::string &channelName);
-		void broadcastMessage(const std::vector<Client>& clients, const std::string& param, const std::string& message);
+		void broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message);
 
 
 		//JOIN FUNCTIONS
