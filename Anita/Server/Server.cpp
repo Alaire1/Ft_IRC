@@ -1,5 +1,6 @@
 #include "Server.hpp"
 
+
 #include "parsing_plan.cpp"
 #include <string>
 
@@ -459,10 +460,11 @@ void Server::joinChannel(Client &sender, std::string channelName)
 			return;
 		}
 		channel->addUser(sender);
-		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully");
-		sendToClient(successMessage, sender);
+		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully"), sender);//
+
 		sendToClient(serverReply(SERVER, "353", listChannelClients(*channel), ""), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(SERVER, "353", listChannelClients(*channel), ""));
+		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "JOIN", {channelName}, ""));
 
 	}
 	else
@@ -471,8 +473,8 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		newChannel.addUser(sender);
 		newChannel.addOperator(sender);
 		_channels.push_back(newChannel);
-		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, ""); sendToClient(successMessage, sender);
-		//sendToClient(serverReply(SERVER, "353", {channelName, "=", channelName, "" + sender.getNick().insert(0, "@")}, ""), sender);
+		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
+
 		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
 		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
 	}
@@ -686,5 +688,4 @@ std::vector<std::string> Server::listValidCommands()
 	//std::cout << "List of valid commands end" << std::endl;
 	return (_myValidCommands);
 }
-
 
