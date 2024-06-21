@@ -65,6 +65,7 @@ class Channel
 		bool hasMaxUsers();
 		size_t maxNumOfUsers();
 		std::vector<Client> getClientsVector();
+		std::vector<Client> getOperatorsVector();
 
 
 

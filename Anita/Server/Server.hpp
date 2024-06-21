@@ -94,6 +94,7 @@ class Server
 
 		//JOIN FUNCTIONS
 		void channelTopic(Client &sender, std::string channelName, std::string trailer);
+		std::vector<std::string> listChannelClients(Channel& channel);
 
 		//MODE COMMAND FUNCTIONS
 		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);

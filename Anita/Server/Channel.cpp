@@ -26,6 +26,8 @@ std::string Channel::getTopic(){return _topic;}
 
 std::vector<Client> Channel::getClientsVector(){return _clients;}
 
+std::vector<Client> Channel::getOperatorsVector(){return _operators;}
+
 std::string Channel::getChannelName(){return _name;}
 
 bool Channel::isInviteOnly(){return _isInviteOnly;}

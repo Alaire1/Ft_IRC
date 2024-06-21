@@ -1,4 +1,5 @@
 #include "Server.hpp"
+
 #include "parsing_plan.cpp"
 #include <string>
 
@@ -314,6 +315,7 @@ std::string Server::numReplyGenerator(const std::string& client, const std::vect
 
 std::string Server::serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam)
 {
+	//std::cout << "in serverReply" << std::endl;
 	std::stringstream message;
 	// Build the message components
 	message << ":" << prefix << " " << cmd;
@@ -427,25 +429,6 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 		}
 }
 
-Channel *Server::returnExistingChannel(std::string &channelName)
-{
-	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
-	{
-		if (it->getChannelName() == channelName)
-			return &(*it);
-	}
-	return NULL;
-} 
-
-void Server::broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message)
-{
-	for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
-	{
-		if((*it).getUser() != sender.getUser())
-			sendToClient(message, *it);
-	}
-}
-
 void Server::joinChannel(Client &sender, std::string channelName)
 {
 	std::cout << "Joining channel: " << channelName << std::endl;
@@ -478,6 +461,9 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		channel->addUser(sender);
 		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully");
 		sendToClient(successMessage, sender);
+		sendToClient(serverReply(SERVER, "353", listChannelClients(*channel), ""), sender);
+		broadcastMessage(channel->getClientsVector(), sender, serverReply(SERVER, "353", listChannelClients(*channel), ""));
+
 	}
 	else
 	{
@@ -485,9 +471,29 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		newChannel.addUser(sender);
 		newChannel.addOperator(sender);
 		_channels.push_back(newChannel);
-		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, "Channel created and joined successfully");
-		sendToClient(successMessage, sender);
+		std::string successMessage = serverReply(sender.getNick(), "JOIN", {channelName}, ""); sendToClient(successMessage, sender);
+		//sendToClient(serverReply(SERVER, "353", {channelName, "=", channelName, "" + sender.getNick().insert(0, "@")}, ""), sender);
+		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
 		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
+	}
+}
+
+Channel *Server::returnExistingChannel(std::string &channelName)
+{
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (it->getChannelName() == channelName)
+			return &(*it);
+	}
+	return NULL;
+} 
+
+void Server::broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message)
+{
+	for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
+	{
+		if((*it).getUser() != sender.getUser())
+			sendToClient(message, *it);
 	}
 }
 
@@ -524,6 +530,31 @@ void Server::channelTopic(Client &sender, std::string channelName, std::string t
 		sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC"}, 403), sender);
 }
 	
+
+std::vector<std::string> Server::listChannelClients(Channel& channel)
+{
+	std::vector<std::string> list;
+	std::string clientstr = channel.getChannelName() + " = " + channel.getChannelName();
+	size_t j;
+	list.push_back(clientstr);
+		for(size_t i = 0; i < channel.getClientsVector().size(); ++i)
+		{
+			j = 0;
+			clientstr = channel.getClientsVector()[i].getNick();
+			//std::cout << clientstr << std::endl;
+			for(size_t j = 0; j < channel.getOperatorsVector().size(); ++j)
+			{
+				//std::cout << channel.getOperatorsVector()[j].getNick() << std::endl;
+				if(channel.getOperatorsVector()[j].getNick() == channel.getClientsVector()[i].getNick())
+					clientstr.insert(0, "@");
+				//std::cout << clientstr << std::endl;
+			}
+			list.push_back(clientstr);
+		}
+		//std::cout << "out if lkoop" << std::endl;
+	return list;
+}
+
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
 	(void)parameter2;
