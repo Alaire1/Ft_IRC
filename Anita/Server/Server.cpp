@@ -152,6 +152,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	else 
 	{
 
+		printf("Received message: %s", buffer);
 		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		parseCommand(buffer, sender);
 
@@ -603,6 +604,43 @@ void Server::kickClient (Client &kicker, std::string &channelName, std::string &
 	sendToClient(serverReply(kicker.getNick(), "KICK", {channelName, ejecteeName}, kicker.getNick()), *ejectee);
 	broadcastMessage(channel->getClientsVector(), *ejectee, serverReply(kicker.getNick(), "KICK", {channelName, ejecteeName}, kicker.getNick()));
 }
+
+void Server::channelMessage(Client &sender, std::string &receiver, std::string &message)
+{
+	if (!channelExists(receiver))
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"PRIVMSG", receiver}, 403), sender);
+		return;
+	}
+	Channel *channel = returnExistingChannel(receiver);
+	if (channel->clientNotInChannel(sender))
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"PRIVMSG", receiver}, 442), sender);
+		return;
+	}
+	std::vector<Client> clients = channel->getClientsVector();
+	broadcastMessage(clients, sender, serverReply(sender.getNick(), "PRIVMSG", {receiver}, message));
+}
+
+void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &message)
+{
+	if (receiver[0] == '#')
+	{
+		channelMessage(sender, receiver, message);
+	}
+	else
+	{
+		Client *receiverClient = findClientByNick(receiver);
+		if (!receiverClient)
+		{
+			sendToClient(numReplyGenerator(sender.getNick(), {"PRIVMSG", receiver}, 401), sender);
+			return;
+		}
+		sendToClient(serverReply(sender.getNick(), "PRIVMSG", {receiver}, message), *receiverClient);
+	}
+}
+
+
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
 	(void)parameter2;
@@ -616,8 +654,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// 	//part();
 	else if (command == "TOPIC")
 		channelTopic(sender, parameter1, trailer);
-	// else if (comamnd == "PRIVMSG")
-	// 	//sendMessage(parameter, message, client);
+	else if (command == "PRIVMSG")
+		handlePrivmsg(sender, parameter1, parameter2);
 	// else if (command == "WHO")
 	// 	//names(client, parameter);
 	else if (command == "KICK")

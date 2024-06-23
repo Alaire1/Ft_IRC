@@ -104,6 +104,11 @@ class Server
 		bool modeExist(std::string mode);
 		void chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);
 		bool channelExists(std::string channelName);
+
+		//PRIVMSG FUNCTIONS
+		void handlePrivmsg(Client &sender, std::string &receiver, std::string &message);
+		void channelMessage(Client &sender, std::string &receiver, std::string &message);
+
 };
 //Static strings numeric replies 
 static std::string code_331 = "No topic is set";
