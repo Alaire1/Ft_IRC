@@ -32,7 +32,7 @@ class Channel
 		Channel(std::string name);
 		~Channel();
 		void join(Client& client); 
-		void kick(Client& client); 
+		void kick(Client& ejectee); 
 		void leave(Client& client);
 		void invite(Client& client);
 
@@ -40,6 +40,8 @@ class Channel
 		bool clientNotInChannel(Client& client);
 		bool isInvitedToChannel(Client& client);
 		bool clientNotOperator(Client& client);
+		void removeInvite(Client& client);
+		bool clientWithThatNameNotInChannel(std::string name);
  	
 		//setters
 		void setInviteOnly(bool isInviteOnly);

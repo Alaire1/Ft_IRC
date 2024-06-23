@@ -74,25 +74,27 @@ void Channel::topicCommand(Client& client, std::string topic)
        }
    }
 }
-void Channel::kick(Client& client) // before that function in parsing we have to check if someone that is using the kick command is an operator //
+
+void Channel::kick(Client& ejectee)
 {
-    bool client_kicked = false; 
-    for (std::vector<Client>::iterator it = _clients.begin() ; it != _clients.end();)
-    {
-        if (it->getNick() == client.getNick()) 
-        {
-            it = _clients.erase(it);
-            client_kicked = true;
-        }
-        else
-        {
-            ++it;
-        }
-    }
-    if (client_kicked)
-    {
-        //client.sendMessage("KICK " + _name + " " + client.getNick() + " :You have been kicked from " + _name);
-    }
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		printf ("Clients include: %s\n", it->getNick().c_str());
+		if (it->getNick() == ejectee.getNick())
+		{
+			_clients.erase(it);
+			break;
+		}
+	}
+
+	for (std::vector<Client>::iterator it = _operators.begin(); it != _operators.end(); ++it)
+	{
+		if (it->getNick() == ejectee.getNick())
+		{
+			_operators.erase(it);
+			break;
+		}
+	}
 }
 
 void Channel::leave(Client& client)
@@ -119,6 +121,18 @@ void Channel::leave(Client& client)
     }
 }
 
+
+bool Channel::clientWithThatNameNotInChannel(std::string name)
+{
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+	   if (it->getNick() == name)
+	   {
+		  return false;
+	   }
+    }
+    return true;
+}
 
 bool Channel::containsClient(Client& client)
 {
@@ -167,3 +181,16 @@ size_t Channel::maxNumOfUsers()
 {
 	return _maxUsers;}
 
+
+void Channel::removeInvite(Client& client)
+{
+    std::vector<Client>::iterator it = _invitees.begin();
+    for (; it != _invitees.end(); ++it)
+    {
+	   if (it->getNick() == client.getNick())
+	   {
+		  _invitees.erase(it);
+		  break;
+	   }
+    }
+}

@@ -44,6 +44,8 @@ class Server
 		//struct replyMessage {std::string& message;};
 		std::map<int, std::string>  numericReplyMap;//numericReplies Map
 		void initializeReplyMap();
+		void kickClient (Client &, std::string &, std::string &);
+
 
 
 	public:
@@ -65,6 +67,7 @@ class Server
 		void handleData(int fd, Client &sender, size_t idx);
 		void closeFds();
 		int	 clearChannelsNoUsers();//Clears channels with no users inside.
+		Client *findClientByNick(std::string nick);
 
 		//TESTING FUNCTIONS
 		void    printPassword();

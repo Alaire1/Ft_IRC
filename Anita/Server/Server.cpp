@@ -465,6 +465,8 @@ void Server::joinChannel(Client &sender, std::string channelName)
 		sendToClient(serverReply(SERVER, "353", listChannelClients(*channel), ""), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(SERVER, "353", listChannelClients(*channel), ""));
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "JOIN", {channelName}, ""));
+		if (channel->isInviteOnly())
+			channel->removeInvite(sender);
 
 	}
 	else
@@ -557,6 +559,50 @@ std::vector<std::string> Server::listChannelClients(Channel& channel)
 	return list;
 }
 
+Client *Server::findClientByNick(std::string nick)
+{
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (it->getNick() == nick)
+			return &(*it);
+	}
+	return NULL;
+}
+
+
+void Server::kickClient (Client &kicker, std::string &channelName, std::string &ejecteeName)
+{
+	(void)ejecteeName;
+	if (!channelExists(channelName))
+	{
+		sendToClient(numReplyGenerator(kicker.getNick(), {"KICK", channelName}, 403), kicker);
+		return;
+	}
+
+	Channel *channel = returnExistingChannel(channelName);
+
+	if (channel->clientNotInChannel(kicker))
+	{
+		sendToClient(numReplyGenerator(kicker.getNick(), {"KICK", channelName}, 442), kicker);
+		return;
+	}
+
+	if (returnExistingChannel(channelName)->clientNotOperator(kicker))
+	{
+		sendToClient(numReplyGenerator(kicker.getNick(), {"KICK", channelName}, 482), kicker);
+		return;
+	}
+
+	if (channel->clientWithThatNameNotInChannel(ejecteeName))
+	{
+		sendToClient(numReplyGenerator(kicker.getNick(), {"KICK", channelName}, 441), kicker);
+		return;
+	}
+	Client *ejectee = findClientByNick(ejecteeName);
+	channel->kick(*ejectee); 
+	sendToClient(serverReply(kicker.getNick(), "KICK", {channelName, ejecteeName}, kicker.getNick()), *ejectee);
+	broadcastMessage(channel->getClientsVector(), *ejectee, serverReply(kicker.getNick(), "KICK", {channelName, ejecteeName}, kicker.getNick()));
+}
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
 	(void)parameter2;
@@ -574,8 +620,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// 	//sendMessage(parameter, message, client);
 	// else if (command == "WHO")
 	// 	//names(client, parameter);
-	// else if (command == "KICK")
-	// 	//kickClient(parameter, parameter2, message, client);
+	else if (command == "KICK")
+		kickClient(sender, parameter1, parameter2);
 	// else if (command == "INVITE")
 	// 	//inviteChannel(parameter, parameter2, client);
 	// else if (command == "MODE") 
