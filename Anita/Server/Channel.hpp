@@ -21,6 +21,7 @@ class Channel
 		int _maxUsers;
 
 		bool _restrictTopic; 
+		bool _password; 
 
 		std::vector<Client> _clients;
 		std::vector<Client> _operators;
@@ -65,6 +66,7 @@ class Channel
 		bool isrestrictTopic();
 		bool isInviteOnly();
 		bool hasMaxUsers();
+		bool passwordActive();
 		size_t maxNumOfUsers();
 		std::vector<Client> getClientsVector();
 		std::vector<Client> getOperatorsVector();

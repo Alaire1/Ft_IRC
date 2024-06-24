@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name) :_name(name), _topic(""), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false){}
+Channel::Channel(std::string name) :_name(name), _topic(""), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false), _password(false){}
 
 Channel::~Channel() {}
 
@@ -35,6 +35,8 @@ bool Channel::isInviteOnly(){return _isInviteOnly;}
 bool Channel::hasMaxUsers(){return _hasMaxUsers;}
 
 bool Channel::isrestrictTopic(){return _restrictTopic;}
+
+bool Channel::passwordActive(){return _password;}
 
 void Channel::invite(Client& client) // before that function in parsing we have to check if someone that is using the invite command is an operator //
 {

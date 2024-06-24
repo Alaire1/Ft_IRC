@@ -437,6 +437,11 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	if (channelExists(channelName))
 	{
 		Channel *channel = returnExistingChannel(channelName);
+		//if(channel->passwordActive() && channel->getPassword() != param)// not implemented correctly yet
+		//{
+		//	sendToClient(serverReply(sender.getNick(), "525", {"JOIN", channelName}, "Key is not well-formed"), sender);
+		//	return;
+		//}
 		if (channel->getTopic() == "")
 			sendToClient(numReplyGenerator(SERVER, {"JOIN", channelName}, 331), sender);
 		else
@@ -540,11 +545,9 @@ std::vector<std::string> Server::listChannelClients(Channel& channel)
 {
 	std::vector<std::string> list;
 	std::string clientstr = channel.getChannelName() + " = " + channel.getChannelName();
-	size_t j;
 	list.push_back(clientstr);
 		for(size_t i = 0; i < channel.getClientsVector().size(); ++i)
 		{
-			j = 0;
 			clientstr = channel.getClientsVector()[i].getNick();
 			//std::cout << clientstr << std::endl;
 			for(size_t j = 0; j < channel.getOperatorsVector().size(); ++j)
@@ -655,7 +658,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	else if (command == "TOPIC")
 		channelTopic(sender, parameter1, trailer);
 	else if (command == "PRIVMSG")
-		handlePrivmsg(sender, parameter1, parameter2);
+		handlePrivmsg(sender, parameter1, trailer);
 	// else if (command == "WHO")
 	// 	//names(client, parameter);
 	else if (command == "KICK")
