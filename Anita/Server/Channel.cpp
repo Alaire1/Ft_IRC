@@ -54,6 +54,18 @@ void Channel::addOperator(Client& client)
 {
     _operators.push_back(client);
 }
+void Channel::removeOperator(Client& client)
+{
+    std::vector<Client>::iterator it = _operators.begin();
+    for (; it != _operators.end(); ++it)
+    {
+        if (it->getNick() == client.getNick())
+        {
+            _operators.erase(it);
+            break;
+        }
+    }
+}
 
 void Channel::topicCommand(Client& client, std::string topic)
 {

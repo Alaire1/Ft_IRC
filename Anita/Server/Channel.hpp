@@ -24,6 +24,7 @@ class Channel
 
 		std::vector<Client> _clients;
 		std::vector<Client> _operators;
+		// std::string _modes;
 
 		std::string _operatorNick;
 
@@ -55,6 +56,7 @@ class Channel
 
 		void addUser(Client& client);
 		void addOperator(Client& client);
+		void removeOperator(Client& client);
 		//
 		//getters
 		size_t getUsernum();//number of users in the channel
@@ -67,6 +69,10 @@ class Channel
 		std::vector<Client> getClientsVector();
 		std::vector<Client> getOperatorsVector();
 
+		
+		 const std::vector<Client>& getOperators() const {
+        return _operators;
+    }
 
 
 };

@@ -8,6 +8,7 @@
 void Server::initializeReplyMap()
 {
 	numericReplyMap[331] = {code_331};
+	numericReplyMap[332] = {code_332};
 	numericReplyMap[366] = {code_366};
 	numericReplyMap[401] = {code_401};
 	numericReplyMap[403] = {code_403};
@@ -154,11 +155,6 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 
 		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		parseCommand(buffer, sender);
-
-
-
-
-
 		//buffer[bytesRead] = '\r';
 		//	ircMessageParser(buffer, *this);
 		// Echo message back to client
@@ -537,14 +533,14 @@ std::vector<std::string> Server::listChannelClients(Channel& channel)
 {
 	std::vector<std::string> list;
 	std::string clientstr = channel.getChannelName() + " = " + channel.getChannelName();
-	size_t j;
+	size_t j = 0;
 	list.push_back(clientstr);
 		for(size_t i = 0; i < channel.getClientsVector().size(); ++i)
 		{
 			j = 0;
 			clientstr = channel.getClientsVector()[i].getNick();
 			//std::cout << clientstr << std::endl;
-			for(size_t j = 0; j < channel.getOperatorsVector().size(); ++j)
+			for(j = 0; j < channel.getOperatorsVector().size(); ++j)
 			{
 				//std::cout << channel.getOperatorsVector()[j].getNick() << std::endl;
 				if(channel.getOperatorsVector()[j].getNick() == channel.getClientsVector()[i].getNick())
@@ -556,11 +552,192 @@ std::vector<std::string> Server::listChannelClients(Channel& channel)
 		//std::cout << "out if lkoop" << std::endl;
 	return list;
 }
-
-void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
+bool Server::nickIsInServer(std::string nick)
 {
-	(void)parameter2;
-	(void)trailer;
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (it->getNick() == nick)
+			return true;
+	}
+	return false;
+}
+void Server::modeOperator(std::string channel, std::string parameter, Client& client, std::string mode)
+{
+	std::cout << "Parameter: " << parameter << std::endl;
+	if (nickIsInServer(parameter) == false)
+	{
+		//not sending message to the right place
+		std::cout << "Nick is not in server" << std::endl;
+		std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 401);
+		sendToClient(errorMessage, client);
+		return;
+	}
+	Channel *modeChannel = returnExistingChannel(channel);
+	if (!modeChannel->clientNotInChannel(client))
+	{
+		if (mode == "positive") // the sender is not seeing the change and any message
+		{
+			modeChannel->addOperator(client);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+o", parameter}, ""));
+		}
+		else
+		{
+			modeChannel->removeOperator(client);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-o", parameter}, ""));
+		}
+	}
+
+}
+void Server::modeKey(std::string channel, std::string parameter, Client& client, std::string mode)
+{
+	Channel *modeChannel = returnExistingChannel(channel);
+	if (!modeChannel->clientNotInChannel(client))
+	{
+		if (mode == "positive")
+		{
+			modeChannel->setKey(parameter);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+k", parameter}, ""));
+		}
+		else
+		{
+			modeChannel->removeKey();
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-k", parameter}, ""));
+		}
+	}
+}
+
+void Server::modeInvite(std::string channel, std::string parameter, Client& client, std::string mode)
+{
+	Channel *modeChannel = returnExistingChannel(channel);
+	if (!modeChannel->clientNotInChannel(client))
+	{
+		if (mode == "positive")
+		{
+			modeChannel->setInviteOnly(true);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+i", parameter}, ""));
+		}
+		else
+		{
+			modeChannel->setInviteOnly(false);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-i", parameter}, ""));
+		}
+	}
+}
+void Server::modeLimit(std::string channel, std::string parameter, Client& client, std::string mode)
+{
+	Channel *modeChannel = returnExistingChannel(channel);
+	if (!modeChannel->clientNotInChannel(client))
+	{
+		if (mode == "positive")
+		{
+			modeChannel->setMaxUsers(std::stoi(parameter));
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+l", parameter}, ""));
+		}
+		else
+		{
+			modeChannel->setInviteOnly(false);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-l", parameter}, ""));
+		}
+	}
+}
+
+void Server::modeTopic(std::string channel, std::string parameter, Client& client, std::string mode)
+{
+	Channel *modeChannel = returnExistingChannel(channel);
+	if (!modeChannel->clientNotInChannel(client))
+	{
+		if (mode == "positive")
+		{
+
+			modeChannel->setRestrictTopic(true);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+t", parameter}, "set"));
+		}
+		else
+		{
+			modeChannel->setRestrictTopic(false);
+			std::vector<Client> clients = modeChannel->getClientsVector();
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-t", parameter}, ""));
+		}
+	}
+}
+void Server::chooseMode(std::string channel, std::string mode, std::string parameter, Client& client)
+{
+
+	std::cout << "test" << std::endl;	
+	std::cout << "Mode: " << mode << " Parameter: " << parameter << std::endl;
+
+	if (mode == "+o")
+		modeOperator(channel, parameter, client, "positive");
+	else if (mode == "-o")
+		modeOperator(channel, parameter, client, "negative");
+	else if (mode == "+k")
+		modeKey(channel, parameter, client, "positive");
+	else if (mode == "-k")
+		modeKey(channel, parameter, client, "negative");
+	else if (mode == "+l")
+		modeLimit(channel, parameter, client, "positive");
+	else if (mode == "-l")
+		modeLimit(channel, parameter, client, "negative");
+	else if (mode == "+t")
+		modeTopic(channel, parameter, client, "positive");
+	else if (mode == "-t")
+		modeTopic(channel, parameter, client, "negative");
+	else if (mode == "+i")
+		modeInvite(channel, parameter, client, "positive");
+	else if (mode == "-i")
+		modeInvite(channel, parameter, client, "negative");
+	else
+	{
+		std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 472);
+		sendToClient(errorMessage, client);
+	}
+		
+}
+
+bool Server::clientIsOperator(std::string channelName, Client& client) {
+    Channel* modeChannel = returnExistingChannel(channelName);
+    // Use the new getOperators() method
+    for (std::vector<Client>::const_iterator it = modeChannel->getOperators().begin(); it != modeChannel->getOperators().end(); ++it) {
+        if (it->getNick() == client.getNick())
+            return true;
+    }
+    return false;
+}
+
+void Server::mode(std::string channel, std::string mode, std::string parameter, Client& client)
+{
+	std::cout << "Channel: " << channel << " Mode: " << mode << " Parameter: " << parameter << std::endl; 
+	if (clientIsOperator(channel, client) == false)
+	{
+		std::cout << "Client is not operator" << std::endl;
+		std::string errorMessage = numReplyGenerator(client.getNick(), {"NOTICE", channel}, 482);
+		return;//may be changed
+	}
+	// if (mode.empty() && parameter.empty())
+	// {
+	// message about current modes and possibly the date of creating the channel
+		
+	// }
+	if (channelExists(channel))
+			chooseMode(channel, mode, parameter, client);
+	else
+	{
+			std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 403);
+			sendToClient(errorMessage, client);
+	}
+}
+
+void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string parameter3, std::string trailer)
+{
 	if (command == "JOIN")
 	{
 		joinChannel(sender, parameter1);
@@ -569,7 +746,10 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// else if (command == "PART")
 	// 	//part();
 	else if (command == "TOPIC")
-		channelTopic(sender, parameter1, trailer);
+		{
+			std::cout << "TOPIC" << std::endl;
+			channelTopic(sender, parameter1, trailer);
+			}
 	// else if (comamnd == "PRIVMSG")
 	// 	//sendMessage(parameter, message, client);
 	// else if (command == "WHO")
@@ -578,8 +758,11 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// 	//kickClient(parameter, parameter2, message, client);
 	// else if (command == "INVITE")
 	// 	//inviteChannel(parameter, parameter2, client);
-	// else if (command == "MODE") 
-	// 	//mode(parameter, parameter2, parameter3, client);
+	else if (command == "MODE") 
+		{
+			std::cout << "MODE" << std::endl;
+			mode(parameter1, parameter2, parameter3, sender);
+		}
 	
 }
 
@@ -590,10 +773,10 @@ void Server::parseCommand(std::string clientData, Client& sender){
 	for (it = commands.begin(); it != commands.end(); ++it) 
 	{
 		std::istringstream iss(removeNonPrintable(*it));
-		std::string command, param1, param2, trailer;
+		std::string command, param1, param2, param3, trailer;
 		trailer = searchTrailer(iss.str());
-		iss >> command >> param1 >> param2;
-		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << trailer << std::endl;
+		iss >> command >> param1 >> param2 >> param3;
+		std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << "Param 3: " << param3 << trailer << std::endl;
 		if (sender.getIsRegistered() == false)
 		{
 			commandsRegister(sender, command, param1);
@@ -614,7 +797,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			}
 			else
 			{
-				commandsAll(sender, command, param1, param2, trailer);
+				commandsAll(sender, command, param1, param2, param3, trailer);
 			}
 			
 		}
