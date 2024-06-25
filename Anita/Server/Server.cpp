@@ -481,6 +481,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 		newChannel.addOperator(sender);
 		_channels.push_back(newChannel);
 		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
+		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
 
 		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
 	}
