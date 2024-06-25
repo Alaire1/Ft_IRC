@@ -175,13 +175,13 @@ void Channel::setTopic(std::string topic)
 }
 
 
-size_t Channel::getUsernum()
+size_t Channel::getUsernum() const
 {
 	return _clients.size();
 }
 
 
-size_t Channel::maxNumOfUsers()
+size_t Channel::maxNumOfUsers() const
 {
 	return _maxUsers;}
 

@@ -23,6 +23,7 @@ void Server::initializeReplyMap()
 	numericReplyMap[464] = {code_464};
 	numericReplyMap[471] = {code_471};
 	numericReplyMap[473] = {code_473};
+	numericReplyMap[475] = {code_475};
 	numericReplyMap[482] = {code_482};
 }
 
@@ -436,7 +437,10 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 		Channel *channel = returnExistingChannel(channelName);
 		if(channel->isPwdProtected() && channel->getKey() != pwd)// not implemented correctly yet
 		{
-			sendToClient(serverReply(sender.getNick(), "525", {"JOIN", channelName}, "Key is not well-formed"), sender);
+			if(pwd.empty())
+				sendToClient(numReplyGenerator(SERVER, {"JOIN", channelName}, 475), sender);
+			else
+				sendToClient(serverReply(sender.getNick(), "525", {"JOIN", channelName}, "Key is not well-formed"), sender);
 			return;
 		}
 		if (channel->getTopic() == "")

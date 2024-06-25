@@ -128,8 +128,9 @@ static std::string code_443 = "is already on channel";
 static std::string code_461 = "Not enough parameters";
 static std::string code_462 = "You may not reregister";
 static std::string code_464 = "Password incorrect";
-static std::string code_471 = "Cannot join channel (+l)";
+static std::string code_471 = "User limit reached";
 static std::string code_473 = "Cannot join channel (+i)";
+static std::string code_475 = "You need a password to join (+l)";
 static std::string code_482 = "You're not a channel operator";
 std::string removeNonPrintable(const std::string& input);
 
