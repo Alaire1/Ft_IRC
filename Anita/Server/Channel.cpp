@@ -181,9 +181,7 @@ size_t Channel::getUsernum() const
 }
 
 
-size_t Channel::maxNumOfUsers() const
-{
-	return _maxUsers;}
+size_t Channel::maxNumOfUsers() const {return _maxUsers;}
 
 
 void Channel::removeInvite(Client& client)
@@ -194,6 +192,32 @@ void Channel::removeInvite(Client& client)
 	   if (it->getNick() == client.getNick())
 	   {
 		  _invitees.erase(it);
+		  break;
+	   }
+    }
+}
+
+void Channel::removeOperator(Client& client)
+{
+    std::vector<Client>::iterator it = _operators.begin();
+    for (; it != _operators.end(); ++it)
+    {
+	   if (it->getNick() == client.getNick())
+	   {
+		  _operators.erase(it);
+		  break;
+	   }
+    }
+}
+
+void Channel::removeClient(Client& client)
+{
+    std::vector<Client>::iterator it = _operators.begin();
+    for (; it != _operators.end(); ++it)
+    {
+	   if (it->getNick() == client.getNick())
+	   {
+		  _operators.erase(it);
 		  break;
 	   }
     }

@@ -640,7 +640,6 @@ void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &m
 	}
 }
 
-
 void Server::namesChannel(Client& sender, const std::string& channelName)
 {
 	if (channelExists(channelName))
@@ -651,7 +650,16 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 	}
 }
 
-void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
+void Server::handleQuit(const std::string& param1, const std::string& param2, Client& sender)
+{
+	//remove client from Channels
+	//Broadcas leave message
+	//handle client resources closing fd
+	//
+	std::cout << "in the handle quit funtion" << std::endl;
+}
+
+void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& param3, std::string trailer)
 {
 	//(void)parameter2;
 	//(void)trailer;
@@ -674,6 +682,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	// 	//inviteChannel(parameter, parameter2, client);
 	//else if (command == "MODE") 
 		//mode(parameter1, parameter2, sender);
+	else if (command == "QUIT") 
+		handleQuit(parameter1, parameter2, sender);
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){
@@ -683,9 +693,9 @@ void Server::parseCommand(std::string clientData, Client& sender){
 	for (it = commands.begin(); it != commands.end(); ++it) 
 	{
 		std::istringstream iss(removeNonPrintable(*it));
-		std::string command, param1, param2, trailer;
+		std::string command, param1, param2, param3, trailer;
 		trailer = searchTrailer(iss.str());
-		iss >> command >> param1 >> param2;
+		iss >> command >> param1 >> param2 >> param3;
 		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << trailer << std::endl;
 		if (sender.getIsRegistered() == false)
 		{
@@ -707,7 +717,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			}
 			else
 			{
-				commandsAll(sender, command, param1, param2, trailer);
+				commandsAll(sender, command, param1, param2, param3, trailer);
 			}
 			
 		}

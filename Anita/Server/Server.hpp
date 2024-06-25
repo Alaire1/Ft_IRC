@@ -80,7 +80,7 @@ class Server
 		void parseCommand(std::string clientData, Client &sender);
 		int checkNick(std::string nick);
 		void commandsRegister(Client &sender, std::string command, std::string param1);
-		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer);
+		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& param3, std::string trailer);
 		int sendToClient(const std::string& message, const Client& client) const;
 		void deleteClient(int fd);
 		std::vector<std::string> listValidCommands();
@@ -102,6 +102,8 @@ class Server
 		//WHO FUNCTION 
 		void namesChannel(Client& sender, const std::string& channelName);
 
+		//QUIT FUNCTION
+		void handleQuit(const std::string& param1, const std::string& param2, Client& sender);
 
 		//MODE COMMAND FUNCTIONS
 	//	void handleMode(std::string channelName, std::string mode, Client &sender);

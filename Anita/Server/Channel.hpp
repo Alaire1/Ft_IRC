@@ -42,6 +42,8 @@ class Channel
 		bool isInvitedToChannel(Client& client);
 		bool clientNotOperator(Client& client);
 		void removeInvite(Client& client);
+		void removeOperator(Client& client);
+		void removeClient(Client& client);
 		bool clientWithThatNameNotInChannel(std::string name);
  	
 		//setters
@@ -71,8 +73,6 @@ class Channel
 		size_t maxNumOfUsers() const;
 		std::vector<Client> getClientsVector() const;
 		std::vector<Client> getOperatorsVector() const;
-
-
 
 };
 
