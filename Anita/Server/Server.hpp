@@ -16,7 +16,7 @@
 #include <map>
 #include <cstddef>
 #include <sstream>
-//#include <iomanip>
+#include <iomanip>
 #include "Channel.hpp"
 #include "Client.hpp"
 #define MAX_CLIENTS 	10
@@ -90,8 +90,8 @@ class Server
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 
 		//CHANNEL FUNCTIONS
-		void joinChannel(Client &sender, std::string channelName);
-		Channel *returnExistingChannel(std::string &channelName);
+		void joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);
+		Channel *returnExistingChannel(const std::string &channelName);
 		void broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message);
 
 

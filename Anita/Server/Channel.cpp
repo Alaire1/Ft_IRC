@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name) :_name(name), _topic(""), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false), _password(false){}
+Channel::Channel(std::string name) :_name(name), _topic(""), _key(""), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false), _pwdProtected(false){}
 
 Channel::~Channel() {}
 
@@ -22,21 +22,23 @@ void Channel::join(Client& client)
 		client.sendMessage("442 " + _name + " :You're already in that channel"); // 442 is a numeric code for sending a message that user is already in the channel
 }
 
-std::string Channel::getTopic(){return _topic;}
+std::string Channel::getTopic() const{return _topic;}
 
-std::vector<Client> Channel::getClientsVector(){return _clients;}
+std::vector<Client> Channel::getClientsVector() const{return _clients;}
 
-std::vector<Client> Channel::getOperatorsVector(){return _operators;}
+std::vector<Client> Channel::getOperatorsVector() const{return _operators;}
 
-std::string Channel::getChannelName(){return _name;}
+std::string Channel::getChannelName() const{return _name;}
 
-bool Channel::isInviteOnly(){return _isInviteOnly;}
+std::string Channel::getKey() const{return _key;}
 
-bool Channel::hasMaxUsers(){return _hasMaxUsers;}
+bool Channel::isInviteOnly() const{return _isInviteOnly;}
 
-bool Channel::isrestrictTopic(){return _restrictTopic;}
+bool Channel::hasMaxUsers() const{return _hasMaxUsers;}
 
-bool Channel::passwordActive(){return _password;}
+bool Channel::isrestrictTopic() const{return _restrictTopic;}
+
+bool Channel::isPwdProtected() const{return _pwdProtected;}
 
 void Channel::invite(Client& client) // before that function in parsing we have to check if someone that is using the invite command is an operator //
 {

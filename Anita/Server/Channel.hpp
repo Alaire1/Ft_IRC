@@ -21,7 +21,7 @@ class Channel
 		int _maxUsers;
 
 		bool _restrictTopic; 
-		bool _password; 
+		bool _pwdProtected; 
 
 		std::vector<Client> _clients;
 		std::vector<Client> _operators;
@@ -60,16 +60,17 @@ class Channel
 		void addOperator(Client& client);
 		//
 		//getters
-		size_t getUsernum();//number of users in the channel
-		std::string getTopic();
-		std::string getChannelName();
-		bool isrestrictTopic();
-		bool isInviteOnly();
-		bool hasMaxUsers();
-		bool passwordActive();
-		size_t maxNumOfUsers();
-		std::vector<Client> getClientsVector();
-		std::vector<Client> getOperatorsVector();
+		size_t getUsernum() const;//number of users in the channel
+		std::string getTopic() const;
+		std::string getKey() const;
+		std::string getChannelName() const;
+		bool isrestrictTopic() const;
+		bool isInviteOnly() const;
+		bool hasMaxUsers() const;
+		bool isPwdProtected() const;
+		size_t maxNumOfUsers() const;
+		std::vector<Client> getClientsVector() const;
+		std::vector<Client> getOperatorsVector() const;
 
 
 

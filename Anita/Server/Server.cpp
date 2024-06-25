@@ -1,8 +1,5 @@
 #include "Server.hpp"
-
-
-#include "parsing_plan.cpp"
-#include <string>
+//#include "parsing_plan.cpp"
 
 //Server.cpp
 void Server::initializeReplyMap()
@@ -431,17 +428,17 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 		}
 }
 
-void Server::joinChannel(Client &sender, std::string channelName)
+void Server::joinChannel(Client &sender, const std::string& channelName, const std::string& pwd)
 {
 	std::cout << "Joining channel: " << channelName << std::endl;
 	if (channelExists(channelName))
 	{
 		Channel *channel = returnExistingChannel(channelName);
-		//if(channel->passwordActive() && channel->getPassword() != param)// not implemented correctly yet
-		//{
-		//	sendToClient(serverReply(sender.getNick(), "525", {"JOIN", channelName}, "Key is not well-formed"), sender);
-		//	return;
-		//}
+		if(channel->isPwdProtected() && channel->getKey() != pwd)// not implemented correctly yet
+		{
+			sendToClient(serverReply(sender.getNick(), "525", {"JOIN", channelName}, "Key is not well-formed"), sender);
+			return;
+		}
 		if (channel->getTopic() == "")
 			sendToClient(numReplyGenerator(SERVER, {"JOIN", channelName}, 331), sender);
 		else
@@ -488,7 +485,7 @@ void Server::joinChannel(Client &sender, std::string channelName)
 	}
 }
 
-Channel *Server::returnExistingChannel(std::string &channelName)
+Channel *Server::returnExistingChannel(const std::string& channelName)
 {
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 	{
@@ -646,11 +643,11 @@ void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &m
 
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
-	(void)parameter2;
-	(void)trailer;
+	//(void)parameter2;
+	//(void)trailer;
 	if (command == "JOIN")
 	{
-		joinChannel(sender, parameter1);
+		joinChannel(sender, parameter1, parameter2);
 		std::cout << "JOIN" << std::endl;
 	}
 	// else if (command == "PART")
