@@ -26,7 +26,7 @@ std::string Channel::getTopic() const{return _topic;}
 
 std::vector<Client> Channel::getClientsVector() const{return _clients;}
 
-std::vector<Client> Channel::getOperatorsVector() const{return _operators;}
+const std::vector<Client>& Channel::getOperatorsVector() const{return _operators;}
 
 std::string Channel::getChannelName() const{return _name;}
 

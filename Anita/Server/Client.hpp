@@ -12,7 +12,7 @@ class Client
 		std::string _nick;
 		std::string _user;
 		bool _isRegistered;
-		//bool _hasPassword;
+		bool _hasPassword;
 		//	std::string _operatorPassword;
 		//	std::string _operatorNickname;
 		//	std::string _operatorUsername;

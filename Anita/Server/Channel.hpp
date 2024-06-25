@@ -72,7 +72,7 @@ class Channel
 		bool isPwdProtected() const;
 		size_t maxNumOfUsers() const;
 		std::vector<Client> getClientsVector() const;
-		std::vector<Client> getOperatorsVector() const;
+		const std::vector<Client>& getOperatorsVector() const;
 
 };
 

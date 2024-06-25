@@ -80,7 +80,7 @@ class Server
 		void parseCommand(std::string clientData, Client &sender);
 		int checkNick(std::string nick);
 		void commandsRegister(Client &sender, std::string command, std::string param1);
-		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& param3, std::string trailer);
+		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& parameter3, std::string trailer);
 		int sendToClient(const std::string& message, const Client& client) const;
 		void deleteClient(int fd);
 		std::vector<std::string> listValidCommands();
@@ -106,11 +106,17 @@ class Server
 		void handleQuit(const std::string& param1, const std::string& param2, Client& sender);
 
 		//MODE COMMAND FUNCTIONS
-	//	void handleMode(std::string channelName, std::string mode, Client &sender);
 		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
 		bool modeExist(std::string mode);
-		void chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);
 		bool channelExists(std::string channelName);
+		bool clientIsOperator(std::string channelName, Client& client);
+		void chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);
+		void modeOperator(std::string channel, std::string parameter, Client& client, std::string mode);
+		bool nickIsInServer(std::string nick);
+		void modeKey(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void modeInvite(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void modeTopic(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void modeLimit(std::string channel, std::string parameter, Client &sender, std::string mode);
 
 		//PRIVMSG FUNCTIONS
 		void handlePrivmsg(Client &sender, std::string &receiver, std::string &message);
@@ -119,6 +125,7 @@ class Server
 };
 //Static strings numeric replies 
 static std::string code_331 = "No topic is set";
+static std::string code_332 = "Topic is";
 static std::string code_366 = "End of /NAMES list";
 static std::string code_401 = "No such nick/channel";
 static std::string code_403 = "No such channel";
