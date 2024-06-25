@@ -99,7 +99,12 @@ class Server
 		void channelTopic(Client &sender, std::string channelName, std::string trailer);
 		std::vector<std::string> listChannelClients(Channel& channel);
 
+		//WHO FUNCTION 
+		void namesChannel(Client& sender, const std::string& channelName);
+
+
 		//MODE COMMAND FUNCTIONS
+	//	void handleMode(std::string channelName, std::string mode, Client &sender);
 		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
 		bool modeExist(std::string mode);
 		void chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);

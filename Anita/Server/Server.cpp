@@ -467,14 +467,11 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 			return;
 		}
 		channel->addUser(sender);
-		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully"), sender);//
-
-		sendToClient(serverReply(SERVER, "353", listChannelClients(*channel), ""), sender);
-		broadcastMessage(channel->getClientsVector(), sender, serverReply(SERVER, "353", listChannelClients(*channel), ""));
-		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "JOIN", {channelName}, ""));
 		if (channel->isInviteOnly())
 			channel->removeInvite(sender);
 
+		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully"), sender);//
+		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "JOIN", {channelName}, ""));
 	}
 	else
 	{
@@ -484,7 +481,6 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 		_channels.push_back(newChannel);
 		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
 
-		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
 		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
 	}
 }
@@ -645,6 +641,16 @@ void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &m
 }
 
 
+void Server::namesChannel(Client& sender, const std::string& channelName)
+{
+	if (channelExists(channelName))
+	{
+		Channel *channel = returnExistingChannel(channelName);
+		sendToClient(serverReply(SERVER, "353", listChannelClients(*channel), ""), sender);
+		broadcastMessage(channel->getClientsVector(), sender, serverReply(SERVER, "353", listChannelClients(*channel), ""));
+	}
+}
+
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string trailer)
 {
 	//(void)parameter2;
@@ -660,15 +666,14 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 		channelTopic(sender, parameter1, trailer);
 	else if (command == "PRIVMSG")
 		handlePrivmsg(sender, parameter1, trailer);
-	// else if (command == "WHO")
-	// 	//names(client, parameter);
+	else if (command == "WHO")
+		 namesChannel(sender, parameter1);
 	else if (command == "KICK")
 		kickClient(sender, parameter1, parameter2);
 	// else if (command == "INVITE")
 	// 	//inviteChannel(parameter, parameter2, client);
-	// else if (command == "MODE") 
-	// 	//mode(parameter, parameter2, parameter3, client);
-	
+	//else if (command == "MODE") 
+		//mode(parameter1, parameter2, sender);
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){
