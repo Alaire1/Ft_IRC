@@ -102,7 +102,7 @@ class Server
 		void 				namesChannel(Client& sender, const std::string& channelName);
 
 		//QUIT FUNCTION
-		void 				handleQuit(const std::string& param1, const std::string& param2, Client& sender);
+		void 				handleQuit(Client& sender);
 		void 				removeClientFromChannels(Client& client);
 		void 				removeClientFromServer(int fd);
 		void				clearChannelsNoUsers();//Clears channels with no users inside.

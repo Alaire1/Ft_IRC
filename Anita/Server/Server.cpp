@@ -140,7 +140,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		if (bytesRead == 0) 
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
-			removeClient(fd);
+			handleQuit(sender);
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
@@ -642,11 +642,9 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 	}
 }
 
-void Server::handleQuit(const std::string& param1, const std::string& param2, Client& sender)
+void Server::handleQuit(Client& sender)
 {
 	std::cout << "in the handle quit funtion" << sender.getNick() << std::endl;
-	(void)param1;
-	(void)param2;
 	for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
 	{
 		if(!it->clientWithThatNameNotInChannel(sender.getNick()))
@@ -908,7 +906,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 			mode(parameter1, parameter2, parameter3, sender);
 		}
 	else if (command == "QUIT") 
-		handleQuit(parameter1, parameter2, sender);
+		handleQuit(sender);
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){
