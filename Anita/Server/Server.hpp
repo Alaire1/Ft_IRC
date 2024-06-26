@@ -74,6 +74,7 @@ class Server
 		void 				printclientfds(std::vector<Client> clients);
 		void    		printfds(std::vector<pollfd> fds);
 		bool    		isSocketClosed(int sockfd); 
+		void 				printclient(std::vector<Client> clients);
 
 		//PARSING FUNCTIONS
 		Client 			findClientByFd(int fd);

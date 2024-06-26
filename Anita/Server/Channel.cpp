@@ -245,3 +245,15 @@ void Channel::clearVectors()
 	_clients.clear();
 	_operators.clear();
 }
+
+
+ Client* Channel::getClient(const std::string& nickName) 
+{
+    std::vector<Client>::iterator it = _clients.begin();
+    for (; it != _clients.end(); ++it)
+		{
+			if (it->getNick() == nickName)
+				return &(*it);
+		}
+	return NULL;
+}

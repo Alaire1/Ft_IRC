@@ -237,9 +237,21 @@ void Server::printPassword()
     std::cout << "Password: " << _pwd << std::endl;
 }
 
-void Server::printclientfds(std::vector<Client> clients)
+void Server::printclient(std::vector<Client> clients)
 {
 	std::cout << "Print clients" << std::endl;
+	int i = 0;
+	for(std::vector<Client>::iterator it = clients.begin(); it != clients.end();)
+	{
+		std::cout << "Client " << i << " " << it->getNick() << std::endl;
+		it++;
+		i++;
+	}
+}
+
+void Server::printclientfds(std::vector<Client> clients)
+{
+	std::cout << "Print clients fds" << std::endl;
 	int i = 0;
 	for(std::vector<Client>::iterator it = clients.begin(); it != clients.end();)
 	{
@@ -700,6 +712,8 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 	std::cout << "Channel: " << channel << " Mode: " << mode << " Parameter: " << parameter << std::endl; 
 	if (returnExistingChannel(channel)->clientNotOperator(client))
 	{
+		//std::cout << "if not operator how many operators: " << returnExistingChannel(channel)->getOperatorsVector().size() << " " << returnExistingChannel(channel)->clientNotOperator(client) << std::endl;
+		printclient(returnExistingChannel(channel)->getOperatorsVector());
 		std::cout << "Client is not operator" << std::endl;
 		sendToClient(numReplyGenerator(client.getNick(), {"MODE", channel}, 482), client);
 		std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 482);
@@ -781,17 +795,20 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		return;
 	}
 	Channel *modeChannel = returnExistingChannel(channel);
-	if (!modeChannel->clientNotInChannel(client))
+	if (!modeChannel->clientNotInChannel(client) && modeChannel->getClient(parameter))
 	{
-		if (mode == "positive") // the sender is not seeing the change and any message
+		Client* newOperator = modeChannel->getClient(parameter);
+		if (mode == "positive" ) // the sender is not seeing the change and any message
 		{
-			modeChannel->addOperator(client);
+			modeChannel->addOperator(*newOperator);
+			//modeChannel->addOperator(client);
+			//std::cout << "after adding operator: " << modeChannel->getOperatorsVector().size() << std::endl;
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
 		}
 		else
 		{
-			modeChannel->removeOperator(client);
+			modeChannel->removeOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, ""));
 		}
@@ -858,13 +875,13 @@ void Server::modeTopic(std::string channel, std::string parameter, Client& clien
 
 			modeChannel->setRestrictTopic(true);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+t", parameter}, "set"));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+t", parameter}, "set"));
 		}
 		else
 		{
 			modeChannel->setRestrictTopic(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-t", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-t", parameter}, ""));
 		}
 	}
 }

@@ -74,8 +74,10 @@ class Channel
 		bool hasMaxUsers() const;
 		bool isPwdProtected() const;
 		size_t maxNumOfUsers() const;
+		Client* getClient(const std::string& nickName);
 		const std::vector<Client>& getClientsVector() const;
 		const std::vector<Client>& getOperatorsVector() const;
+
 
 };
 
