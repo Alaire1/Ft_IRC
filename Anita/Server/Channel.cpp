@@ -131,9 +131,7 @@ bool Channel::clientWithThatNameNotInChannel(std::string name)
     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
 	   if (it->getNick() == name)
-	   {
 		  return false;
-	   }
     }
     return true;
 }
@@ -217,6 +215,7 @@ void Channel::removeOperator(Client& client)
 		  break;
 	   }
     }
+		checkIfOperatorleft();
 }
 
 void Channel::removeClient(Client& client)
@@ -230,4 +229,12 @@ void Channel::removeClient(Client& client)
 		  break;
 	   }
     }
+		if(!_clients.size())
+			clearVectors();
+}
+
+void Channel::clearVectors()
+{
+	_clients.clear();
+	_operators.clear();
 }

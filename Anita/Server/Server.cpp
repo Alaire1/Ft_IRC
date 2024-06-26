@@ -644,33 +644,38 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 
 void Server::handleQuit(const std::string& param1, const std::string& param2, Client& sender)
 {
+	std::cout << "in the handle quit funtion" << sender.getNick() << std::endl;
 	(void)param1;
 	(void)param2;
-	//remove client from Channels & check if channel members is not 0
-	//Broadcast leave message
-	//handle client resources closing fd
-
-	std::cout << "in the handle quit funtion" << sender.getNick() << std::endl;
+	for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
+	{
+		if(!it->clientWithThatNameNotInChannel(sender.getNick()))
+			broadcastMessage(it->getClientsVector(), sender, serverReply(sender.getNick(), "QUIT", {it->getChannelName()}, "left the channel"));
+	}
+	removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
+	removeClientFromServer(sender.getFd());//handle client resources closing fd
 }
 
 void Server::removeClientFromChannels(Client& client)
 {
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
-		it->removeClient(client);
 		it->removeOperator(client);
+		it->removeClient(client);
 	}
 	clearChannelsNoUsers();
 }
 
 void	Server::clearChannelsNoUsers()
 {
-	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end();) 
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it) 
 	{
 		if (it->getUsernum() == 0) 
+		{
+			it->clearVectors();
 			_channels.erase(it);
-		else
-			it++;
+			break;
+		}
 	}
 }
 
@@ -683,7 +688,6 @@ void Server::removeClientFromServer(int fd)
 		else
 			it++;
 	}
-	clearChannelsNoUsers();
 }
 
 

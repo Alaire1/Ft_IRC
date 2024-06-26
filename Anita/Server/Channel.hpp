@@ -47,6 +47,7 @@ class Channel
 		//QUIT
 		void removeOperator(Client& client);
 		void removeClient(Client& client);
+		void clearVectors();
  	
 		//setters
 		void setInviteOnly(bool isInviteOnly);
@@ -73,7 +74,7 @@ class Channel
 		bool hasMaxUsers() const;
 		bool isPwdProtected() const;
 		size_t maxNumOfUsers() const;
-		std::vector<Client> getClientsVector() const;
+		const std::vector<Client>& getClientsVector() const;
 		const std::vector<Client>& getOperatorsVector() const;
 
 };
