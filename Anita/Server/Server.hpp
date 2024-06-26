@@ -101,10 +101,10 @@ class Server
 		//WHO FUNCTION 
 		void 				namesChannel(Client& sender, const std::string& channelName);
 
-		//QUIT FUNCTION
+		//QUIT FUNCTION 
 		void 				handleQuit(Client& sender);
 		void 				removeClientFromChannels(Client& client);
-		void 				removeClientFromServer(int fd);
+		void 				removeClientFromServer(Client& client);
 		void				clearChannelsNoUsers();//Clears channels with no users inside.
 
 		//MODE COMMAND FUNCTIONS

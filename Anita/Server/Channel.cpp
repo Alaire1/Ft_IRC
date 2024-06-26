@@ -136,13 +136,17 @@ bool Channel::clientWithThatNameNotInChannel(std::string name)
     return true;
 }
 
-void Channel::checkIfOperatorleft()//Checks if there is still operators left, if not assigns the _clients[0] as operator
+int Channel::checkIfOperatorleft()//Checks if there is still operators left, if not assigns the _clients[0] as operator
 {
 	if(!_operators.size())
 	{
 		if(_clients.size())
+		{
 			_operators.push_back(_clients[0]);
+			return 1;
+		}
 	}
+	return 0;
 }
 
 bool Channel::containsClient(Client& client)
@@ -204,7 +208,7 @@ void Channel::removeInvite(Client& client)
     }
 }
 
-void Channel::removeOperator(Client& client)
+int Channel::removeOperator(Client& client)
 {
     std::vector<Client>::iterator it = _operators.begin();
     for (; it != _operators.end(); ++it)
@@ -215,7 +219,10 @@ void Channel::removeOperator(Client& client)
 		  break;
 	   }
     }
-		checkIfOperatorleft();
+		if(checkIfOperatorleft())
+			return 1;
+		else
+			return 0;
 }
 
 void Channel::removeClient(Client& client)

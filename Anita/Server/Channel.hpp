@@ -43,9 +43,9 @@ class Channel
 		bool clientNotOperator(Client& client);
 		void removeInvite(Client& client);
 		bool clientWithThatNameNotInChannel(std::string name);
-		void checkIfOperatorleft();
+		int  checkIfOperatorleft();
 		//QUIT
-		void removeOperator(Client& client);
+		int  removeOperator(Client& client);
 		void removeClient(Client& client);
 		void clearVectors();
  	

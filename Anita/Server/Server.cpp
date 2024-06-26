@@ -140,7 +140,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		if (bytesRead == 0) 
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
-			handleQuit(sender);
+			//handleQuit(sender);
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
@@ -413,11 +413,11 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 			//std::cout << "Password is incorrect test2" << std::endl;
 		}
 	}
-	else if (command == "QUIT")
-		{
-			close(sender.getFd());
+	//else if (command == "QUIT")
+	//	{
+	//		close(sender.getFd());
 
-		}
+	//	}
 }
 
 void Server::joinChannel(Client &sender, const std::string& channelName, const std::string& pwd)
@@ -644,22 +644,23 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 
 void Server::handleQuit(Client& sender)
 {
-	std::cout << "in the handle quit funtion" << sender.getNick() << std::endl;
+	std::cout << "in the handle quit function " << sender.getNick() << std::endl;
 	for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
 	{
 		if(!it->clientWithThatNameNotInChannel(sender.getNick()))
 			broadcastMessage(it->getClientsVector(), sender, serverReply(sender.getNick(), "QUIT", {it->getChannelName()}, "left the channel"));
 	}
 	removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
-	removeClientFromServer(sender.getFd());//handle client resources closing fd
+	removeClientFromServer(sender);//handle client resources closing fd
 }
 
 void Server::removeClientFromChannels(Client& client)
 {
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
-		it->removeOperator(client);
 		it->removeClient(client);
+		if(it->removeOperator(client))//if removeOperator exists (1) new operator assigned due 0 operators left then broadcast to channel all clients
+			broadcastMessage(it->getClientsVector(), client, serverReply(SERVER, "353", listChannelClients(*it), ""));
 	}
 	clearChannelsNoUsers();
 }
@@ -677,12 +678,16 @@ void	Server::clearChannelsNoUsers()
 	}
 }
 
-void Server::removeClientFromServer(int fd)
+void Server::removeClientFromServer(Client& client)
 {
+	std::cout << "in remove client from server" << std::endl;
 	for(std::vector<Client>::iterator it = _clients.begin(); it != _clients.end();)
 	{
-		if(it->getFd() == fd)
+		if(it->getNick() == client.getNick())
+		{
+			close(it->getFd());
 			_clients.erase(it);
+		}
 		else
 			it++;
 	}
@@ -905,8 +910,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 			std::cout << "MODE" << std::endl;
 			mode(parameter1, parameter2, parameter3, sender);
 		}
-	else if (command == "QUIT") 
-		handleQuit(sender);
+	//else if (command == "QUIT") 
+		//handleQuit(sender);
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){

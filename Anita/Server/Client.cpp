@@ -16,7 +16,6 @@ bool Client::getHasPassword() const {return _hasPassword;}
 
 void Client::setFd(int fd) {_fd = fd;}
 
-
 void Client::setNickName(std::string& nick) {_nick= nick;}
 
 void Client::setUserName(std::string& user) {_user= user;}
