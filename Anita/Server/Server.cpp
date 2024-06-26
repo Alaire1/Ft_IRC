@@ -140,6 +140,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		if (bytesRead == 0) 
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
+			close(fd);
 			//handleQuit(sender);
 		}
 		else 
@@ -697,12 +698,19 @@ void Server::removeClientFromServer(Client& client)
 void Server::mode(std::string channel, std::string mode, std::string parameter, Client& client)
 {
 	std::cout << "Channel: " << channel << " Mode: " << mode << " Parameter: " << parameter << std::endl; 
-	if (clientIsOperator(channel, client) == false)
+	if (returnExistingChannel(channel)->clientNotOperator(client))
 	{
 		std::cout << "Client is not operator" << std::endl;
-		std::string errorMessage = numReplyGenerator(client.getNick(), {"NOTICE", channel}, 482);
+		sendToClient(numReplyGenerator(client.getNick(), {"MODE", channel}, 482), client);
+		std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 482);
 		return;//may be changed
 	}
+	//if (clientIsOperator(channel, client) == false)
+	//{
+	//	std::cout << "Client is not operator" << std::endl;
+	//	std::string errorMessage = numReplyGenerator(client.getNick(), {"NOTICE", channel}, 482);
+	//	return;//may be changed
+	//}
 	// if (mode.empty() && parameter.empty())
 	// {
 	// message about current modes and possibly the date of creating the channel
@@ -720,6 +728,7 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 bool Server::clientIsOperator(std::string channelName, Client& client) {
     Channel* modeChannel = returnExistingChannel(channelName);
     // Use the new getOperators() method
+		std::cout << "number of operators" << modeChannel->getOperatorsVector().size() << std::endl;
     for (std::vector<Client>::const_iterator it = modeChannel->getOperatorsVector().begin(); it != modeChannel->getOperatorsVector().end(); ++it) {
         if (it->getNick() == client.getNick())
             return true;
@@ -778,13 +787,13 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		{
 			modeChannel->addOperator(client);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+o", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
 		}
 		else
 		{
 			modeChannel->removeOperator(client);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-o", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, ""));
 		}
 	}
 }
