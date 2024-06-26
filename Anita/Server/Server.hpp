@@ -19,14 +19,15 @@
 #include <iomanip>
 #include "Channel.hpp"
 #include "Client.hpp"
+
 #define MAX_CLIENTS 	10
 #define BUFFER_SIZE 	1024
 #define SERVER 				"ourSuperServer"
-#define RESET	"\033[0m"
-#define YELLOW	"\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define RED     "\033[31m"
+#define RESET					"\033[0m"
+#define YELLOW				"\033[33m"
+#define BLUE    			"\033[34m"
+#define MAGENTA 			"\033[35m"
+#define RED     			"\033[31m"
 
 
 class Server 
@@ -58,69 +59,70 @@ class Server
 		static void	signalHandler(int signum);
 
 		// Server member functions
-		int  getSocket() const;
-		void setNonBlocking(int fd);
-		void createSocket();
-		void runServer();
-		void initServer();
-		void acceptClient();
-		void handleData(int fd, Client &sender, size_t idx);
-		void closeFds();
-		int	 clearChannelsNoUsers();//Clears channels with no users inside.
-		Client *findClientByNick(std::string nick);
+		int  				getSocket() const;
+		void 				setNonBlocking(int fd);
+		void 				createSocket();
+		void 				runServer();
+		void 				initServer();
+		void 				acceptClient();
+		void 				handleData(int fd, Client &sender, size_t idx);
+		void 				closeFds();
+		Client 			*findClientByNick(std::string nick);
 
 		//TESTING FUNCTIONS
-		void    printPassword();
-		void 		printclientfds(std::vector<Client> clients);
-		void    printfds(std::vector<pollfd> fds);
-		bool    isSocketClosed(int sockfd); 
+		void    		printPassword();
+		void 				printclientfds(std::vector<Client> clients);
+		void    		printfds(std::vector<pollfd> fds);
+		bool    		isSocketClosed(int sockfd); 
 
 		//PARSING FUNCTIONS
-		Client findClientByFd(int fd);
-		void parseCommand(std::string clientData, Client &sender);
-		int checkNick(std::string nick);
-		void commandsRegister(Client &sender, std::string command, std::string param1);
-		void commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& parameter3, std::string trailer);
-		int sendToClient(const std::string& message, const Client& client) const;
-		void deleteClient(int fd);
+		Client 			findClientByFd(int fd);
+		void 				parseCommand(std::string clientData, Client &sender);
+		int 				checkNick(std::string nick);
+		void 				commandsRegister(Client &sender, std::string command, std::string param1);
+		void 				commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& parameter3, std::string trailer);
+		int 				sendToClient(const std::string& message, const Client& client) const;
 		std::vector<std::string> listValidCommands();
-		bool isValidCommand(const std::string& inputCommand);
+		bool 				isValidCommand(const std::string& inputCommand);
 		std::string searchTrailer(const std::string& string);
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 
 		//CHANNEL FUNCTIONS
-		void joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);
-		Channel *returnExistingChannel(const std::string &channelName);
-		void broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message);
+		void 				joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);
+		Channel 		*returnExistingChannel(const std::string &channelName);
+		void 				broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message);
 
 
 		//JOIN FUNCTIONS
-		void channelTopic(Client &sender, std::string channelName, std::string trailer);
+		void 				channelTopic(Client &sender, std::string channelName, std::string trailer);
 		std::vector<std::string> listChannelClients(Channel& channel);
 
 		//WHO FUNCTION 
-		void namesChannel(Client& sender, const std::string& channelName);
+		void 				namesChannel(Client& sender, const std::string& channelName);
 
 		//QUIT FUNCTION
-		void handleQuit(const std::string& param1, const std::string& param2, Client& sender);
+		void 				handleQuit(const std::string& param1, const std::string& param2, Client& sender);
+		void 				removeClientFromChannels(Client& client);
+		void 				removeClientFromServer(int fd);
+		void				clearChannelsNoUsers();//Clears channels with no users inside.
 
 		//MODE COMMAND FUNCTIONS
-		void mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
-		bool modeExist(std::string mode);
-		bool channelExists(std::string channelName);
-		bool clientIsOperator(std::string channelName, Client& client);
-		void chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);
-		void modeOperator(std::string channel, std::string parameter, Client& client, std::string mode);
-		bool nickIsInServer(std::string nick);
-		void modeKey(std::string channel, std::string parameter, Client &sender, std::string mode);
-		void modeInvite(std::string channel, std::string parameter, Client &sender, std::string mode);
-		void modeTopic(std::string channel, std::string parameter, Client &sender, std::string mode);
-		void modeLimit(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void 				mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
+		bool 				modeExist(std::string mode);
+		bool 				channelExists(std::string channelName);
+		bool 				clientIsOperator(std::string channelName, Client& client);
+		void 				chooseMode(std::string channel, std::string mode, std::string parameter, Client &sender);
+		void 				modeOperator(std::string channel, std::string parameter, Client& client, std::string mode);
+		bool 				nickIsInServer(std::string nick);
+		void 				modeKey(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void 				modeInvite(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void 				modeTopic(std::string channel, std::string parameter, Client &sender, std::string mode);
+		void 				modeLimit(std::string channel, std::string parameter, Client &sender, std::string mode);
 
 		//PRIVMSG FUNCTIONS
-		void handlePrivmsg(Client &sender, std::string &receiver, std::string &message);
-		void channelMessage(Client &sender, std::string &receiver, std::string &message);
+		void 				handlePrivmsg(Client &sender, std::string &receiver, std::string &message);
+		void 				channelMessage(Client &sender, std::string &receiver, std::string &message);
 
 };
 //Static strings numeric replies 

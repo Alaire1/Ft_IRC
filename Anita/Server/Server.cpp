@@ -140,7 +140,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		if (bytesRead == 0) 
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
-			clearChannelsNoUsers();
+			removeClient(fd);
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
@@ -282,17 +282,7 @@ bool Server::isSocketClosed(int sockfd)
 }
 
 
-int	Server::clearChannelsNoUsers()
-{
-	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end();) 
-	{
-		if (it->getUsernum() == 0) 
-			_channels.erase(it);
-		else
-			it++;
-	}
-	return (1);
-}
+
 
 std::string Server::numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode)
 {
@@ -482,7 +472,6 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 		_channels.push_back(newChannel);
 		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
 		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
-
 		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
 	}
 }
@@ -657,11 +646,44 @@ void Server::handleQuit(const std::string& param1, const std::string& param2, Cl
 {
 	(void)param1;
 	(void)param2;
-	//remove client from Channels
-	//Broadcas leave message
+	//remove client from Channels & check if channel members is not 0
+	//Broadcast leave message
 	//handle client resources closing fd
-	//
+
 	std::cout << "in the handle quit funtion" << sender.getNick() << std::endl;
+}
+
+void Server::removeClientFromChannels(Client& client)
+{
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+	{
+		it->removeClient(client);
+		it->removeOperator(client);
+	}
+	clearChannelsNoUsers();
+}
+
+void	Server::clearChannelsNoUsers()
+{
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end();) 
+	{
+		if (it->getUsernum() == 0) 
+			_channels.erase(it);
+		else
+			it++;
+	}
+}
+
+void Server::removeClientFromServer(int fd)
+{
+	for(std::vector<Client>::iterator it = _clients.begin(); it != _clients.end();)
+	{
+		if(it->getFd() == fd)
+			_clients.erase(it);
+		else
+			it++;
+	}
+	clearChannelsNoUsers();
 }
 
 

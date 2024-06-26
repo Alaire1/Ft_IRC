@@ -42,9 +42,11 @@ class Channel
 		bool isInvitedToChannel(Client& client);
 		bool clientNotOperator(Client& client);
 		void removeInvite(Client& client);
+		bool clientWithThatNameNotInChannel(std::string name);
+		void checkIfOperatorleft();
+		//QUIT
 		void removeOperator(Client& client);
 		void removeClient(Client& client);
-		bool clientWithThatNameNotInChannel(std::string name);
  	
 		//setters
 		void setInviteOnly(bool isInviteOnly);

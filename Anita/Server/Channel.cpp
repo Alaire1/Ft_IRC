@@ -138,6 +138,15 @@ bool Channel::clientWithThatNameNotInChannel(std::string name)
     return true;
 }
 
+void Channel::checkIfOperatorleft()//Checks if there is still operators left, if not assigns the _clients[0] as operator
+{
+	if(!_operators.size())
+	{
+		if(_clients.size())
+			_operators.push_back(_clients[0]);
+	}
+}
+
 bool Channel::containsClient(Client& client)
 {
     return std::find(_clients.begin(), _clients.end(), client) != _clients.end();
@@ -211,13 +220,13 @@ void Channel::removeOperator(Client& client)
 }
 
 void Channel::removeClient(Client& client)
-{
-    std::vector<Client>::iterator it = _operators.begin();
-    for (; it != _operators.end(); ++it)
+{ 
+    std::vector<Client>::iterator it = _clients.begin();
+    for (; it != _clients.end(); ++it)
     {
 	   if (it->getNick() == client.getNick())
 	   {
-		  _operators.erase(it);
+		  _clients.erase(it);
 		  break;
 	   }
     }
