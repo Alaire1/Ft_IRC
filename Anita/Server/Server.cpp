@@ -140,8 +140,8 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		if (bytesRead == 0) 
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
-			close(fd);
-			//handleQuit(sender);
+			//close(fd);
+			handleQuit(sender);
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
@@ -151,33 +151,11 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	} 
 	else 
 	{
-
 		printf("Received message: %s", buffer);
 		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		parseCommand(buffer, sender);
-
-
-
-
-
-		//buffer[bytesRead] = '\r';
-		//	ircMessageParser(buffer, *this);
-		// Echo message back to client
-		//if(!strncmp(buffer, "test", 4))
-		//{
-		//	std::string str = serverReply(SERVER, "001", {"exampleNick"}, "Welcome to ft_irc serverrrr!");
-
-		//	//const char buf[48] = ":ft_irc 001 :Welcome to ft_irc server!\n";
-		//	//send(fd, buf, 48, 0);
-		//	int value = send(fd, str.c_str(), str.length(), 0);
-		//	std::cout << fd <<"[fd] sent "<< value << " -> " << str << std::endl;
-		//}
 	}
-
 }
-
-
-
 
 
 bool Server::channelExists(std::string channelName)
@@ -657,14 +635,20 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 
 void Server::handleQuit(Client& sender)
 {
-	std::cout << "in the handle quit function " << sender.getNick() << std::endl;
-	for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
+	if(nickIsInServer(sender.getNick()))
 	{
-		if(!it->clientWithThatNameNotInChannel(sender.getNick()))
-			broadcastMessage(it->getClientsVector(), sender, serverReply(sender.getNick(), "QUIT", {it->getChannelName()}, "left the channel"));
+		std::cout << "Client " << sender.getNick() << " is quitting." << std::endl;
+		for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
+		{
+			if((*it).clientWithThatNameNotInChannel(sender.getNick()))
+				continue;
+			broadcastMessage((*it).getClientsVector(), sender, std::string("left the channel ") + (*it).getChannelName());
+		}
+		removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
+		removeClientFromServer(sender);//handle client resources closing fd
 	}
-	removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
-	removeClientFromServer(sender);//handle client resources closing fd
+	else 
+    std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
 }
 
 void Server::removeClientFromChannels(Client& client)
@@ -693,16 +677,21 @@ void	Server::clearChannelsNoUsers()
 
 void Server::removeClientFromServer(Client& client)
 {
-	std::cout << "in remove client from server" << std::endl;
+	std::cout << "Removing Client " << client.getNick() << " from server." << std::endl;
+	bool clientFound = false;
 	for(std::vector<Client>::iterator it = _clients.begin(); it != _clients.end();)
 	{
-		if(it->getNick() == client.getNick())
-		{
+		if (it->getNick() == client.getNick()) {
+			clientFound = true;
+			// Close file descriptor and swap element for removal
 			close(it->getFd());
-			_clients.erase(it);
+			std::swap(*it, _clients.back());
+			break;
 		}
-		else
-			it++;
+		if (clientFound) 
+			_clients.pop_back();
+		else 
+			std::cerr << "Warning: Client with nickname '" << client.getNick() << "' not found for removal." << std::endl;
 	}
 }
 
@@ -789,8 +778,8 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 	if (nickIsInServer(parameter) == false)
 	{
 		//not sending message to the right place
-		std::cout << "Nick is not in server" << std::endl;
-		std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 401);
+		std::cout << "Nick is not in server" << std::endl;//This one should shows
+		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 472);
 		sendToClient(errorMessage, client);
 		return;
 	}
