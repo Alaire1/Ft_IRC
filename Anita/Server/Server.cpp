@@ -707,8 +707,7 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 		//std::cout << "if not operator how many operators: " << returnExistingChannel(channel)->getOperatorsVector().size() << " " << returnExistingChannel(channel)->clientNotOperator(client) << std::endl;
 		printclient(returnExistingChannel(channel)->getOperatorsVector());
 		std::cout << "Client is not operator" << std::endl;
-		sendToClient(numReplyGenerator(client.getNick(), {"MODE", channel}, 482), client);
-		std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 482);
+		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482); // good code
 		return;//may be changed
 	}
 	//if (clientIsOperator(channel, client) == false)
@@ -726,7 +725,7 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 			chooseMode(channel, mode, parameter, client);
 	else
 	{
-			std::string errorMessage = numReplyGenerator(client.getNick(), {"MODE", channel}, 403);
+			std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 403); //good code
 			sendToClient(errorMessage, client);
 	}
 }
