@@ -688,11 +688,11 @@ void Server::removeClientFromServer(Client& client)
 			std::swap(*it, _clients.back());
 			break;
 		}
-		if (clientFound) 
-			_clients.pop_back();
-		else 
-			std::cerr << "Warning: Client with nickname '" << client.getNick() << "' not found for removal." << std::endl;
 	}
+	if (clientFound) 
+		_clients.pop_back();
+	else 
+		std::cerr << "Warning: Client with nickname '" << client.getNick() << "' not found for removal." << std::endl;
 }
 
 
@@ -777,10 +777,8 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 	std::cout << "Parameter: " << parameter << std::endl;
 	if (nickIsInServer(parameter) == false)
 	{
-		//not sending message to the right place
-		std::cout << "Nick is not in server" << std::endl;//This one should shows
-		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 472);
-		sendToClient(errorMessage, client);
+		std::cout << "Nick is not in server" << std::endl;
+		sendToClient(numReplyGenerator(SERVER, {"MODE", parameter}, 401), client);
 		return;
 	}
 	Channel *modeChannel = returnExistingChannel(channel);
@@ -790,8 +788,6 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		if (mode == "positive" ) // the sender is not seeing the change and any message
 		{
 			modeChannel->addOperator(*newOperator);
-			//modeChannel->addOperator(client);
-			//std::cout << "after adding operator: " << modeChannel->getOperatorsVector().size() << std::endl;
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
 		}
