@@ -357,13 +357,13 @@ std::string Server::searchTrailer(const std::string& string)
 }
 
 int Server::checkNick(std::string nick){
-	  for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-            if (it->getNick() == nick) {
-                std::cout << "Nick is already in use" << std::endl;
-                return 0;
-            }
-        }
-		return (1);
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getNick() == nick) {
+			std::cout << "Nick is already in use" << std::endl;
+			return 0;
+		}
+	}
+	return (1);
 
 }
 
@@ -383,7 +383,10 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 	if (command == "NICK")
 	{
 		if (checkNick(param1) == false)
+		{
+			sendToClient(numReplyGenerator(SERVER, {command, param1}, 433), sender);
 			return;
+		}
 		sender.setNickName(param1);
 	}
 	else if (command == "USER")
@@ -945,6 +948,10 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			//	std::cout << "NICK : " << sender.getNick() << std::endl;
 				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
 				sendToClient(str, sender);
+			}
+			else
+			{
+
 			}
 		}
 		else
