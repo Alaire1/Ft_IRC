@@ -4,6 +4,7 @@
 //Server.cpp
 void Server::initializeReplyMap()
 {
+	numericReplyMap[001] = {code_001};
 	numericReplyMap[331] = {code_331};
 	numericReplyMap[332] = {code_332};
 	numericReplyMap[353] = {code_353};
@@ -788,6 +789,7 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 			modeChannel->addOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
+			sendToClient(numReplyGenerator(client.getNick(), {"PRIVMSG", receiver}, 1), client);
 		}
 		else
 		{
@@ -820,6 +822,7 @@ void Server::modeKey(std::string channel, std::string parameter, Client& client,
 			modeChannel->setKey(parameter);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+k", parameter}, ""));
+			//sendToClient(serverReply(client.getNick(), "MODE", {channel, "+k", parameter}, ""), client);
 		}
 		else
 		{
@@ -841,7 +844,8 @@ void Server::modeInvite(std::string channel, std::string parameter, Client& clie
 			modeChannel->addMode('i');
 			modeChannel->setInviteOnly(true);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+i", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+i", parameter}, ""));//attaching something after the name of the channel
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+i", parameter}, ""), client); 
 		}
 		else
 		{
@@ -849,6 +853,7 @@ void Server::modeInvite(std::string channel, std::string parameter, Client& clie
 			modeChannel->setInviteOnly(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-i", parameter}, ""));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-i", parameter}, ""), client);
 		}
 	}
 }

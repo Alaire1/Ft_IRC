@@ -127,6 +127,7 @@ class Server
 
 };
 //Static strings numeric replies 
+static std::string code_001 = "Welcome to the Internet Relay Network";
 static std::string code_331 = "No topic is set";
 static std::string code_332 = "Topic is";
 static std::string code_353 = "Channel"; //need to be changed
