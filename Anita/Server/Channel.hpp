@@ -45,6 +45,7 @@ class Channel
 		void removeInvite(Client& client);
 		bool clientWithThatNameNotInChannel(std::string name);
 		int  checkIfOperatorleft();
+		void setIfHasPassword(bool);
 		//QUIT
 		int  removeOperator(Client& client);
 		void removeClient(Client& client);

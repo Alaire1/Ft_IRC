@@ -458,7 +458,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 		if (channel->isInviteOnly())
 			channel->removeInvite(sender);
 
-		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully"), sender);//
+		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully"), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "JOIN", {channelName}, ""));
 	}
 	else
@@ -485,11 +485,13 @@ Channel *Server::returnExistingChannel(const std::string& channelName)
 
 void Server::broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message)
 {
+	std::cout << "in broadcast" << std::endl;
 	for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
 	{
 		if((*it).getUser() != sender.getUser())
 			sendToClient(message, *it);
 	}
+	printclient(clients);
 }
 
 void Server::channelTopic(Client &sender, std::string channelName, std::string trailer)
@@ -709,8 +711,9 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 		return;
 	else if(channelExists(channel) && mode.empty())
 	{
-		std::string activeModes = returnExistingChannel(channel)->getModes();
+		std::string activeModes = "Modes on " + returnExistingChannel(channel)->getChannelName() + " are " + returnExistingChannel(channel)->getModes();
 		std::cout << "Active modes: " << activeModes << std::endl;
+		sendToClient(serverReply(client.getNick(), "351", {"MODE", channel, activeModes}, ""), client);
     	return;
 	}
 	else if(channelExists(channel) && returnExistingChannel(channel)->clientNotOperator(client))
@@ -718,15 +721,15 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 		//std::cout << "if not operator how many operators: " << returnExistingChannel(channel)->getOperatorsVector().size() << " " << returnExistingChannel(channel)->clientNotOperator(client) << std::endl;
 		printclient(returnExistingChannel(channel)->getOperatorsVector());
 		std::cout << "Client is not operator" << std::endl;
-		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482); // good code
+		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482); 
 		return;//may be changed
 	}
 	if (channelExists(channel) && !mode.empty())
 			chooseMode(channel, mode, parameter, client);
 	else
 	{
-			std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 403); //good code
-			sendToClient(errorMessage, client);
+			//std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 403); 
+			//sendToClient(errorMessage, client);
 	}
 }
 
@@ -785,7 +788,6 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		Client* newOperator = modeChannel->getClient(parameter);
 		if (mode == "positive" ) // the sender is not seeing the change and any message
 		{
-			modeChannel->addMode('o');
 			modeChannel->addOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, " "));
@@ -793,7 +795,6 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		}
 		else
 		{
-			modeChannel->removeMode('o');
 			modeChannel->removeOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, " "));
@@ -821,14 +822,16 @@ void Server::modeKey(std::string channel, std::string parameter, Client& client,
 		{
 			modeChannel->addMode('k');
 			modeChannel->setKey(parameter);
+			modeChannel->setIfHasPassword(true);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+k", parameter}, " "));
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+k", parameter}, " "), client); 
 		}
-		else
+		else if (mode == "negative")
 		{
 			modeChannel->removeMode('k');
 			modeChannel->removeKey();
+			modeChannel->setIfHasPassword(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-k", parameter}, " "));
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-k", parameter}, " "), client);
@@ -897,7 +900,7 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+l", parameter}, ""));
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+l", parameter}, ""), client);
 		}
-		else
+		else if (mode == "negative")
 		{
 			modeChannel->removeMode('l');
 			modeChannel->setInviteOnly(false);

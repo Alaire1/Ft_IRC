@@ -64,6 +64,10 @@ void Channel::addMode(char mode) {
         _modes += mode; 
     }
 }
+void Channel::setIfHasPassword(bool mode)
+{
+    this->_pwdProtected = mode;
+}
 
 void Channel::removeMode(char mode) {
     if (_modes.find(mode) != std::string::npos) {
