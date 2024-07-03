@@ -13,6 +13,7 @@ class Channel
 		std::string _name;
 		std::string _topic; 
 		std::string _key; // password
+		std::string _modes;
 
 		bool _isInviteOnly;
 		std::vector<Client> _invitees;
@@ -69,6 +70,9 @@ class Channel
 		std::string getTopic() const;
 		std::string getKey() const;
 		std::string getChannelName() const;
+		std::string getModes() const;
+		void addMode(char mode);
+		void removeMode(char mode);
 		bool isrestrictTopic() const;
 		bool isInviteOnly() const;
 		bool hasMaxUsers() const;

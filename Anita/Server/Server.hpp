@@ -129,8 +129,9 @@ class Server
 //Static strings numeric replies 
 static std::string code_331 = "No topic is set";
 static std::string code_332 = "Topic is";
+static std::string code_353 = "Channel"; //need to be changed
 static std::string code_366 = "End of /NAMES list";
-static std::string code_401 = "No such nick/channel";
+static std::string code_401 = "No such nick";
 static std::string code_403 = "No such channel";
 static std::string code_404 = "Cannot send to channel";
 static std::string code_411 = "No recipient given PRIVMSG";
@@ -146,6 +147,7 @@ static std::string code_461 = "Not enough parameters";
 static std::string code_462 = "You may not reregister";
 static std::string code_464 = "Password incorrect";
 static std::string code_471 = "User limit reached";
+static std::string code_472 = "No mode found";
 static std::string code_473 = "Cannot join channel (+i)";
 static std::string code_475 = "You need a password to join (+l)";
 static std::string code_482 = "You're not a channel operator";

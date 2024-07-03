@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name) :_name(name), _topic(""), _key(""), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false), _pwdProtected(false){}
+Channel::Channel(std::string name) :_name(name), _topic(""), _key(""), _modes("+"), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false), _pwdProtected(false){}
 
 Channel::~Channel() {}
 
@@ -58,7 +58,18 @@ void Channel::addOperator(Client& client)
 {
     _operators.push_back(client);
 }
+void Channel::addMode(char mode) {
+    
+    if (_modes.find(mode) == std::string::npos) {
+        _modes += mode; 
+    }
+}
 
+void Channel::removeMode(char mode) {
+    if (_modes.find(mode) != std::string::npos) {
+        _modes.erase(_modes.find(mode), 1);
+    }
+}
 void Channel::topicCommand(Client& client, std::string topic)
 {
    if (topic == "")
@@ -191,6 +202,10 @@ size_t Channel::getUsernum() const
 	return _clients.size();
 }
 
+std::string Channel::getModes() const
+{
+    return _modes;
+}
 
 size_t Channel::maxNumOfUsers() const {return _maxUsers;}
 
