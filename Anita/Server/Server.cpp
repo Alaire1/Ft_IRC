@@ -789,7 +789,7 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 			modeChannel->addOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
-			sendToClient(numReplyGenerator(client.getNick(), {"PRIVMSG", receiver}, 1), client);
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+o", parameter},""), client);
 		}
 		else
 		{
