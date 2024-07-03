@@ -788,15 +788,16 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 			modeChannel->addMode('o');
 			modeChannel->addOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
-			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+o", parameter},""), client);
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, " "), client);
 		}
 		else
 		{
 			modeChannel->removeMode('o');
 			modeChannel->removeOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, " "), client);
 		}
 	}
 }
@@ -821,15 +822,16 @@ void Server::modeKey(std::string channel, std::string parameter, Client& client,
 			modeChannel->addMode('k');
 			modeChannel->setKey(parameter);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+k", parameter}, ""));
-			//sendToClient(serverReply(client.getNick(), "MODE", {channel, "+k", parameter}, ""), client);
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+k", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+k", parameter}, " "), client); 
 		}
 		else
 		{
 			modeChannel->removeMode('k');
 			modeChannel->removeKey();
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-k", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-k", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-k", parameter}, " "), client);
 		}
 	}
 }
@@ -844,16 +846,16 @@ void Server::modeInvite(std::string channel, std::string parameter, Client& clie
 			modeChannel->addMode('i');
 			modeChannel->setInviteOnly(true);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+i", parameter}, ""));//attaching something after the name of the channel
-			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+i", parameter}, ""), client); 
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+i", parameter}, " "));//attaching something after the name of the channel
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+i", parameter}, " "), client); 
 		}
 		else
 		{
 			modeChannel->removeMode('i');
 			modeChannel->setInviteOnly(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-i", parameter}, ""));
-			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-i", parameter}, ""), client);
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-i", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-i", parameter}, " "), client);
 		}
 	}
 }
@@ -868,14 +870,16 @@ void Server::modeTopic(std::string channel, std::string parameter, Client& clien
 			modeChannel->addMode('t');
 			modeChannel->setRestrictTopic(true);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+t", parameter}, "set"));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+t", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+t", parameter}, " "), client);
 		}
 		else
 		{
 			modeChannel->removeMode('t');
 			modeChannel->setRestrictTopic(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-t", parameter}, ""));
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-t", parameter}, " "));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-t", parameter}, " "), client);
 		}
 	}
 }
@@ -891,6 +895,7 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 			modeChannel->setMaxUsers(std::stoi(parameter));
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+l", parameter}, ""));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+l", parameter}, ""), client);
 		}
 		else
 		{
@@ -898,6 +903,8 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 			modeChannel->setInviteOnly(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-l", parameter}, ""));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-l", parameter}, ""), client);
+			
 		}
 	}
 }
