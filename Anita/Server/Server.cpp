@@ -790,15 +790,15 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		{
 			modeChannel->addOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, " "));
-			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, " "), client);
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+o", parameter}, ""), client);
 		}
 		else
 		{
 			modeChannel->removeOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
-			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, " "));
-			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, " "), client);
+			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, ""));
+			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-o", parameter}, ""), client);
 		}
 	}
 }
