@@ -85,7 +85,7 @@ class Server
 		int 				sendToClient(const std::string& message, const Client& client) const;
 		std::vector<std::string> listValidCommands();
 		bool 				isValidCommand(const std::string& inputCommand);
-		std::string searchTrailer(const std::string& string);
+		std::string searchTrailer(const std::string& string, bool flag);
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 

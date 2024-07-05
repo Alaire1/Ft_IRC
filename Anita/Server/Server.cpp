@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <string>
 //#include "parsing_plan.cpp"
 
 //Server.cpp
@@ -350,13 +351,34 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 // }
 
 
-std::string Server::searchTrailer(const std::string& string)
+std::string Server::searchTrailer(const std::string& string, bool flag)
 {
-		size_t colonPos = string.find(':'); 
-		if (colonPos != std::string::npos) 
-			return (string.substr(colonPos + 1));
-		else
-			return "";
+	//std::cout << "searchTrailer" << std::endl;
+	size_t pos = string.find(':'); 
+	if (pos != std::string::npos) 
+		return (string.substr(pos + 1));
+	else
+	{
+		pos = string.find_first_of(" ");
+		if (pos != std::string::npos) 
+		{
+			while (pos < string.length() && std::isspace(string[pos])) 
+				pos++;
+			if (pos < string.length()) 
+			{
+				while (pos < string.length() && std::isspace(string[pos])) 
+					pos++;
+				if(!flag)
+				{
+					std::string newString = searchTrailer(string.substr(pos), true);
+					return newString;
+				}
+				else
+					return string.substr(pos);
+			} 
+		}
+		return "";
+	}
 }
 
 int Server::checkNick(std::string nick){
@@ -463,13 +485,19 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 	}
 	else
 	{
-		Channel newChannel(channelName);
-		newChannel.addUser(sender);
-		newChannel.addOperator(sender);
-		_channels.push_back(newChannel);
-		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
-		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
-		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
+		if (channelName.find('#') != std::string::npos)
+		{
+			Channel newChannel(channelName);
+			newChannel.addUser(sender);
+			newChannel.addOperator(sender);
+			_channels.push_back(newChannel);
+			sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
+			sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
+			sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
+
+		}
+		else
+			sendToClient(serverReply(SERVER, "401", {"JOIN", channelName + ":","Cannot join channel"}, "Channel name must start with a hash mark (#)"), sender);
 	}
 }
 
@@ -954,7 +982,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 	{
 		std::istringstream iss(removeNonPrintable(*it));
 		std::string command, param1, param2, param3, trailer;
-		trailer = searchTrailer(iss.str());
+		trailer = searchTrailer(iss.str(), false);
 		iss >> command >> param1 >> param2 >> param3;
 		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << trailer << std::endl;
 		if (sender.getIsRegistered() == false)
@@ -981,6 +1009,11 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			}
 			else
 			{
+				std::cout << "COMMAND: " << command << std::endl;
+				std::cout << "PARAM1: " << param1 << std::endl;
+				std::cout << "PARAM2: " << param2 << std::endl;
+				std::cout << "PARAM3: " << param3 << std::endl;
+				std::cout << "TRAILER: " << trailer << std::endl;
 				commandsAll(sender, command, param1, param2, param3, trailer);
 			}
 			
