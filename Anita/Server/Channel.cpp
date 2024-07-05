@@ -14,17 +14,14 @@ bool Channel::clientNotOperator(Client& client)
     return std::find(_operators.begin(), _operators.end(), client) == _operators.end();
 }
 
-void Channel::join(Client& client)
-{
-	if (clientNotInChannel(client))
-    		_clients.push_back(client);
-	else
-		client.sendMessage("442 " + _name + " :You're already in that channel"); // 442 is a numeric code for sending a message that user is already in the channel
-}
+
 
 std::string Channel::getTopic() const{return _topic;}
 
 const std::vector<Client>& Channel::getClientsVector() const{return _clients;}
+{
+    return _clients;
+}
 
 const std::vector<Client>& Channel::getOperatorsVector() const{return _operators;}
 
@@ -116,6 +113,27 @@ void Channel::kick(Client& ejectee)
 	}
 }
 
+void Channel::removeUser(Client& client)
+{
+    std::vector<Client>::iterator it = _clients.begin();
+    for (; it != _clients.end(); ++it)
+    {
+	   if (*it == client)
+	   {
+		  _clients.erase(it);
+		  break;
+	   }
+    }
+    std::vector<Client>::iterator it = _operators.begin();
+    for (; it != _operators.end(); ++it)
+    {
+	   if (*it == client)
+	   {
+		  _operators.erase(it);
+		  break;
+	   }
+    }
+}
 void Channel::leave(Client& client)
 {
     std::vector<Client>::iterator it = _clients.begin();

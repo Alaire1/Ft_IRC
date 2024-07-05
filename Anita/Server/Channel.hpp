@@ -33,7 +33,6 @@ class Channel
 		//Channel();
 		Channel(std::string name);
 		~Channel();
-		void join(Client& client); 
 		void kick(Client& ejectee); 
 		void leave(Client& client);
 		void invite(Client& client);
@@ -82,6 +81,7 @@ class Channel
 		Client* getClient(const std::string& nickName);
 		const std::vector<Client>& getClientsVector() const;
 		const std::vector<Client>& getOperatorsVector() const;
+		void removeUser(Client& client)
 
 
 };

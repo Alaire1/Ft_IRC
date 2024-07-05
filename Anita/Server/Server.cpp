@@ -940,6 +940,41 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 	}
 }
 
+
+void Server::part(Client& sender, std::string &channelName, std::string &parameter, std::string &trailer)
+{
+	Channel *channel = returnExistingChannel(channelName);
+	if (channel)
+	{
+		if (channel->clientNotInChannel(sender))
+		{
+			sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 442), sender);
+			return;
+		}
+		if (trailer.empty())
+			trailer = "Leaving channel";
+		sendToClient(serverReply(sender.getNick(), "PART", {channelName}, trailer), sender);
+		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "PART", {channelName}, trailer));
+		channel->removeUser(sender);
+		if (channel->getUsernum() == 0)
+		{
+			std::vector<Channel>::iterator it = _channels.begin();
+			while (it != _channels.end())
+			{
+				if (it->getChannelName() == channelName)
+				{
+					_channels.erase(it);
+					break;
+				}
+				++it;
+			}
+		}
+	}
+	else
+		sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 403), sender);
+}
+
+
 void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& parameter3, std::string trailer)
 {
 	//(void)parameter2;
@@ -949,8 +984,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 		joinChannel(sender, parameter1, parameter2);
 		std::cout << "JOIN" << std::endl;
 	}
-	// else if (command == "PART")
-	// 	//part();
+	else if (command == "PART")
+		part(sender, parameter1, parameter2, trailer);
 	else if (command == "TOPIC")
 		channelTopic(sender, parameter1, trailer);
 	else if (command == "PRIVMSG")
