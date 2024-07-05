@@ -19,9 +19,6 @@ bool Channel::clientNotOperator(Client& client)
 std::string Channel::getTopic() const{return _topic;}
 
 const std::vector<Client>& Channel::getClientsVector() const{return _clients;}
-{
-    return _clients;
-}
 
 const std::vector<Client>& Channel::getOperatorsVector() const{return _operators;}
 

@@ -81,7 +81,7 @@ class Channel
 		Client* getClient(const std::string& nickName);
 		const std::vector<Client>& getClientsVector() const;
 		const std::vector<Client>& getOperatorsVector() const;
-		void removeUser(Client& client)
+		void removeUser(Client& client);
 
 
 };
