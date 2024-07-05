@@ -1026,9 +1026,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			if (sender.getHasPassword() == true && sender.getNick().compare("") && sender.getUser().compare(""))
 			{
 				sender.setIsRegistered(true);
-			//	std::cout << "NICK : " << sender.getNick() << std::endl;
-				std::string str = serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!");
-				sendToClient(str, sender);
+				sendToClient(serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!"), sender);
 			}
 			else
 			{
