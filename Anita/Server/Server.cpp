@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <string>
 //#include "parsing_plan.cpp"
 
 //Server.cpp
@@ -350,13 +351,34 @@ std::string Server::serverReply(const std::string& prefix, const std::string& cm
 // }
 
 
-std::string Server::searchTrailer(const std::string& string)
+std::string Server::searchTrailer(const std::string& string, bool flag)
 {
-		size_t colonPos = string.find(':'); 
-		if (colonPos != std::string::npos) 
-			return (string.substr(colonPos + 1));
-		else
-			return "";
+	//std::cout << "searchTrailer" << std::endl;
+	size_t pos = string.find(':'); 
+	if (pos != std::string::npos) 
+		return (string.substr(pos + 1));
+	else
+	{
+		pos = string.find_first_of(" ");
+		if (pos != std::string::npos) 
+		{
+			while (pos < string.length() && std::isspace(string[pos])) 
+				pos++;
+			if (pos < string.length()) 
+			{
+				while (pos < string.length() && std::isspace(string[pos])) 
+					pos++;
+				if(!flag)
+				{
+					std::string newString = searchTrailer(string.substr(pos), true);
+					return newString;
+				}
+				else
+					return string.substr(pos);
+			} 
+		}
+		return "";
+	}
 }
 
 int Server::checkNick(std::string nick){
@@ -463,13 +485,19 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 	}
 	else
 	{
-		Channel newChannel(channelName);
-		newChannel.addUser(sender);
-		newChannel.addOperator(sender);
-		_channels.push_back(newChannel);
-		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
-		sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
-		sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
+		if (channelName.find('#') != std::string::npos)
+		{
+			Channel newChannel(channelName);
+			newChannel.addUser(sender);
+			newChannel.addOperator(sender);
+			_channels.push_back(newChannel);
+			sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
+			sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
+			sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
+
+		}
+		else
+			sendToClient(serverReply(SERVER, "401", {"JOIN", channelName + ":","Cannot join channel"}, "Channel name must start with a hash mark (#)"), sender);
 	}
 }
 
@@ -915,8 +943,6 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 
 void Server::part(Client& sender, std::string &channelName, std::string &parameter, std::string &trailer)
 {
-	(void)parameter;
-	(void)trailer;
 	Channel *channel = returnExistingChannel(channelName);
 	if (channel)
 	{
@@ -929,7 +955,20 @@ void Server::part(Client& sender, std::string &channelName, std::string &paramet
 			trailer = "Leaving channel";
 		sendToClient(serverReply(sender.getNick(), "PART", {channelName}, trailer), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "PART", {channelName}, trailer));
-		channel->removeUser(sender);	
+		channel->removeUser(sender);
+		if (channel->getUsernum() == 0)
+		{
+			std::vector<Channel>::iterator it = _channels.begin();
+			while (it != _channels.end())
+			{
+				if (it->getChannelName() == channelName)
+				{
+					_channels.erase(it);
+					break;
+				}
+				++it;
+			}
+		}
 	}
 	else
 		sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 403), sender);
@@ -978,7 +1017,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 	{
 		std::istringstream iss(removeNonPrintable(*it));
 		std::string command, param1, param2, param3, trailer;
-		trailer = searchTrailer(iss.str());
+		trailer = searchTrailer(iss.str(), false);
 		iss >> command >> param1 >> param2 >> param3;
 		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << trailer << std::endl;
 		if (sender.getIsRegistered() == false)
@@ -1003,6 +1042,11 @@ void Server::parseCommand(std::string clientData, Client& sender){
 			}
 			else
 			{
+				std::cout << "COMMAND: " << command << std::endl;
+				std::cout << "PARAM1: " << param1 << std::endl;
+				std::cout << "PARAM2: " << param2 << std::endl;
+				std::cout << "PARAM3: " << param3 << std::endl;
+				std::cout << "TRAILER: " << trailer << std::endl;
 				commandsAll(sender, command, param1, param2, param3, trailer);
 			}
 			
@@ -1050,12 +1094,9 @@ std::vector<std::string> splitString(std::string str, std::string delimiter) {
 }
 
 
-bool Server::isValidCommand(const std::string& inputCommand)
-{
+bool Server::isValidCommand(const std::string& inputCommand) {
 	std::vector<std::string>::const_iterator it;
-	std::transform(inputCommand.begin(), inputCommand.end(), inputCommand.begin(), [](unsigned char c){ return std::toupper(c); });	
-	for (it = _myValidCommands.begin(); it != _myValidCommands.end(); ++it)
-	{
+	for (it = _myValidCommands.begin(); it != _myValidCommands.end(); ++it) {
 		if (*it == inputCommand)
 			return true;
 	}
@@ -1080,4 +1121,3 @@ std::vector<std::string> Server::listValidCommands()
 	//std::cout << "List of valid commands end" << std::endl;
 	return (_myValidCommands);
 }
-

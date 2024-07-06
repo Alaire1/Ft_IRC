@@ -159,4 +159,3 @@ std::string removeNonPrintable(const std::string& input);
 std::vector<std::string> splitString(std::string str, std::string delimiter);
 
 #endif // SERVER_HPP
-
