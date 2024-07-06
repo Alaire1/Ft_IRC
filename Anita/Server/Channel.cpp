@@ -121,12 +121,12 @@ void Channel::removeUser(Client& client)
 		  break;
 	   }
     }
-    std::vector<Client>::iterator it = _operators.begin();
-    for (; it != _operators.end(); ++it)
+    std::vector<Client>::iterator ita = _operators.begin();
+    for (; ita != _operators.end(); ++it)
     {
-	   if (*it == client)
+	   if (*ita == client)
 	   {
-		  _operators.erase(it);
+		  _operators.erase(ita);
 		  break;
 	   }
     }

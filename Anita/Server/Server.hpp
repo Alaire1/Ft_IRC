@@ -88,6 +88,7 @@ class Server
 		std::string searchTrailer(const std::string& string, bool flag);
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
+		std::string uppercasify(std::string& str);
 
 		//CHANNEL FUNCTIONS
 		void 				joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);

@@ -943,6 +943,7 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 
 void Server::part(Client& sender, std::string &channelName, std::string &parameter, std::string &trailer)
 {
+	(void)parameter;
 	Channel *channel = returnExistingChannel(channelName);
 	if (channel)
 	{
@@ -1035,19 +1036,20 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		}
 		else
 		{	
-			if (isValidCommand(command) == false && !command.empty())
+			std::string upperCase = uppercasify(command);		
+			if (isValidCommand(upperCase) == false && !upperCase.empty())
 			{
 				std::string errorMessage = numReplyGenerator(sender.getNick(), {""}, 421);
 				sendToClient(errorMessage, sender);
 			}
 			else
 			{
-				std::cout << "COMMAND: " << command << std::endl;
+				std::cout << "COMMAND: " << upperCase << std::endl;
 				std::cout << "PARAM1: " << param1 << std::endl;
 				std::cout << "PARAM2: " << param2 << std::endl;
 				std::cout << "PARAM3: " << param3 << std::endl;
 				std::cout << "TRAILER: " << trailer << std::endl;
-				commandsAll(sender, command, param1, param2, param3, trailer);
+				commandsAll(sender, upperCase, param1, param2, param3, trailer);
 			}
 			
 		}
@@ -1102,6 +1104,13 @@ bool Server::isValidCommand(const std::string& inputCommand) {
 	}
 	return false;
 }
+
+std::string Server::uppercasify(std::string& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    return str;
+}
+
 std::vector<std::string> Server::listValidCommands()
 {
 	//std::cout << "List of valid commands" << std::endl;
