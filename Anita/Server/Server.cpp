@@ -156,7 +156,6 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	else 
 	{
 		printf("Received message: %s", buffer);
-		//std::cout << "Received message: " << buffer;// << " from fd: " << fd << std::endl;
 		parseCommand(buffer, sender);
 	}
 }
@@ -420,23 +419,13 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 	}
 	else if (command == "PASS")
 	{
-		//std::cout << "NICK : " << sender.getNick() << std::endl;
 		if (param1 == _pwd)
 			sender.setHasPassword(true);
 		else
-		{
-			//std::cout << "Password is incorrect" << std::endl;
-			std::string errorMessage = numReplyGenerator(SERVER, {"PASS", sender.getNick()}, 464);
-			//std::cout << "test 1" << std::endl;
-			sendToClient(errorMessage, sender); // we have to handle errors while sending
-			//std::cout << "Password is incorrect test2" << std::endl;
-		}
+			sendToClient(numReplyGenerator(SERVER, {"PASS", sender.getNick()}, 464), sender); // we have to handle errors while sending
 	}
-	//else if (command == "QUIT")
-	//	{
-	//		close(sender.getFd());
-
-	//	}
+	else if (command == "QUIT")
+		handleQuit(sender);
 }
 
 void Server::joinChannel(Client &sender, const std::string& channelName, const std::string& pwd)
@@ -642,6 +631,16 @@ void Server::channelMessage(Client &sender, std::string &receiver, std::string &
 
 void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &message)
 {
+	if(receiver.empty())
+	{
+		sendToClient(numReplyGenerator(SERVER, {"PRIVMSG"}, 411), sender);
+		return;
+	}
+	if(message.empty())
+	{
+		sendToClient(numReplyGenerator(SERVER, {"PRIVMSG"}, 412), sender);
+		return;
+	}
 	if (receiver[0] == '#')
 	{
 		channelMessage(sender, receiver, message);
@@ -1006,6 +1005,9 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 			std::cout << "MODE" << std::endl;
 			mode(parameter1, parameter2, parameter3, sender);
 		}
+	else if (command == "USER") 
+		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
+	//else if (command == "NICK")
 	//else if (command == "QUIT") 
 		//handleQuit(sender);
 }
@@ -1021,49 +1023,32 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		trailer = searchTrailer(iss.str(), false);
 		iss >> command >> param1 >> param2 >> param3;
 		//std::cout << "Command: " << command << " Param1: " << param1 << " Param2: " << param2 << " Trailer: " << trailer << std::endl;
+		std::string upperCase = uppercasify(command);		
 		if (sender.getIsRegistered() == false)
 		{
-			commandsRegister(sender, command, param1);
+			commandsRegister(sender, upperCase, param1);
 			if (sender.getHasPassword() == true && sender.getNick().compare("") && sender.getUser().compare(""))
 			{
 				sender.setIsRegistered(true);
 				sendToClient(serverReply(SERVER, "001", {sender.getNick()}, "Welcome to ft_irc server!"), sender);
 			}
-			else
-			{
-
-			}
+			//else
+			//sendToClient(serverReply(SERVER, "001", {sender.getNick()}, "Please complete your registration"), sender);
 		}
 		else
 		{	
-			std::string upperCase = uppercasify(command);		
 			if (isValidCommand(upperCase) == false && !upperCase.empty())
-			{
-				std::string errorMessage = numReplyGenerator(sender.getNick(), {""}, 421);
-				sendToClient(errorMessage, sender);
-			}
+				sendToClient(numReplyGenerator(sender.getNick(), {""}, 421), sender);
 			else
 			{
-				std::cout << "COMMAND: " << upperCase << std::endl;
-				std::cout << "PARAM1: " << param1 << std::endl;
-				std::cout << "PARAM2: " << param2 << std::endl;
-				std::cout << "PARAM3: " << param3 << std::endl;
-				std::cout << "TRAILER: " << trailer << std::endl;
+				//std::cout << "COMMAND: " << upperCase << std::endl;
+				//std::cout << "PARAM1: " << param1 << std::endl;
+				//std::cout << "PARAM2: " << param2 << std::endl;
+				//std::cout << "PARAM3: " << param3 << std::endl;
+				//std::cout << "TRAILER: " << trailer << std::endl;
 				commandsAll(sender, upperCase, param1, param2, param3, trailer);
 			}
-			
 		}
-		// else if (command == "QUIT")
-		// {
-		// 	close(sender.getFd());
-		// 	//other functions for clearing all the data
-		// }
-		// else
-		// {
-		// 	//commandsAll(sender, command, param1, param2, param3);
-		// 	std::cout << "Nick: " << sender.getNick()  << std::endl;
-		// 	std::cout << "User: " << sender.getUser() << std::endl;
-		// }
 	}
 }
 
