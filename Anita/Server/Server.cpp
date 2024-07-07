@@ -940,9 +940,8 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 }
 
 
-void Server::part(Client& sender, std::string &channelName, std::string &parameter, std::string &trailer)
+void Server::part(Client& sender, std::string &channelName, std::string &trailer)
 {
-	(void)parameter;
 	Channel *channel = returnExistingChannel(channelName);
 	if (channel)
 	{
@@ -985,7 +984,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 		std::cout << "JOIN" << std::endl;
 	}
 	else if (command == "PART")
-		part(sender, parameter1, parameter2, trailer);
+		part(sender, parameter1, trailer);
 	else if (command == "TOPIC")
 		channelTopic(sender, parameter1, trailer);
 	else if (command == "PRIVMSG")
@@ -998,8 +997,8 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	}
 	else if (command == "KICK")
 		kickClient(sender, parameter1, parameter2);
-	// else if (command == "INVITE")
-	// 	//inviteChannel(parameter, parameter2, client);
+	else if (command == "INVITE")
+		inviteToChannel(parameter, parameter2, client);
 	else if (command == "MODE") 
 		{
 			std::cout << "MODE" << std::endl;

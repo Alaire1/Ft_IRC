@@ -108,7 +108,7 @@ class Server
 		void 				removeClientFromChannels(Client& client);
 		void 				removeClientFromServer(Client& client);
 		void					clearChannelsNoUsers();//Clears channels with no users inside.
-		void					part(Client& sender, std::string &channelName, std::string &parameter, std::string &trailer);
+		void					part(Client& sender, std::string &channelName, std::string &trailer);
 
 		//MODE COMMAND FUNCTIONS
 		void 				mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
