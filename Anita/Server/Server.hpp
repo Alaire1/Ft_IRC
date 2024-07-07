@@ -81,7 +81,7 @@ class Server
 		void 				parseCommand(std::string clientData, Client &sender);
 		int 				checkNick(std::string nick);
 		void 				commandsRegister(Client &sender, std::string command, std::string param1);
-		void 				commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& parameter3, std::string trailer);
+		void 				commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer);
 		int 				sendToClient(const std::string& message, const Client& client) const;
 		std::vector<std::string> listValidCommands();
 		bool 				isValidCommand(const std::string& inputCommand);
@@ -126,6 +126,12 @@ class Server
 		//PRIVMSG FUNCTIONS
 		void 				handlePrivmsg(Client &sender, std::string &receiver, std::string &message);
 		void 				channelMessage(Client &sender, std::string &receiver, std::string &message);
+
+		//INVITE FUNCTIONS
+		void 				inviteToChannel(Client &sender, std::string &invitee, std::string &channel);
+		bool 				clientExists(std::string &nick);
+
+
 
 };
 //Static strings numeric replies 

@@ -448,8 +448,8 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, channel->getTopic()), sender);
 		if (channel->containsClient(sender) == true)
 		{
+			printf("WE ARE HERE!!!!!"); //debug
 			std::string errorMessage = numReplyGenerator(SERVER, {"JOIN", sender.getNick(), channelName}, 464);
-			//std::string errorMessage = serverReply(SERVER, "403", {sender.getNick(), channelName}, "You are already in that channel");
 			sendToClient(errorMessage, sender);
 			return;
 		}
@@ -466,8 +466,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 			return;
 		}
 		channel->addUser(sender);
-		if (channel->isInviteOnly())
-			channel->removeInvite(sender);
+		channel->removeInvite(sender);
 
 		sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, "Channel joined successfully"), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "JOIN", {channelName}, ""));
@@ -974,7 +973,65 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 }
 
 
-void Server::commandsAll(Client sender, std::string command, std::string parameter1, std::string parameter2, std::string& parameter3, std::string trailer)
+//The INVITE command is used to invite a user to a channel. The parameter <nickname> is the nickname of the person to be invited to the target channel <channel>.
+//
+//The target channel SHOULD exist (at least one user is on it). Otherwise, the server SHOULD reject the command with the ERR_NOSUCHCHANNEL numeric.
+//
+//Only members of the channel are allowed to invite other users. Otherwise, the server MUST reject the command with the ERR_NOTONCHANNEL numeric.
+//
+//Servers MAY reject the command with the ERR_CHANOPRIVSNEEDED numeric. In particular, they SHOULD reject it when the channel has invite-only mode set, and the user is not a channel operator.
+//
+//If the user is already on the target channel, the server MUST reject the command with the ERR_USERONCHANNEL numeric.
+//
+//When the invite is successful, the server MUST send a RPL_INVITING numeric to the command issuer, and an INVITE message, with the issuer as <source>, to the target user. Other channel members SHOULD NOT be notified.
+
+
+bool Server::clientExists(std::string &nick)
+{
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if (it->getNick() == nick)
+			return true;
+	}
+	return false;
+}
+
+
+void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &channel)
+{
+	if (clientExists(invitee) == false)
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"INVITE", channel}, 401), sender);
+		return;
+	}
+	if (channelExists(channel) == false)
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"INVITE", channel}, 403), sender);
+		return;
+	}
+	Channel *inviteChannel = returnExistingChannel(channel);
+	if (inviteChannel->clientNotInChannel(sender))
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"INVITE", channel}, 442), sender);
+		return;
+	}
+	if (inviteChannel->isInviteOnly() && inviteChannel->clientNotOperator(sender))
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"INVITE", channel}, 482), sender);
+		return;
+	}
+	Client *inviteeClient = findClientByNick(invitee);
+	if (!inviteChannel->clientNotInChannel(*inviteeClient))
+	{
+		sendToClient(numReplyGenerator(sender.getNick(), {"INVITE", channel}, 443), sender);
+		return;
+	}
+	sendToClient(serverReply(sender.getNick(), "INVITE", {invitee, channel}, ""), sender);
+	sendToClient(serverReply(sender.getNick(), "INVITE", {invitee, channel}, ""), *inviteeClient);
+	inviteChannel->invite(*inviteeClient);
+}
+
+void Server::commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer)
 {
 	//(void)parameter2;
 	//(void)trailer;
@@ -998,7 +1055,7 @@ void Server::commandsAll(Client sender, std::string command, std::string paramet
 	else if (command == "KICK")
 		kickClient(sender, parameter1, parameter2);
 	else if (command == "INVITE")
-		inviteToChannel(parameter, parameter2, client);
+		inviteToChannel(sender, parameter1, parameter2);
 	else if (command == "MODE") 
 		{
 			std::cout << "MODE" << std::endl;
