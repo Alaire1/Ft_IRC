@@ -1,5 +1,8 @@
 #include "Server.hpp"
 #include <string>
+
+bool g_signal = true;
+
 //#include "parsing_plan.cpp"
 
 //Server.cpp
@@ -37,6 +40,7 @@ Server::Server()
 }
 
 Server::Server(int port, std::string password) : _serverFd(-1), _port(port), _pwd(password)
+
 {
 	_myValidCommands = listValidCommands();
 	initializeReplyMap();
@@ -48,8 +52,7 @@ void Server::signalHandler(int signum)
 {
 	(void)signum;
 	std::cout << "SIGTSTP received. Stopping server..." << std::endl;
-	//_signal = true;
-
+	g_signal = false;
 }
 
 int Server::getSocket() const
@@ -110,7 +113,7 @@ void Server::runServer()
 {
 	std::cout << "Server listening on port " << _port << std::endl;
 
-	while (true) {
+	while (g_signal) {
 		// Poll sockets
 		int pollCount = poll(_fds.data(), _fds.size(), -1);
 		if (pollCount < 0) 
@@ -682,7 +685,7 @@ void Server::handleQuit(Client& sender)
 		removeClientFromServer(sender);//handle client resources closing fd
 	}
 	else 
-    std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
+		std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
 }
 
 void Server::removeClientFromChannels(Client& client)
@@ -956,6 +959,7 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 		channel->removeUser(sender);
 		if (channel->getUsernum() == 0)
 		{
+			printf("Channel is empty, removing it in PART");
 			std::vector<Channel>::iterator it = _channels.begin();
 			while (it != _channels.end())
 			{

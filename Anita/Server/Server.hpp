@@ -30,6 +30,8 @@
 #define RED     			"\033[31m"
 
 
+extern bool g_signal;
+
 class Server 
 {
 	private:

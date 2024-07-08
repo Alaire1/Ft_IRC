@@ -3,8 +3,10 @@
 
 bool validPort(int port);
 
+
 int main(int ac, char **av)
 {
+
     if (ac != 3)
     {
         std::cerr << "Usage: ./server [port] [password]" << std::endl;//Currently is the client set to port 4444
