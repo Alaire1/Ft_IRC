@@ -396,6 +396,8 @@ int Server::checkNick(std::string nick)
 		if (it->getNick() == nick) {
 			std::cout << "Nick is already in use" << std::endl;
 			//sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
+			//Servers MUST allow at least all alphanumerical characters, square and curly brackets ([]{}), backslashes (\), and pipe (|) characters in nicknames, and MAY disallow digits as the first character
+			//no leading # or @  or : or ASCII space character
 			return 0;
 		}
 	}
