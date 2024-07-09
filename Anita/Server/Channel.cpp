@@ -260,18 +260,27 @@ int Channel::removeOperator(Client& client)
 }
 
 void Channel::removeClient(Client& client)
-{ 
-    std::vector<Client>::iterator it = _clients.begin();
-    for (; it != _clients.end(); ++it)
-    {
-	   if (it->getNick() == client.getNick())
-	   {
-		  _clients.erase(it);
-		  break;
-	   }
-    }
-		if(!_clients.size())
-			clearVectors();
+{
+	std::vector<Client>::iterator it = _clients.begin();
+	for (; it != _clients.end(); ++it)
+	{
+		if (it->getNick() == client.getNick())
+		{
+			_clients.erase(it);
+			break;
+		}
+	}
+	long unsigned int i = -1;
+	while (++i < _invitees.size())
+	{
+		if (_invitees[i].getNick() == client.getNick())
+		{
+			_invitees.erase(_invitees.begin() + i);
+			break;
+		}
+	}
+	if(!_clients.size())
+		clearVectors();
 }
 
 void Channel::clearVectors()

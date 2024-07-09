@@ -146,6 +146,7 @@ void Server::runServer()
 
 void Server::handleData(int fd, Client &sender, size_t idx)
 {
+	printf("IN HANDLE DATA\n");
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 	int bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
@@ -712,9 +713,12 @@ void Server::handleQuit(Client& sender)
 		}
 		removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
 		removeClientFromServer(sender);//handle client resources closing fd
+		printf("Client removed 1\n");
 	}
 	else 
 		std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
+	printf("Client removed 2\n");
+
 }
 
 void Server::removeClientFromChannels(Client& client)
@@ -744,21 +748,27 @@ void	Server::clearChannelsNoUsers()
 void Server::removeClientFromServer(Client& client)
 {
 	std::cout << "Removing Client " << client.getNick() << " from server." << std::endl;
-	bool clientFound = false;
-	for(std::vector<Client>::iterator it = _clients.begin(); it != _clients.end();)
+	int i = -1;
+	while (++i < (int)_fds.size())
 	{
-		if (it->getNick() == client.getNick()) {
-			clientFound = true;
-			// Close file descriptor and swap element for removal
-			close(it->getFd());
-			std::swap(*it, _clients.back());
+		if (_fds[i].fd == client.getFd())
+		{
+			close(client.getFd());
+			_fds.erase(_fds.begin() + i);
 			break;
 		}
 	}
-	if (clientFound) 
-		_clients.pop_back();
-	else 
-		std::cerr << "Warning: Client with nickname '" << client.getNick() << "' not found for removal." << std::endl;
+	i = -1;
+	while (++i < (int)_clients.size())
+	{
+		if (_clients[i].getNick() == client.getNick())
+		{
+			_clients.erase(_clients.begin() + i);
+			break;
+		}
+	}
+	printf("REMOVED CLIENT\n");
+
 }
 
 
@@ -1098,8 +1108,8 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
 	else if (command == "NICK")
 		handleNick(sender, parameter1);
-	//else if (command == "QUIT") 
-		//handleQuit(sender);
+	else if (command == "QUIT") 
+		handleQuit(sender);
 }
 
 void Server::parseCommand(std::string clientData, Client& sender){
