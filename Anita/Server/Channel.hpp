@@ -45,6 +45,8 @@ class Channel
 		bool clientWithThatNameNotInChannel(std::string name);
 		int  checkIfOperatorleft();
 		void setIfHasPassword(bool);
+		//NICK
+		void updateNick(Client& client, std::string& newNick);
 		//QUIT
 		int  removeOperator(Client& client);
 		void removeClient(Client& client);

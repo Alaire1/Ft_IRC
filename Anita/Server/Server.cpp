@@ -51,8 +51,9 @@ Server::~Server(){}
 void Server::signalHandler(int signum)
 {
 	(void)signum;
-	std::cout << "SIGTSTP received. Stopping server..." << std::endl;
+	std::cout << "\nSIGTSTP received. Stopping server..." << g_signal << std::endl;
 	g_signal = false;
+	std::cout << "SIGTSTP received. Stopping server..." << g_signal << std::endl;
 }
 
 int Server::getSocket() const
@@ -93,7 +94,10 @@ void Server::createSocket()
 
     // Bind socket
     if (bind(_serverFd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) 
+		{
+			std::cout << _serverFd << std::endl;
 			throw(std::runtime_error("failed to bind socket"));
+		}
 
     // Listen for connections
     if (listen(_serverFd, MAX_CLIENTS) < 0) 
@@ -118,8 +122,10 @@ void Server::runServer()
 		int pollCount = poll(_fds.data(), _fds.size(), -1);
 		if (pollCount < 0) 
 		{
+			std::cout << "Loop finished" << std::endl;
+			close(_serverFd);
 			throw(std::runtime_error("poll() failed"));
-			break;
+			//break;
 		}
 
 		for (size_t i = 0; i < _fds.size(); ++i) 
@@ -134,7 +140,8 @@ void Server::runServer()
 		}
 	}
 	// Close server socket
-	close(_serverFd);
+	//std::cout << "Loop finished" << std::endl;
+	//close(_serverFd);
 }
 
 void Server::handleData(int fd, Client &sender, size_t idx)
@@ -383,10 +390,12 @@ std::string Server::searchTrailer(const std::string& string, bool flag)
 	}
 }
 
-int Server::checkNick(std::string nick){
+int Server::checkNick(std::string nick)
+{
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == nick) {
 			std::cout << "Nick is already in use" << std::endl;
+			//sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
 			return 0;
 		}
 	}
@@ -668,6 +677,24 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 		sendToClient(serverReply(SERVER, "353", listChannelClients(*channel), ""), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(SERVER, "353", listChannelClients(*channel), ""));
 	}
+}
+
+void Server::handleNick(Client& sender, std::string& newNick)
+{
+	if(sender.getNick() != newNick)
+	{
+		for(std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		{
+			if((*it).getNick() == newNick)
+				sendToClient(numReplyGenerator(SERVER, {"NICK", newNick}, 433), sender);
+		}
+		sendToClient(serverReply(sender.getNick(), "NICK", {newNick}, ""), sender);
+		for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+			(*it).updateNick(sender, newNick);
+		broadcastMessage(_clients, sender, serverReply(sender.getNick(), "NICK", {newNick}, ""));
+		sender.setNickName(newNick);
+	}
+	//sendToClient(serverReply(sender.getNick(), "NICK", {newNick}, ""), sender);
 }
 
 void Server::handleQuit(Client& sender)
@@ -1067,7 +1094,8 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 		}
 	else if (command == "USER") 
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
-	//else if (command == "NICK")
+	else if (command == "NICK")
+		handleNick(sender, parameter1);
 	//else if (command == "QUIT") 
 		//handleQuit(sender);
 }
@@ -1152,8 +1180,10 @@ bool Server::isValidCommand(const std::string& inputCommand) {
 
 std::string Server::uppercasify(std::string& str)
 {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-    return str;
+	std::string result(str); 
+	for (size_t i = 0; i < str.length(); ++i) 
+		result[i] = toupper(str[i]); 
+	return result;
 }
 
 std::vector<std::string> Server::listValidCommands()

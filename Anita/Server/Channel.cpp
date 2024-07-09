@@ -291,3 +291,25 @@ void Channel::clearVectors()
 		}
 	return NULL;
 }
+
+void Channel::updateNick(Client& client, std::string& newNick)
+{
+    std::vector<Client>::iterator it;
+    for (it = _clients.begin(); it != _clients.end(); ++it)
+    {
+	   if (it->getNick() == client.getNick())
+			 (*it).setNickName(newNick);
+    }
+    for (it = _invitees.begin(); it != _invitees.end(); ++it)
+    {
+	   if (it->getNick() == client.getNick())
+			 (*it).setNickName(newNick);
+    }
+    for (it = _operators.begin(); it != _operators.end(); ++it)
+    {
+	   if (it->getNick() == client.getNick())
+			 (*it).setNickName(newNick);
+    }
+}
+	//update names in all lists: Channel: operators, invitees 
+	

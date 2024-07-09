@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <poll.h>
-#include <fcntl.h>
+#include <fcntl.h> 
 #include <signal.h>
 #include <string>
 #include <map>
@@ -105,12 +105,15 @@ class Server
 		//WHO FUNCTION 
 		void 				namesChannel(Client& sender, const std::string& channelName);
 
+		//NICK FUNCTION
+		void 				handleNick(Client& sender,  std::string& newNick);
+
 		//QUIT FUNCTION 
 		void 				handleQuit(Client& sender);
 		void 				removeClientFromChannels(Client& client);
 		void 				removeClientFromServer(Client& client);
-		void					clearChannelsNoUsers();//Clears channels with no users inside.
-		void					part(Client& sender, std::string &channelName, std::string &trailer);
+		void				clearChannelsNoUsers();//Clears channels with no users inside.
+		void				part(Client& sender, std::string &channelName, std::string &trailer);
 
 		//MODE COMMAND FUNCTIONS
 		void 				mode(std::string channelName, std::string mode, std::string parameter, Client &sender);
