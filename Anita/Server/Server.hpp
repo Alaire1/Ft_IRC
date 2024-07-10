@@ -81,7 +81,7 @@ class Server
 		//PARSING FUNCTIONS
 		Client 			findClientByFd(int fd);
 		void 				parseCommand(std::string clientData, Client &sender);
-		int 				checkNick(std::string nick);
+		int 				checkNick(std::string nick, Client& sender);
 		void 				commandsRegister(Client &sender, std::string command, std::string param1);
 		void 				commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer);
 		int 				sendToClient(const std::string& message, const Client& client) const;

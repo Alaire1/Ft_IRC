@@ -391,19 +391,27 @@ std::string Server::searchTrailer(const std::string& string, bool flag)
 	}
 }
 
-int Server::checkNick(std::string nick)
+int Server::checkNick(std::string nick, Client& sender)
 {
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (it->getNick() == nick) {
-			std::cout << "Nick is already in use" << std::endl;
-			//sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
+	std::string nickCheck = "#@: ";
+	if(nickCheck.find(nick[0]))
+
+
+
+
+
+
+		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			if (it->getNick() == nick) 
+			{
+				std::cout << "Nick is already in use" << std::endl;
+				sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
+				return 0;
+			}
 			//Servers MUST allow at least all alphanumerical characters, square and curly brackets ([]{}), backslashes (\), and pipe (|) characters in nicknames, and MAY disallow digits as the first character
 			//no leading # or @  or : or ASCII space character
-			return 0;
 		}
-	}
 	return (1);
-
 }
 
 
@@ -421,11 +429,8 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 void Server::commandsRegister(Client& sender, std::string command, std::string param1){
 	if (command == "NICK")
 	{
-		if (checkNick(param1) == false)
-		{
-			sendToClient(numReplyGenerator(SERVER, {command, param1}, 433), sender);
+		if (!checkNick(param1, sender))
 			return;
-		}
 		sender.setNickName(param1);
 	}
 	else if (command == "USER")
