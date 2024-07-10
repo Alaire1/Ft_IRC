@@ -394,6 +394,20 @@ std::string Server::searchTrailer(const std::string& string, bool flag)
 	}
 }
 
+int Server::checkUser(std::string& user, Client& sender)
+{
+
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getUserName() == user) 
+		{
+			std::cout << "User is already in use" << std::endl;
+			sendToClient(numReplyGenerator(SERVER, {"USER", user}, 462), sender);
+			return 0;
+		}
+	}
+	return 1;
+}
+
 int Server::checkNick(std::string& nick, Client& sender, std::string& param2)
 {
 	//std::cout << "in checkNick" << std::endl;
@@ -445,13 +459,13 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 void Server::commandsRegister(Client& sender, std::string& command, std::string& param1, std::string& param2){
 	if (command == "NICK")
 	{
-		if (!checkNick(param1, sender, param2))
-			return;
-		sender.setNickName(param1);
+		if (checkNick(param1, sender, param2))
+			sender.setNickName(param1);
 	}
 	else if (command == "USER")
 	{
-		sender.setUserName(param1);
+		if(checkUser(param1, sender))
+			sender.setUserName(param1);
 	}
 	else if (command == "PASS")
 	{

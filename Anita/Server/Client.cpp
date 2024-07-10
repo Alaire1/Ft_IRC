@@ -14,6 +14,8 @@ bool Client::getIsRegistered() const {return _isRegistered;}
 
 bool Client::getHasPassword() const {return _hasPassword;}
 
+std::string Client::getUserName() const {return _user;}
+
 void Client::setFd(int fd) {_fd = fd;}
 
 void Client::setNickName(std::string& nick) {_nick= nick;}

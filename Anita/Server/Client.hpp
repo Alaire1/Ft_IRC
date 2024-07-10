@@ -43,6 +43,7 @@ class Client
 		std::string getNick() const;
 		std::string getUser() const;
 		bool getIsRegistered() const;
+		std::string getUserName() const;
 		bool getHasPassword() const;
 		void sendMessage(const std::string& message); //function to send to
 
