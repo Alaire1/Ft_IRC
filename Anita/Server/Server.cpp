@@ -448,6 +448,15 @@ void Server::commandsRegister(Client& sender, std::string command, std::string p
 		handleQuit(sender);
 }
 
+bool Server::isValidChannelName(const std::string& name) {
+    if (name.empty() || name[0] != '#' )
+        return false;
+    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it) {
+        if (*it == ' ' || *it == '\x07' || *it == ',')
+            return false;
+    }
+    return true;
+}
 void Server::joinChannel(Client &sender, const std::string& channelName, const std::string& pwd)
 {
 	std::cout << "Joining channel: " << channelName << std::endl;
@@ -493,7 +502,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 	}
 	else
 	{
-		if (channelName.find('#') != std::string::npos)
+		if (isValidChannelName(channelName) == true)
 		{
 			Channel newChannel(channelName);
 			newChannel.addUser(sender);

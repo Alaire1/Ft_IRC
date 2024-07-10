@@ -91,6 +91,7 @@ class Server
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 		std::string uppercasify(std::string& str);
+		bool				isValidChannelName(const std::string& name);
 
 		//CHANNEL FUNCTIONS
 		void 				joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);
