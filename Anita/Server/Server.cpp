@@ -1222,7 +1222,7 @@ std::vector<std::string> splitString(std::string str, std::string delimiter) {
         str.erase(0, pos + delimiter.length());
 
     }
-    result.push_back(str);
+    //result.push_back(str);
     return result;
 }
 
