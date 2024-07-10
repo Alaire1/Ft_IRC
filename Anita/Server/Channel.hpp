@@ -56,6 +56,7 @@ class Channel
 		void setInviteOnly(bool isInviteOnly);
 		void setRestrictTopic(bool restrictTopic);
 		void setMaxUsers(int maxUsers);
+		void sethasMaxUsers(bool setter);
 
 		void setOperator(Client& client);
 		void setTopic(std::string topic);

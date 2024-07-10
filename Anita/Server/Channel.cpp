@@ -228,6 +228,7 @@ std::string Channel::getModes() const
 
 size_t Channel::maxNumOfUsers() const {return _maxUsers;}
 
+void Channel::sethasMaxUsers(bool setter){_hasMaxUsers = setter;}
 
 void Channel::removeInvite(Client& client)
 {

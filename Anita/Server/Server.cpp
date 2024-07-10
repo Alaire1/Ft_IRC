@@ -999,6 +999,7 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 		{
 			modeChannel->addMode('l');
 			modeChannel->setMaxUsers(std::stoi(parameter));
+			modeChannel->sethasMaxUsers(true);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "+l", parameter}, ""));
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+l", parameter}, ""), client);
@@ -1007,6 +1008,7 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 		{
 			modeChannel->removeMode('l');
 			modeChannel->setInviteOnly(false);
+			modeChannel->sethasMaxUsers(false);
 			std::vector<Client> clients = modeChannel->getClientsVector();
 			broadcastMessage(clients, client, serverReply(SERVER, "MODE", {channel, "-l", parameter}, ""));
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "-l", parameter}, ""), client);
