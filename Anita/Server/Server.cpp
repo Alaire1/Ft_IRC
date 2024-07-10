@@ -10,6 +10,8 @@ bool g_signal = true;
 void Server::initializeReplyMap()
 {
 	numericReplyMap[001] = {code_001};
+	numericReplyMap[002] = {code_002};
+	numericReplyMap[003] = {code_003};
 	numericReplyMap[331] = {code_331};
 	numericReplyMap[332] = {code_332};
 	numericReplyMap[353] = {code_353};
@@ -462,15 +464,7 @@ void Server::commandsRegister(Client& sender, std::string& command, std::string&
 		handleQuit(sender);
 }
 
-bool Server::isValidChannelName(const std::string& name) {
-    if (name.empty() || name[0] != '#' )
-        return false;
-    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it) {
-        if (*it == ' ' || *it == '\x07' || *it == ',')
-            return false;
-    }
-    return true;
-}
+
 void Server::joinChannel(Client &sender, const std::string& channelName, const std::string& pwd)
 {
 	std::cout << "Joining channel: " << channelName << std::endl;
@@ -516,7 +510,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 	}
 	else
 	{
-		if (isValidChannelName(channelName) == true)
+		if (isValidChannelName(channelName, sender) == true)
 		{
 			Channel newChannel(channelName);
 			newChannel.addUser(sender);
@@ -884,7 +878,7 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		return;
 	}
 	Channel *modeChannel = returnExistingChannel(channel);
-	if (!modeChannel->clientNotInChannel(client) && modeChannel->getClient(parameter))
+	if ((!modeChannel->clientNotInChannel(client) && modeChannel->getClient(parameter)) && modeChannel->clientNotOperator(client))
 	{
 		Client* newOperator = modeChannel->getClient(parameter);
 		if (mode == "positive" ) // the sender is not seeing the change and any message
@@ -1106,14 +1100,31 @@ void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &
 	sendToClient(serverReply(sender.getNick(), "INVITE", {invitee, channel}, ""), *inviteeClient);
 	inviteChannel->invite(*inviteeClient);
 }
-
+bool Server::isValidChannelName(const std::string& name, Client &sender) {
+    if (name.empty() || name[0] != '#')
+	{
+		sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 002), sender);
+		return false;
+	}
+    if (name.length() > 50)
+	{
+		sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 003), sender);
+		return false;
+	}
+    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it) {
+        if (*it == ' ' || *it == '\x07' || *it == ',')
+		{
+			sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 002), sender);
+			return false;
+		}
+    }
+    return true;
+}
 void Server::commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer)
 {
-	//(void)parameter2;
-	//(void)trailer;
 	if (command == "JOIN")
 		joinChannel(sender, parameter1, parameter2);
-	else if (command == "PART")
+	else if (command == "PART" )
 		part(sender, parameter1, trailer);
 	else if (command == "TOPIC")
 		channelTopic(sender, parameter1, trailer);
@@ -1125,11 +1136,8 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 		kickClient(sender, parameter1, parameter2);
 	else if (command == "INVITE")
 		inviteToChannel(sender, parameter1, parameter2);
-	else if (command == "MODE") 
-		{
-			std::cout << "MODE" << std::endl;
+	else if (command == "MODE" && isValidChannelName(parameter1, sender))
 			mode(parameter1, parameter2, parameter3, sender);
-		}
 	else if (command == "USER") 
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
 	else if (command == "NICK")

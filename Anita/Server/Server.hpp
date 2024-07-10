@@ -91,7 +91,7 @@ class Server
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 		std::string uppercasify(std::string& str);
-		bool				isValidChannelName(const std::string& name);
+		bool				isValidChannelName(const std::string& name, Client &sender);
 
 		//CHANNEL FUNCTIONS
 		void 				joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);
@@ -142,6 +142,8 @@ class Server
 };
 //Static strings numeric replies 
 static std::string code_001 = "Welcome to the Internet Relay Network";
+static std::string code_002 = "Incorrect channel name";
+static std::string code_003 = "Channel name too long";
 static std::string code_331 = "No topic is set";
 static std::string code_332 = "Topic is";
 static std::string code_353 = "Channel"; //need to be changed
