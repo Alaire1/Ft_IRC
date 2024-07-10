@@ -884,18 +884,16 @@ void Server::chooseMode(std::string channel, std::string mode, std::string param
 
 void Server::modeOperator(std::string channel, std::string parameter, Client& client, std::string mode)
 {
-	std::cout << "Parameter: " << parameter << std::endl;
 	if (nickIsInServer(parameter) == false)
 	{
-		std::cout << "Nick is not in server" << std::endl;
 		sendToClient(numReplyGenerator(SERVER, {"NOTICE", parameter}, 401), client);
 		return;
 	}
 	Channel *modeChannel = returnExistingChannel(channel);
-	if ((!modeChannel->clientNotInChannel(client) && modeChannel->getClient(parameter)) && modeChannel->clientNotOperator(client))
+	if ((!modeChannel->clientNotInChannel(client) && modeChannel->getClient(parameter)) && !modeChannel->clientNotOperator(client))
 	{
 		Client* newOperator = modeChannel->getClient(parameter);
-		if (mode == "positive" ) // the sender is not seeing the change and any message
+		if (mode == "positive" )
 		{
 			modeChannel->addOperator(*newOperator);
 			std::vector<Client> clients = modeChannel->getClientsVector();
