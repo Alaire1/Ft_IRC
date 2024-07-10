@@ -837,7 +837,7 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 			chooseMode(channel, mode, parameter, client);
 	else
 	{
-			//std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 403); 
+			std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 403); 
 			//sendToClient(errorMessage, client);
 	}
 }
