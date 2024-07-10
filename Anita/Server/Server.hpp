@@ -81,8 +81,8 @@ class Server
 		//PARSING FUNCTIONS
 		Client 			findClientByFd(int fd);
 		void 				parseCommand(std::string clientData, Client &sender);
-		int 				checkNick(std::string nick, Client& sender);
-		void 				commandsRegister(Client &sender, std::string command, std::string param1);
+		int 				checkNick(std::string& nick, Client& sender, std::string& param2);
+		void 				commandsRegister(Client &sender, std::string& command, std::string& param1, std::string& param2);
 		void 				commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer);
 		int 				sendToClient(const std::string& message, const Client& client) const;
 		std::vector<std::string> listValidCommands();
@@ -107,7 +107,7 @@ class Server
 		void 				namesChannel(Client& sender, const std::string& channelName);
 
 		//NICK FUNCTION
-		void 				handleNick(Client& sender,  std::string& newNick);
+		void 				handleNick(Client& sender,  std::string& newNick, std::string& param2);
 
 		//QUIT FUNCTION 
 		void 				handleQuit(Client& sender);

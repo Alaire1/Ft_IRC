@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <cctype>
 #include <string>
 
 bool g_signal = true;
@@ -391,26 +392,39 @@ std::string Server::searchTrailer(const std::string& string, bool flag)
 	}
 }
 
-int Server::checkNick(std::string nick, Client& sender)
+int Server::checkNick(std::string& nick, Client& sender, std::string& param2)
 {
-	std::string nickCheck = "#@: ";
-	if(nickCheck.find(nick[0]))
-
-
-
-
-
-
-		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-			if (it->getNick() == nick) 
-			{
-				std::cout << "Nick is already in use" << std::endl;
-				sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
-				return 0;
-			}
-			//Servers MUST allow at least all alphanumerical characters, square and curly brackets ([]{}), backslashes (\), and pipe (|) characters in nicknames, and MAY disallow digits as the first character
-			//no leading # or @  or : or ASCII space character
+	//std::cout << "in checkNick" << std::endl;
+	//std::cout << nick << std::endl;
+	std::string nickCheck ("#@: $");
+	std::string nickCheck2 ("123456789");
+	std::string nickCheck3 (",*?!@");
+	if(nickCheck.find(nick[0]) != std::string::npos || nickCheck2.find(nick[0]) != std::string::npos || nick.empty() || !param2.empty())
+	{
+		if (!param2.empty())
+			sendToClient(numReplyGenerator(SERVER, {"NICK", nick + " " + param2}, 432), sender);
+		else
+			sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 432), sender);
+		return 0;
+	}
+	for(size_t i = 0; i < nick.length(); i++)
+	{
+		if((!isalnum(nick[i]) && nick[i] != '-' && nick[i] != '_' && nick[i] != '_' && nick.find_first_of("\{}\\\[]|") != std::string::npos) || nickCheck3.find(nick[i]) != std::string::npos)
+		{
+			sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 432), sender);
+			return 0;
 		}
+	}
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getNick() == nick) 
+		{
+			std::cout << "Nick is already in use" << std::endl;
+			sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
+			return 0;
+		}
+		//Servers MUST allow at least all alphanumerical characters, square and curly brackets ([]{}), backslashes (\), and pipe (|) characters in nicknames, and MAY disallow digits as the first character
+		//no leading # or @  or : or ASCII space character
+	}
 	return (1);
 }
 
@@ -426,10 +440,10 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	return (0);
 }
 
-void Server::commandsRegister(Client& sender, std::string command, std::string param1){
+void Server::commandsRegister(Client& sender, std::string& command, std::string& param1, std::string& param2){
 	if (command == "NICK")
 	{
-		if (!checkNick(param1, sender))
+		if (!checkNick(param1, sender, param2))
 			return;
 		sender.setNickName(param1);
 	}
@@ -696,14 +710,19 @@ void Server::namesChannel(Client& sender, const std::string& channelName)
 	}
 }
 
-void Server::handleNick(Client& sender, std::string& newNick)
+void Server::handleNick(Client& sender, std::string& newNick, std::string& param2)
 {
+	if(!checkNick(newNick, sender, param2))
+		return;
 	if(sender.getNick() != newNick)
 	{
 		for(std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 		{
 			if((*it).getNick() == newNick)
+			{
 				sendToClient(numReplyGenerator(SERVER, {"NICK", newNick}, 433), sender);
+				return;
+			}
 		}
 		sendToClient(serverReply(sender.getNick(), "NICK", {newNick}, ""), sender);
 		for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
@@ -1093,10 +1112,7 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 	//(void)parameter2;
 	//(void)trailer;
 	if (command == "JOIN")
-	{
 		joinChannel(sender, parameter1, parameter2);
-		std::cout << "JOIN" << std::endl;
-	}
 	else if (command == "PART")
 		part(sender, parameter1, trailer);
 	else if (command == "TOPIC")
@@ -1104,11 +1120,7 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 	else if (command == "PRIVMSG")
 		handlePrivmsg(sender, parameter1, trailer);
 	else if (command == "WHO")
-	{
-		std::cout << "WHO" << std::endl;
-
 		namesChannel(sender, parameter1);
-	}
 	else if (command == "KICK")
 		kickClient(sender, parameter1, parameter2);
 	else if (command == "INVITE")
@@ -1121,7 +1133,7 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 	else if (command == "USER") 
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
 	else if (command == "NICK")
-		handleNick(sender, parameter1);
+		handleNick(sender, parameter1, parameter2);
 	else if (command == "QUIT") 
 		handleQuit(sender);
 }
@@ -1140,7 +1152,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 		std::string upperCase = uppercasify(command);		
 		if (sender.getIsRegistered() == false)
 		{
-			commandsRegister(sender, upperCase, param1);
+			commandsRegister(sender, upperCase, param1, param2);
 			if (sender.getHasPassword() == true && sender.getNick().compare("") && sender.getUser().compare(""))
 			{
 				sender.setIsRegistered(true);
