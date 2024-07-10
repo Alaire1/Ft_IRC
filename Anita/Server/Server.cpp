@@ -982,12 +982,20 @@ void Server::modeTopic(std::string channel, std::string parameter, Client& clien
 	}
 }
 
+bool Server::isStringNumeric(const std::string& str) {
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+        if (!isdigit(static_cast<unsigned char>(*it))) {
+            return false;
+        }
+    }
+    return true;
+}
 void Server::modeLimit(std::string channel, std::string parameter, Client& client, std::string mode)
 {
 	Channel *modeChannel = returnExistingChannel(channel);
 	if (!modeChannel->clientNotInChannel(client))
 	{
-		if (mode == "positive" && !parameter.empty())
+		if (mode == "positive" && !parameter.empty() && isStringNumeric(parameter))
 		{
 			modeChannel->addMode('l');
 			modeChannel->setMaxUsers(std::stoi(parameter));
@@ -1101,7 +1109,9 @@ void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &
 	inviteChannel->invite(*inviteeClient);
 }
 bool Server::isValidChannelName(const std::string& name, Client &sender) {
-    if (name.empty() || name[0] != '#')
+	if (name.empty())
+		return false;
+    if (name[0] != '#')
 	{
 		sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 002), sender);
 		return false;

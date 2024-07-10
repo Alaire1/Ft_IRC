@@ -92,6 +92,7 @@ class Server
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 		std::string uppercasify(std::string& str);
 		bool				isValidChannelName(const std::string& name, Client &sender);
+		bool				isStringNumeric(const std::string& str);
 
 		//CHANNEL FUNCTIONS
 		void 				joinChannel(Client &sender, const std::string& channelName, const std::string& pwd);
