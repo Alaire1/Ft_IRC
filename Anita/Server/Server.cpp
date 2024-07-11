@@ -537,7 +537,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 	}
 	else
 	{
-		if (isValidChannelName(channelName, sender, pwd))
+		if (isValidChannelName(channelName, sender))
 		{
 			Channel newChannel(channelName);
 			newChannel.addUser(sender);
@@ -1133,16 +1133,15 @@ void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &
 	inviteChannel->invite(*inviteeClient);
 }
 
-bool Server::isValidChannelName(const std::string& name, Client &sender, const std::string& space) 
+bool Server::isValidChannelName(const std::string& name, Client &sender) 
 {
-	(void)space;
 	std::string chanCheck(" ,");
 	for(size_t i = 0; i < name.length(); i++)
 	{
-		if(chanCheck.find(name[i]) != std::string::npos || !space.empty())
+		if(chanCheck.find(name[i]) != std::string::npos)
 		{
 			//sendToClient(numReplyGenerator(SERVER, {"MODE", name}, 002), sender);
-			sendToClient(serverReply(SERVER, "002", {"JOIN", name + " " + space}, "Incorrect channel name"), sender);
+			sendToClient(serverReply(SERVER, "002", {"JOIN", name}, "Incorrect channel name"), sender);
 			return false;
 		}
 	}
@@ -1183,7 +1182,7 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 		kickClient(sender, parameter1, parameter2);
 	else if (command == "INVITE")
 		inviteToChannel(sender, parameter1, parameter2);
-	else if (command == "MODE" && isValidChannelName(parameter1, sender, parameter2))
+	else if (command == "MODE" && isValidChannelName(parameter1, sender))
 			mode(parameter1, parameter2, parameter3, sender);
 	else if (command == "USER") 
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
