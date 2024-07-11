@@ -1135,6 +1135,7 @@ void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &
 
 bool Server::isValidChannelName(const std::string& name, Client &sender, const std::string& space) 
 {
+	(void)space;
 	std::string chanCheck(" ,");
 	for(size_t i = 0; i < name.length(); i++)
 	{
@@ -1235,12 +1236,13 @@ void Server::parseCommand(std::string clientData, Client& sender){
 
 
 //helper functions
-std::string removeNonPrintable(const std::string& input) {
+std::string removeNonPrintable(const std::string& input) 
+{
     std::string result;
-    for (char c : input) {
-        if (std::isprint(static_cast<unsigned char>(c))) {
-            result += c;
-        }
+		for(int i = 0; i < input.length(); i++)
+    {
+        if (std::isprint(input[i]) || input[i] == '') 
+            result += input[i];
     }
     return result;
 }
