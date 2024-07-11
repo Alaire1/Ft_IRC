@@ -524,7 +524,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 	}
 	else
 	{
-		if (isValidChannelName(channelName, sender) == true)
+		if (isValidChannelName(channelName, sender, pwd))
 		{
 			Channel newChannel(channelName);
 			newChannel.addUser(sender);
@@ -533,10 +533,7 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 			sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
 			sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
 			sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
-
 		}
-		else
-			sendToClient(serverReply(SERVER, "401", {"JOIN", channelName + ":","Cannot join channel"}, "Channel name must start with a hash mark (#)"), sender);
 	}
 }
 
@@ -1122,27 +1119,39 @@ void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &
 	sendToClient(serverReply(sender.getNick(), "INVITE", {invitee, channel}, ""), *inviteeClient);
 	inviteChannel->invite(*inviteeClient);
 }
-bool Server::isValidChannelName(const std::string& name, Client &sender) {
+
+bool Server::isValidChannelName(const std::string& name, Client &sender, const std::string& space) 
+{
+	std::string chanCheck(" ,");
+	for(size_t i = 0; i < name.length(); i++)
+	{
+		if(chanCheck.find(name[i]) != std::string::npos || !space.empty())
+		{
+			//sendToClient(numReplyGenerator(SERVER, {"MODE", name}, 002), sender);
+			sendToClient(serverReply(SERVER, "002", {"JOIN", name + " " + space}, "Incorrect channel name"), sender);
+			return false;
+		}
+	}
 	if (name.empty())
 		return false;
-    if (name[0] != '#')
+	if (name[0] != '#')
 	{
-		sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 002), sender);
+		sendToClient(serverReply(SERVER, "401", {"JOIN", name + ":","Cannot join channel"}, "Channel name must start with a hash mark (#)"), sender);
 		return false;
 	}
-    if (name.length() > 50)
+	if (name.length() > 50)
 	{
 		sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 003), sender);
 		return false;
 	}
-    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it) {
-        if (*it == ' ' || *it == '\x07' || *it == ',')
+	for (std::string::const_iterator it = name.begin(); it != name.end(); ++it) {
+		if (*it == ' ' || *it == '\x07' || *it == ',')
 		{
 			sendToClient(numReplyGenerator(SERVER, {"MODE", sender.getNick()}, 002), sender);
 			return false;
 		}
-    }
-    return true;
+	}
+	return true;
 }
 void Server::commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer)
 {
@@ -1160,7 +1169,7 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 		kickClient(sender, parameter1, parameter2);
 	else if (command == "INVITE")
 		inviteToChannel(sender, parameter1, parameter2);
-	else if (command == "MODE" && isValidChannelName(parameter1, sender))
+	else if (command == "MODE" && isValidChannelName(parameter1, sender, parameter2))
 			mode(parameter1, parameter2, parameter3, sender);
 	else if (command == "USER") 
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);

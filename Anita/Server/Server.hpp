@@ -92,7 +92,7 @@ class Server
 		std::string numReplyGenerator(const std::string& client, const std::vector<std::string>& params, int errorCode);
 		std::string serverReply(const std::string& prefix, const std::string& cmd, const std::vector<std::string>& params, const std::string& trailingParam);
 		std::string uppercasify(std::string& str);
-		bool				isValidChannelName(const std::string& name, Client &sender);
+		bool 				isValidChannelName(const std::string& name, Client &sender, const std::string& space); 
 		bool				isStringNumeric(const std::string& str);
 
 		//CHANNEL FUNCTIONS
