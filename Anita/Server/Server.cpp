@@ -701,7 +701,7 @@ void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &m
 		sendToClient(numReplyGenerator(SERVER, {"PRIVMSG"}, 412), sender);
 		return;
 	}
-	if (receiver[0] == '#')
+	if (receiver[0] == '#' && isValidChannelName(receiver, sender))
 	{
 		channelMessage(sender, receiver, message);
 	}
@@ -1168,19 +1168,19 @@ bool Server::isValidChannelName(const std::string& name, Client &sender)
 }
 void Server::commandsAll(Client &sender, std::string &command, std::string &parameter1, std::string &parameter2, std::string &parameter3, std::string &trailer)
 {
-	if (command == "JOIN")
+	if (command == "JOIN" && isValidChannelName(parameter1, sender))
 		joinChannel(sender, parameter1, parameter2);
-	else if (command == "PART" )
+	else if (command == "PART" && isValidChannelName(parameter1, sender))
 		part(sender, parameter1, trailer);
 	else if (command == "TOPIC")
 		channelTopic(sender, parameter1, trailer);
 	else if (command == "PRIVMSG")
 		handlePrivmsg(sender, parameter1, trailer);
-	else if (command == "WHO")
+	else if (command == "WHO" && isValidChannelName(parameter1, sender))
 		namesChannel(sender, parameter1);
-	else if (command == "KICK")
+	else if (command == "KICK" && isValidChannelName(parameter1, sender))
 		kickClient(sender, parameter1, parameter2);
-	else if (command == "INVITE")
+	else if (command == "INVITE" && isValidChannelName(parameter2, sender))
 		inviteToChannel(sender, parameter1, parameter2);
 	else if (command == "MODE" && isValidChannelName(parameter1, sender))
 			mode(parameter1, parameter2, parameter3, sender);
