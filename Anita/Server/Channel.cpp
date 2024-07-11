@@ -110,6 +110,19 @@ void Channel::kick(Client& ejectee)
 	}
 }
 
+bool Channel::hasOperators(void)
+{
+    if (_operators.size() == 0)
+        return false;
+    return true;
+}
+
+
+Client& Channel::oldestClientInChannel(void)
+{
+    return (_clients[0]);
+}
+
 void Channel::removeUser(Client& client)
 {
     std::vector<Client>::iterator it = _clients.begin();

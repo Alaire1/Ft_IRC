@@ -85,6 +85,10 @@ class Channel
 		const std::vector<Client>& getClientsVector() const;
 		const std::vector<Client>& getOperatorsVector() const;
 		void removeUser(Client& client);
+		bool hasOperators(void);
+		Client& oldestClientInChannel(void);
+
+
 
 
 };

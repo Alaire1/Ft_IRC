@@ -1060,6 +1060,9 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 				++it;
 			}
 		}
+		else if (channel->hasOperators() == false)
+        	channel->setOperator(channel->oldestClientInChannel());
+
 	}
 	else
 		sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 403), sender);
