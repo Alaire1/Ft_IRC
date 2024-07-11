@@ -838,7 +838,7 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 	else
 	{
 			std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 403); 
-			//sendToClient(errorMessage, client);
+			sendToClient(errorMessage, client);
 	}
 }
 
@@ -951,7 +951,7 @@ void Server::modeInvite(std::string channel, std::string parameter, Client& clie
 	Channel *modeChannel = returnExistingChannel(channel);
 	if (!modeChannel->clientNotInChannel(client))
 	{
-		if (mode == "positive")
+		if (mode == "positive" && modeChannel->isInviteOnly() == false)
 		{
 			modeChannel->addMode('i');
 			modeChannel->setInviteOnly(true);
@@ -959,7 +959,7 @@ void Server::modeInvite(std::string channel, std::string parameter, Client& clie
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+i", parameter}, " "));//attaching something after the name of the channel
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+i", parameter}, " "), client); 
 		}
-		else
+		else if (mode == "negative" && modeChannel->isInviteOnly() == true)
 		{
 			modeChannel->removeMode('i');
 			modeChannel->setInviteOnly(false);
@@ -975,7 +975,7 @@ void Server::modeTopic(std::string channel, std::string parameter, Client& clien
 	Channel *modeChannel = returnExistingChannel(channel);
 	if (!modeChannel->clientNotInChannel(client))
 	{
-		if (mode == "positive")
+		if (mode == "positive" && modeChannel->isrestrictTopic() == false)
 		{
 			modeChannel->addMode('t');
 			modeChannel->setRestrictTopic(true);
@@ -983,7 +983,7 @@ void Server::modeTopic(std::string channel, std::string parameter, Client& clien
 			broadcastMessage(clients, client, serverReply(client.getNick(), "MODE", {channel, "+t", parameter}, " "));
 			sendToClient(serverReply(client.getNick(), "MODE", {channel, "+t", parameter}, " "), client);
 		}
-		else
+		else if (mode == "negative" && modeChannel->isrestrictTopic() == true)
 		{
 			modeChannel->removeMode('t');
 			modeChannel->setRestrictTopic(false);
