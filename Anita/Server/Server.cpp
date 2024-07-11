@@ -582,23 +582,20 @@ void Server::channelTopic(Client &sender, std::string channelName, std::string t
 		}
 		if (topicChannel->clientNotOperator(sender) && topicChannel->isrestrictTopic())//CHECK THAT CREATOR OF CHANNEL BECOMES OPERATOR
 		{
-			//std::cout << "CHANNEL restrictTopic: " << topicChannel->isrestrictTopic() << std::endl;
 			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 482), sender); return;
 		}
-		
-		if (trailer.empty() && !topicChannel->getTopic().empty())//CALLING TO SHOW CURRENT TOPIC
+		if (trailer.empty() && !topicChannel->getTopic().empty())
 			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()), sender);
-		else if (!trailer.empty())//CHANGING THE TOPIC
+		else if (!trailer.empty())
 		{
 			topicChannel->setTopic(trailer);
-			//TOPIC CHANGED, SEND MESSAGE TO ALL CHANNEL_MEMBERS
 			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()), sender);
 			std::vector<Client> clients = topicChannel->getClientsVector();
 			broadcastMessage(clients, sender, serverReply(SERVER, "333" ,{"TOPIC", channelName }, sender.getNick()));
 			broadcastMessage(clients, sender, serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()));
 		}
 		else
-			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 331), sender);//TOPIC IS NOT SET
+			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 331), sender);
 	}
 	else
 		sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC"}, 403), sender);
@@ -613,17 +610,13 @@ std::vector<std::string> Server::listChannelClients(Channel& channel)
 		for(size_t i = 0; i < channel.getClientsVector().size(); ++i)
 		{
 			clientstr = channel.getClientsVector()[i].getNick();
-			//std::cout << clientstr << std::endl;
 			for(size_t j = 0; j < channel.getOperatorsVector().size(); ++j)
 			{
-				//std::cout << channel.getOperatorsVector()[j].getNick() << std::endl;
 				if(channel.getOperatorsVector()[j].getNick() == channel.getClientsVector()[i].getNick())
 					clientstr.insert(0, "@");
-				//std::cout << clientstr << std::endl;
 			}
 			list.push_back(clientstr);
 		}
-		//std::cout << "out if lkoop" << std::endl;
 	return list;
 }
 
@@ -837,11 +830,10 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 	}
 	else if(channelExists(channel) && returnExistingChannel(channel)->clientNotOperator(client))
 	{
-		//std::cout << "if not operator how many operators: " << returnExistingChannel(channel)->getOperatorsVector().size() << " " << returnExistingChannel(channel)->clientNotOperator(client) << std::endl;
 		printclient(returnExistingChannel(channel)->getOperatorsVector());
 		std::cout << "Client is not operator" << std::endl;
 		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482); 
-		return;//may be changed
+		return;
 	}
 	if (channelExists(channel) && !mode.empty())
 			chooseMode(channel, mode, parameter, client);
@@ -854,7 +846,6 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 
 bool Server::clientIsOperator(std::string channelName, Client& client) {
     Channel* modeChannel = returnExistingChannel(channelName);
-    // Use the new getOperators() method
 		std::cout << "number of operators" << modeChannel->getOperatorsVector().size() << std::endl;
     for (std::vector<Client>::const_iterator it = modeChannel->getOperatorsVector().begin(); it != modeChannel->getOperatorsVector().end(); ++it) {
         if (it->getNick() == client.getNick())
