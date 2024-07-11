@@ -1239,7 +1239,7 @@ void Server::parseCommand(std::string clientData, Client& sender){
 std::string removeNonPrintable(const std::string& input) 
 {
     std::string result;
-		for(int i = 0; i < input.length(); i++)
+		for(size_t i = 0; i < input.size(); i++)
     {
         if (std::isprint(input[i]) || input[i] == '') 
             result += input[i];
