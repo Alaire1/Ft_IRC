@@ -396,12 +396,25 @@ std::string Server::searchTrailer(const std::string& string, bool flag)
 
 int Server::checkUser(std::string& user, Client& sender)
 {
-
+	if (user.empty())
+	{
+			sendToClient(numReplyGenerator(SERVER, {"USER", sender.getUserName()}, 461), sender);
+			return 0;
+	}
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getUserName() == user) 
 		{
 			std::cout << "User is already in use" << std::endl;
 			sendToClient(numReplyGenerator(SERVER, {"USER", user}, 462), sender);
+			return 0;
+		}
+	}
+	std::string userCheck(" \x07,");
+	for(size_t i = 0; i < user.length(); i++)
+	{
+		if(userCheck.find(user[i]) != std::string::npos)
+		{
+			//sendToClient(numReplyGenerator(SERVER, {"USER", user}, 432), sender);
 			return 0;
 		}
 	}
