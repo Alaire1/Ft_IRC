@@ -284,23 +284,34 @@ void Channel::removeClient(Client& client)
 			break;
 		}
 	}
-	long unsigned int i = -1;
-	while (++i < _invitees.size())
+
+	std::vector<Client>::iterator iti = _invitees.begin();
+	for (; iti != _invitees.end(); ++iti)
 	{
-		if (_invitees[i].getNick() == client.getNick())
+		if (iti->getNick() == client.getNick())
 		{
-			_invitees.erase(_invitees.begin() + i);
+			_invitees.erase(it);
 			break;
 		}
 	}
-	if(!_clients.size())
-		clearVectors();
+	//long unsigned int i = -1;
+	//while (++i < _invitees.size())
+	//{
+	//	if (_invitees[i].getNick() == client.getNick())
+	//	{
+	//		_invitees.erase(_invitees.begin() + i);
+	//		break;
+	//	}
+	//}
+	//if(!_clients.size())
+	//	clearVectors();
 }
 
 void Channel::clearVectors()
 {
 	_clients.clear();
 	_operators.clear();
+	_invitees.clear();
 }
 
 

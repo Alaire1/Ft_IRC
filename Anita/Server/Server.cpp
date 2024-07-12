@@ -149,7 +149,7 @@ void Server::runServer()
 
 void Server::handleData(int fd, Client &sender, size_t idx)
 {
-	printf("IN HANDLE DATA\n");
+	//printf("IN HANDLE DATA\n");
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 	int bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
@@ -752,7 +752,7 @@ void Server::handleQuit(Client& sender)
 {
 	if(nickIsInServer(sender.getNick()))
 	{
-		std::cout << "Client " << sender.getNick() << " is quitting." << std::endl;
+		std::cout << "Client " << sender.getNick() << " fd " << sender.getFd() << " is quitting." << std::endl;
 		for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
 		{
 			if((*it).clientWithThatNameNotInChannel(sender.getNick()))
@@ -767,7 +767,6 @@ void Server::handleQuit(Client& sender)
 	{
 		std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
 		printf("Client removed 2\n");
-
 	}
 
 }
@@ -791,7 +790,7 @@ void	Server::clearChannelsNoUsers()
 		{
 			it->clearVectors();
 			_channels.erase(it);
-			break;
+			//break;
 		}
 	}
 }
@@ -830,6 +829,10 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 		return;
 	else if(channelExists(channel) && mode.empty())
 	{
+		if (returnExistingChannel(channel)->clientNotInChannel(client))
+		{
+			sendToClient(numReplyGenerator(client.getNick(), {"TOPIC", channel}, 442), client); return;
+		}
 		std::string activeModes = "Modes on " + returnExistingChannel(channel)->getChannelName() + " are " + returnExistingChannel(channel)->getModes();
 		std::cout << "Active modes: " << activeModes << std::endl;
 		sendToClient(serverReply(client.getNick(), "351", {"MODE", channel, activeModes}, ""), client);
