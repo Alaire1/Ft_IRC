@@ -1,7 +1,15 @@
 #include "Server.hpp"
 #include <cctype>
+#include <iostream>
 #include <string>
 
+void printCharValues(const std::string& str) {
+  for (char c : str) {
+    // Use std::cout manipulator for consistent formatting
+    std::cout << std::setw(3) << std::setfill('0') << static_cast<int>(c) << " ";
+  }
+  std::cout << std::endl;
+}
 bool g_signal = true;
 
 //#include "parsing_plan.cpp"
@@ -159,7 +167,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
 			//close(fd);
-			handleQuit(sender);
+			handleQuit(sender, "");
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
@@ -170,6 +178,7 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	else 
 	{
 		printf("Received message: %s", buffer);
+		//printCharValues(buffer);
 		parseCommand(buffer, sender);
 	}
 }
@@ -488,7 +497,7 @@ void Server::commandsRegister(Client& sender, std::string& command, std::string&
 			sendToClient(numReplyGenerator(SERVER, {"PASS", sender.getNick()}, 464), sender); // we have to handle errors while sending
 	}
 	else if (command == "QUIT")
-		handleQuit(sender);
+		handleQuit(sender, "");
 }
 
 
@@ -748,7 +757,7 @@ void Server::handleNick(Client& sender, std::string& newNick, std::string& param
 	//sendToClient(serverReply(sender.getNick(), "NICK", {newNick}, ""), sender);
 }
 
-void Server::handleQuit(Client& sender)
+void Server::handleQuit(Client& sender, const std::string& trailer)
 {
 	if(nickIsInServer(sender.getNick()))
 	{
@@ -758,6 +767,12 @@ void Server::handleQuit(Client& sender)
 			if((*it).clientWithThatNameNotInChannel(sender.getNick()))
 				continue;
 			broadcastMessage((*it).getClientsVector(), sender, std::string("left the channel ") + (*it).getChannelName());
+			if (trailer.empty())
+				broadcastMessage((*it).getClientsVector(), sender, serverReply(sender.getNick(), "184", {"QUIT"}, "Leaving"));
+			else
+				broadcastMessage((*it).getClientsVector(), sender, serverReply(sender.getNick(), "184", {"QUIT"}, trailer));
+
+		//	sendToClient(serverReply(sender.getNick(), "PART", {channelName}, trailer), sender);
 		}
 		removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
 		removeClientFromServer(sender);//handle client resources closing fd
@@ -784,15 +799,29 @@ void Server::removeClientFromChannels(Client& client)
 
 void	Server::clearChannelsNoUsers()
 {
-	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it) 
+	std::cout << "here in quit" << std::endl;
+	for (std::vector<Channel>::iterator it = _channels.end(); it != _channels.begin();) 
 	{
-		if (it->getUsernum() == 0) 
-		{
+		--it; // Decrement before checking to avoid going out of bounds
+		if (it->getUsernum() == 0) {
 			it->clearVectors();
-			_channels.erase(it);
-			//break;
+			std::cout << "erasing channel: " << (*it).getChannelName() << std::endl;
+			it = _channels.erase(it); // Erase and update iterator
+		} else {
+			++it; // Only increment if not erased
 		}
 	}
+	//for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it) 
+	//{
+	//	if (it->getUsernum() == 0) 
+	//	{
+	//		it->clearVectors();
+	//		std::cout << "erasing channel: " << (*it).getChannelName() << std::endl;
+
+	//		_channels.erase(it);
+	//		//break;
+	//	}
+	//}
 }
 
 void Server::removeClientFromServer(Client& client)
@@ -1203,10 +1232,12 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 	else if (command == "NICK")
 		handleNick(sender, parameter1, parameter2);
 	else if (command == "QUIT") 
-		handleQuit(sender);
+		handleQuit(sender, trailer);
 }
 
+
 void Server::parseCommand(std::string clientData, Client& sender){
+	printCharValues(clientData);
 	//std::cout << "Current client : " << sender.getFd() << std::endl;
 	std::vector<std::string> commands = splitString(clientData, "\r\n");
 	std::vector<std::string>::const_iterator it;

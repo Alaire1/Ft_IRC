@@ -112,7 +112,7 @@ class Server
 		void 				handleNick(Client& sender,  std::string& newNick, std::string& param2);
 
 		//QUIT FUNCTION 
-		void 				handleQuit(Client& sender);
+		void 				handleQuit(Client& sender, const std::string& trailer);
 		void 				removeClientFromChannels(Client& client);
 		void 				removeClientFromServer(Client& client);
 		void				clearChannelsNoUsers();//Clears channels with no users inside.
