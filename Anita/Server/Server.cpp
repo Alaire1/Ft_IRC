@@ -633,8 +633,12 @@ Client *Server::findClientByNick(std::string nick)
 
 void Server::kickClient (Client &kicker, std::string &channelName, std::string &ejecteeName)
 {
-	(void)ejecteeName;
-	if (!channelExists(channelName))
+	if(channelName.empty() && ejecteeName.empty())
+	{
+		sendToClient(numReplyGenerator(SERVER, {"NICKERR", "KICK"}, 461), kicker);
+		return;
+	}
+	else if (!channelExists(channelName))
 	{
 		sendToClient(numReplyGenerator(kicker.getNick(), {"KICK", channelName}, 403), kicker);
 		return;
@@ -694,7 +698,7 @@ void Server::handlePrivmsg(Client &sender, std::string &receiver, std::string &m
 		sendToClient(numReplyGenerator(SERVER, {"PRIVMSG"}, 412), sender);
 		return;
 	}
-	if (receiver[0] == '#' && isValidChannelName(receiver, sender))
+	if (receiver[0] == '#')
 	{
 		channelMessage(sender, receiver, message);
 	}
@@ -760,8 +764,11 @@ void Server::handleQuit(Client& sender)
 		printf("Client removed 1\n");
 	}
 	else 
+	{
 		std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
-	printf("Client removed 2\n");
+		printf("Client removed 2\n");
+
+	}
 
 }
 
@@ -791,7 +798,7 @@ void	Server::clearChannelsNoUsers()
 
 void Server::removeClientFromServer(Client& client)
 {
-	std::cout << "Removing Client " << client.getNick() << " from server." << std::endl;
+	std::cout << "Removing Client " << client.getNick() << " fd: " << client.getFd() << " from server." << std::endl;
 	int i = -1;
 	while (++i < (int)_fds.size())
 	{
@@ -1033,6 +1040,11 @@ void Server::modeLimit(std::string channel, std::string parameter, Client& clien
 
 void Server::part(Client& sender, std::string &channelName, std::string &trailer)
 {
+	if(channelName.empty() && trailer.empty())
+	{
+		sendToClient(numReplyGenerator(SERVER, {"NICKERR", "PART"}, 461), sender);
+		return;
+	}
 	Channel *channel = returnExistingChannel(channelName);
 	if (channel)
 	{
@@ -1061,7 +1073,7 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 			}
 		}
 		else if (channel->hasOperators() == false)
-        	channel->setOperator(channel->oldestClientInChannel());
+			channel->setOperator(channel->oldestClientInChannel());
 
 	}
 	else
@@ -1095,6 +1107,11 @@ bool Server::clientExists(std::string &nick)
 
 void Server::inviteToChannel(Client &sender, std::string &invitee, std::string &channel)
 {
+	if((invitee.empty() || channel.empty()) || (invitee.empty() && channel.empty()))
+	{
+		sendToClient(numReplyGenerator(SERVER, {"NICKERR", "INVITE"}, 461), sender);
+		return;
+	}
 	if (clientExists(invitee) == false)
 	{
 		sendToClient(numReplyGenerator(sender.getNick(), {"INVITE", channel}, 401), sender);
@@ -1164,21 +1181,21 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 {
 	if (command == "JOIN" && isValidChannelName(parameter1, sender))
 		joinChannel(sender, parameter1, parameter2);
-	else if (command == "PART" && isValidChannelName(parameter1, sender))
+	else if (command == "PART")//no need to use isValidChannelName
 		part(sender, parameter1, trailer);
-	else if (command == "TOPIC")
+	else if (command == "TOPIC")//no need to use isValidChannelName
 		channelTopic(sender, parameter1, trailer);
 	else if (command == "PRIVMSG")
 		handlePrivmsg(sender, parameter1, trailer);
 	else if (command == "WHO" && isValidChannelName(parameter1, sender))
 		namesChannel(sender, parameter1);
-	else if (command == "KICK" && isValidChannelName(parameter1, sender))
+	else if (command == "KICK")//no need to use isValidChannelName, same as in topic
 		kickClient(sender, parameter1, parameter2);
-	else if (command == "INVITE" && isValidChannelName(parameter2, sender))
+	else if (command == "INVITE")
 		inviteToChannel(sender, parameter1, parameter2);
 	else if (command == "MODE" && isValidChannelName(parameter1, sender))
 			mode(parameter1, parameter2, parameter3, sender);
-	else if (command == "USER") 
+	else if (command == "USER" || command == "PASS") 
 		sendToClient(numReplyGenerator(SERVER, {"USER", sender.getNick()}, 462), sender);
 	else if (command == "NICK")
 		handleNick(sender, parameter1, parameter2);
