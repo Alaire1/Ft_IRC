@@ -1104,8 +1104,7 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 				++it;
 			}
 		}
-		std::cout << "Has operators: " << channel->hasOperators() << std::endl;
-		if (channel->hasOperators() == false)
+		else if (channel->hasOperators() == false)
 		{
 
 			std::cout << "Setting operator" << std::endl;
