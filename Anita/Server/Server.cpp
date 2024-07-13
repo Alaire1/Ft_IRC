@@ -1104,10 +1104,18 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 				++it;
 			}
 		}
-		else if (channel->hasOperators() == false)
-			channel->setOperator(channel->oldestClientInChannel());
+		std::cout << "Has operators: " << channel->hasOperators() << std::endl;
+		if (channel->hasOperators() == false)
+		{
 
+			std::cout << "Setting operator" << std::endl;
+			// Client newOperator = channel->oldestClientInChannel();
+			// std::cout << "new operator: " << newOperator.getNick() << std::endl;
+			channel->setOperator(channel->oldestClientInChannel());
+			broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "MODE", {channelName, "+o", channel->oldestClientInChannel().getNick()}, ""));
+		}
 	}
+
 	else
 		sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 403), sender);
 }

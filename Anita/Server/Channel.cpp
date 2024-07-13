@@ -112,6 +112,7 @@ void Channel::kick(Client& ejectee)
 
 bool Channel::hasOperators(void)
 {
+	std::cout << "op size: " <<_operators.size() << std::endl;
     if (_operators.size() == 0)
         return false;
     return true;
@@ -219,7 +220,10 @@ void Channel::removeKey() //MODE -k
 
 void Channel::setOperator(Client& client) // before using it we have to check if someone that is setting is an operator himself
 {
-    _operatorNick = client.getNick();
+
+    _operators.push_back(client);
+	std::cout << "Operator set: " << client.getNick() << std::endl;
+	_operatorNick = client.getNick();
 }
 
 
