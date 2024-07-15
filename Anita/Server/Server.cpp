@@ -2,6 +2,7 @@
 #include <cctype>
 #include <iostream>
 #include <string>
+#include <vector>
 
 void printCharValues(const std::string& str) {
   for (char c : str) {
@@ -756,13 +757,22 @@ void Server::handleNick(Client& sender, std::string& newNick, std::string& param
 	}
 	//sendToClient(serverReply(sender.getNick(), "NICK", {newNick}, ""), sender);
 }
+void printChannels(std::vector<Channel> channels)
+{
+	std::cout << "Print channels" << std::endl;
+		for(std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)//Broadcast leave message
+		{
+			std::cout << "Channel: " << (*it).getChannelName() << std::endl;
+		}
 
+}
 void Server::handleQuit(Client& sender, const std::string& trailer)
 {
 	(void)trailer;
 	if(nickIsInServer(sender.getNick()))
 	{
 		std::cout << "Client " << sender.getNick() << " fd " << sender.getFd() << " is quitting." << std::endl;
+		printChannels(_channels);
 		for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
 		{
 			if((*it).clientWithThatNameNotInChannel(sender.getNick()))
