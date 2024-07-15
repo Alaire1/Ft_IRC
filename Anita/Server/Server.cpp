@@ -759,6 +759,7 @@ void Server::handleNick(Client& sender, std::string& newNick, std::string& param
 
 void Server::handleQuit(Client& sender, const std::string& trailer)
 {
+	(void)trailer;
 	if(nickIsInServer(sender.getNick()))
 	{
 		std::cout << "Client " << sender.getNick() << " fd " << sender.getFd() << " is quitting." << std::endl;
@@ -766,13 +767,7 @@ void Server::handleQuit(Client& sender, const std::string& trailer)
 		{
 			if((*it).clientWithThatNameNotInChannel(sender.getNick()))
 				continue;
-			broadcastMessage((*it).getClientsVector(), sender, std::string("left the channel ") + (*it).getChannelName());
-			if (trailer.empty())
-				broadcastMessage((*it).getClientsVector(), sender, serverReply(sender.getNick(), "184", {"QUIT"}, "Leaving"));
-			else
-				broadcastMessage((*it).getClientsVector(), sender, serverReply(sender.getNick(), "184", {"QUIT"}, trailer));
-
-		//	sendToClient(serverReply(sender.getNick(), "PART", {channelName}, trailer), sender);
+			broadcastMessage((*it).getClientsVector(), sender, serverReply(sender.getNick(), "QUIT", {"Quit:", trailer}, ""));
 		}
 		removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
 		removeClientFromServer(sender);//handle client resources closing fd
@@ -1244,7 +1239,7 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 
 
 void Server::parseCommand(std::string clientData, Client& sender){
-	printCharValues(clientData);
+	//printCharValues(clientData);
 	//std::cout << "Current client : " << sender.getFd() << std::endl;
 	std::vector<std::string> commands = splitString(clientData, "\r\n");
 	std::vector<std::string>::const_iterator it;
