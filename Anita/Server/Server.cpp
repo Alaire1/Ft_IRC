@@ -840,6 +840,8 @@ void	Server::clearChannelsNoUsers()
 	//}
 	std::cout << "CCNU print channels after" << std::endl;
 	printChannels(_channels);
+	std::cout << "Current clients on server: " << std::endl;
+	printclient(_clients);
 }
 
 void Server::removeClientFromServer(Client& client)
