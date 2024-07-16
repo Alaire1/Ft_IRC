@@ -557,9 +557,10 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 			newChannel.addUser(sender);
 			newChannel.addOperator(sender);
 			_channels.push_back(newChannel);
-			sendToClient(serverReply(sender.getNick(), "JOIN", {channelName, sender.getUser()}, ""), sender);
-			sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
-			sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
+
+          	sendToClient(serverReply(sender.getNick(), "JOIN", {channelName}, ""), sender);
+          	sendToClient(serverReply(SERVER, "353", listChannelClients(newChannel), ""), sender);
+          	sendToClient(numReplyGenerator(sender.getNick(), {"JOIN", channelName}, 331), sender);
 		}
 	}
 }
@@ -1105,8 +1106,8 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 			sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 442), sender);
 			return;
 		}
-		if (trailer.empty())
-			trailer = "Leaving channel";
+		//if (trailer.empty())
+		//	trailer = "Leaving channel";
 		sendToClient(serverReply(sender.getNick(), "PART", {channelName}, trailer), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "PART", {channelName}, trailer));
 		channel->removeClient(sender);
