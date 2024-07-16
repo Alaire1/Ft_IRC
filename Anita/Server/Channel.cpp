@@ -182,11 +182,12 @@ bool Channel::clientWithThatNameNotInChannel(std::string name)
 
 int Channel::checkIfOperatorleft()//Checks if there is still operators left, if not assigns the _clients[0] as operator
 {
-	if(!_operators.size())
+	if(!_operators.size() && _clients.size())
 	{
 		if(_clients.size())
 		{
 			_operators.push_back(_clients[0]);
+			std::cout << "new operator: " << _operators[0].getNick() << std::endl;
 			return 1;
 		}
 	}
@@ -249,44 +250,53 @@ void Channel::sethasMaxUsers(bool setter){_hasMaxUsers = setter;}
 
 void Channel::removeInvite(Client& client)
 {
-    std::vector<Client>::iterator it = _invitees.begin();
-    for (; it != _invitees.end(); ++it)
-    {
-	   if (it->getNick() == client.getNick())
-	   {
-		  _invitees.erase(it);
-		  break;
-	   }
-    }
+	std::vector<Client>::iterator it = _invitees.begin();
+	for (; it != _invitees.end(); )
+	{
+		if (it->getNick() == client.getNick())
+		{
+			_invitees.erase(it);
+			//break;
+		}
+		else
+			++it;
+	}
 }
 
 int Channel::removeOperator(Client& client)
 {
-    std::vector<Client>::iterator it = _operators.begin();
-    for (; it != _operators.end(); ++it)
-    {
-	   if (it->getNick() == client.getNick())
-	   {
-		  _operators.erase(it);
-		  break;
-	   }
-    }
-		if(checkIfOperatorleft())
-			return 1;
+	std::cout << "number of operators before " << _operators.size() << std::endl;
+	std::vector<Client>::iterator it = _operators.begin();
+	for (; it != _operators.end();)
+	{
+		if (it->getNick() == client.getNick())
+		{
+			_operators.erase(it);
+			//break;
+		}
 		else
-			return 0;
+			++it;
+	}
+	std::cout << "number of operators after " << _operators.size() << std::endl;
+	if(checkIfOperatorleft())
+		return 1;
+	else
+		return 0;
 }
 
 void Channel::removeClient(Client& client)
 {
 	std::vector<Client>::iterator it = _clients.begin();
-	for (; it != _clients.end(); ++it)
+	for (; it != _clients.end();)
 	{
 		if (it->getNick() == client.getNick())
 		{
+			std::cout << "Client found in : " << _name << std::endl;
 			_clients.erase(it);
-			break;
+			//break;
 		}
+		else
+			++it;
 	}
 
 	std::vector<Client>::iterator iti = _invitees.begin();
@@ -294,7 +304,7 @@ void Channel::removeClient(Client& client)
 	{
 		if (iti->getNick() == client.getNick())
 		{
-			_invitees.erase(it);
+			_invitees.erase(iti);
 			break;
 		}
 	}

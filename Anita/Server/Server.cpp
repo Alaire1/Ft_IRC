@@ -572,13 +572,13 @@ Channel *Server::returnExistingChannel(const std::string& channelName)
 
 void Server::broadcastMessage(const std::vector<Client>& clients, Client& sender, const std::string& message)
 {
-	std::cout << "in broadcast" << std::endl;
+	//std::cout << "in broadcast" << std::endl;
 	for (std::vector<Client>::const_iterator it = clients.begin(); it != clients.end(); it++) 
 	{
 		if((*it).getUser() != sender.getUser())
 			sendToClient(message, *it);
 	}
-	printclient(clients);
+	//printclient(clients);
 }
 
 void Server::channelTopic(Client &sender, std::string channelName, std::string trailer)
@@ -781,7 +781,6 @@ void Server::handleQuit(Client& sender, const std::string& trailer)
 		}
 		removeClientFromChannels(sender);//remove client from Channels & check if channel members is not 0
 		removeClientFromServer(sender);//handle client resources closing fd
-		printf("Client removed 1\n");
 	}
 	else 
 	{
@@ -796,10 +795,16 @@ void Server::removeClientFromChannels(Client& client)
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
 		it->removeClient(client);
-		if(it->removeOperator(client))//if removeOperator exists (1) new operator assigned due 0 operators left then broadcast to channel all clients
-			broadcastMessage(it->getClientsVector(), client, serverReply(SERVER, "353", listChannelClients(*it), ""));
+		if (clientIsOperator((*it).getChannelName(), client))
+		{
+			if(it->removeOperator(client))//if removeOperator exists (1) new operator assigned due 0 operators left then broadcast to channel all clients
+			{
+				std::cout << "In the if statement new operator" << std::endl;
+				broadcastMessage(it->getClientsVector(), client, serverReply(client.getNick(), "MODE", {(*it).getChannelName(), "+o", (*it).getClientsVector()[0].getNick()}, ""));
+			}
+		}
 	}
-	clearChannelsNoUsers();
+	//clearChannelsNoUsers();
 }
 
 void	Server::clearChannelsNoUsers()
@@ -808,25 +813,15 @@ void	Server::clearChannelsNoUsers()
 	for (std::vector<Channel>::iterator it = _channels.end(); it != _channels.begin();) 
 	{
 		--it; // Decrement before checking to avoid going out of bounds
-		if (it->getUsernum() == 0) {
+		if (it->getUsernum() == 0) 
+		{
 			it->clearVectors();
 			std::cout << "erasing channel: " << (*it).getChannelName() << std::endl;
 			it = _channels.erase(it); // Erase and update iterator
-		} else {
+		} 
+		else
 			++it; // Only increment if not erased
-		}
 	}
-	//for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it) 
-	//{
-	//	if (it->getUsernum() == 0) 
-	//	{
-	//		it->clearVectors();
-	//		std::cout << "erasing channel: " << (*it).getChannelName() << std::endl;
-
-	//		_channels.erase(it);
-	//		//break;
-	//	}
-	//}
 }
 
 void Server::removeClientFromServer(Client& client)
@@ -890,7 +885,7 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 
 bool Server::clientIsOperator(std::string channelName, Client& client) {
     Channel* modeChannel = returnExistingChannel(channelName);
-		std::cout << "number of operators" << modeChannel->getOperatorsVector().size() << std::endl;
+		//std::cout << "number of operators " << modeChannel->getOperatorsVector().size() << std::endl;
     for (std::vector<Client>::const_iterator it = modeChannel->getOperatorsVector().begin(); it != modeChannel->getOperatorsVector().end(); ++it) {
         if (it->getNick() == client.getNick())
             return true;
