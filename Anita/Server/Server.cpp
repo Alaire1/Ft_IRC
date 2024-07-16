@@ -1109,32 +1109,38 @@ void Server::part(Client& sender, std::string &channelName, std::string &trailer
 			trailer = "Leaving channel";
 		sendToClient(serverReply(sender.getNick(), "PART", {channelName}, trailer), sender);
 		broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "PART", {channelName}, trailer));
-		channel->removeUser(sender);
-		if (channel->getUsernum() == 0)
+		channel->removeClient(sender);
+		if (clientIsOperator(channelName, sender))
 		{
-			printf("Channel is empty, removing it in PART");
-			std::vector<Channel>::iterator it = _channels.begin();
-			while (it != _channels.end())
-			{
-				if (it->getChannelName() == channelName)
-				{
-					_channels.erase(it);
-					break;
-				}
-				++it;
-			}
+			if(channel->removeOperator(sender))//if removeOperator exists (1) new operator assigned due 0 operators left then broadcast to channel all clients
+				broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "MODE", {channel->getChannelName(), "+o", channel->getClientsVector()[0].getNick()}, ""));
 		}
-		else if (channel->hasOperators() == false)
-		{
 
-			std::cout << "Setting operator" << std::endl;
-			// Client newOperator = channel->oldestClientInChannel();
-			// std::cout << "new operator: " << newOperator.getNick() << std::endl;
-			channel->setOperator(channel->oldestClientInChannel());
-			broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "MODE", {channelName, "+o", channel->oldestClientInChannel().getNick()}, ""));
-		}
+		//if (channel->getUsernum() == 0)
+		//{
+		//	printf("Channel is empty, removing it in PART");
+		//	std::vector<Channel>::iterator it = _channels.begin();
+		//	while (it != _channels.end())
+		//	{
+		//		if (it->getChannelName() == channelName)
+		//		{
+		//			_channels.erase(it);
+		//			break;
+		//		}
+		//		++it;
+		//	}
+		//}
+		//else if (channel->hasOperators() == false)
+		//{
+
+		//	std::cout << "Setting operator" << std::endl;
+		//	// Client newOperator = channel->oldestClientInChannel();
+		//	// std::cout << "new operator: " << newOperator.getNick() << std::endl;
+		//	channel->setOperator(channel->oldestClientInChannel());
+		//	broadcastMessage(channel->getClientsVector(), sender, serverReply(sender.getNick(), "MODE", {channelName, "+o", channel->oldestClientInChannel().getNick()}, ""));
+		//}
+		clearChannelsNoUsers();
 	}
-
 	else
 		sendToClient(numReplyGenerator(sender.getNick(), {"PART", channelName}, 403), sender);
 }
