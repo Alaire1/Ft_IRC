@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Channel.hpp"
 #include <cctype>
 #include <iostream>
 #include <string>
@@ -498,7 +499,10 @@ void Server::commandsRegister(Client& sender, std::string& command, std::string&
 			sendToClient(numReplyGenerator(SERVER, {"PASS", sender.getNick()}, 464), sender); // we have to handle errors while sending
 	}
 	else if (command == "QUIT")
+	{
 		handleQuit(sender, "");
+		clearChannelsNoUsers();
+	}
 }
 
 
@@ -762,7 +766,7 @@ void printChannels(std::vector<Channel> channels)
 	std::cout << "Print channels" << std::endl;
 		for(std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)//Broadcast leave message
 		{
-			std::cout << "Channel: " << (*it).getChannelName() << std::endl;
+			std::cout << "Channel: " << (*it).getChannelName() << " number of users: " << (*it).getUsernum() << std::endl;
 		}
 
 }
@@ -794,6 +798,7 @@ void Server::removeClientFromChannels(Client& client)
 {
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
+		std::cout << (*it).getUsernum() << " clients in channel: " << (*it).getChannelName() << " before" << std::endl;
 		it->removeClient(client);
 		if (clientIsOperator((*it).getChannelName(), client))
 		{
@@ -803,25 +808,38 @@ void Server::removeClientFromChannels(Client& client)
 				broadcastMessage(it->getClientsVector(), client, serverReply(client.getNick(), "MODE", {(*it).getChannelName(), "+o", (*it).getClientsVector()[0].getNick()}, ""));
 			}
 		}
+		std::cout << (*it).getUsernum() << " clients in channel: " << (*it).getChannelName() << " after" << std::endl;
 	}
 	//clearChannelsNoUsers();
 }
 
 void	Server::clearChannelsNoUsers()
 {
-	std::cout << "here in quit" << std::endl;
-	for (std::vector<Channel>::iterator it = _channels.end(); it != _channels.begin();) 
+	std::cout << "CCNU print channels before" << std::endl;
+	printChannels(_channels);
+	for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end();)
 	{
-		--it; // Decrement before checking to avoid going out of bounds
-		if (it->getUsernum() == 0) 
-		{
-			it->clearVectors();
-			std::cout << "erasing channel: " << (*it).getChannelName() << std::endl;
-			it = _channels.erase(it); // Erase and update iterator
-		} 
+		//std::cout << "Channel name: " << (*it).getChannelName() << " number of users: " << (*it).getUsernum() << std::endl;
+		if ((*it).getUsernum() == 0)
+			_channels.erase(it);
 		else
-			++it; // Only increment if not erased
+			++it;
 	}
+	//for (std::vector<Channel>::iterator it = _channels.end(); it != _channels.begin();) 
+	//{
+	//	--it; // Decrement before checking to avoid going out of bounds
+	//	std::cout << "Channel name: " << (*it).getChannelName() << " number of users: " << (*it).getUsernum() << std::endl;
+	//	if (it->getUsernum() == 0) 
+	//	{
+	//		//it->clearVectors();
+	//		std::cout << "erasing channel: " << (*it).getChannelName() << std::endl;
+	//		it = _channels.erase(it); // Erase and update iterator
+	//	} 
+	//	else
+	//		++it; // Only increment if not erased
+	//}
+	std::cout << "CCNU print channels after" << std::endl;
+	printChannels(_channels);
 }
 
 void Server::removeClientFromServer(Client& client)
@@ -1239,7 +1257,10 @@ void Server::commandsAll(Client &sender, std::string &command, std::string &para
 	else if (command == "NICK")
 		handleNick(sender, parameter1, parameter2);
 	else if (command == "QUIT") 
+	{
 		handleQuit(sender, trailer);
+		clearChannelsNoUsers();
+	}
 }
 
 
