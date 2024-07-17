@@ -153,7 +153,7 @@ void Server::runServer()
 
 void Server::handleData(int fd, Client &sender, size_t idx)
 {
-	//printf("IN HANDLE DATA\n");
+    (void)idx;
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 	int bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
@@ -164,12 +164,14 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
 			//close(fd);
 			handleQuit(sender, "");
+			clearChannelsNoUsers();
+
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
-		close(fd);
-		_fds.erase(_fds.begin() + idx);
-		--idx; // Adjust index after erasing
+		//close(fd);
+		//_fds.erase(_fds.begin() + idx);
+		//--idx; // Adjust index after erasing
 	} 
 	else 
 	{
@@ -845,15 +847,13 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 			sendToClient(numReplyGenerator(client.getNick(), {"TOPIC", channel}, 442), client); return;
 		}
 		std::string activeModes = "Modes on " + returnExistingChannel(channel)->getChannelName() + " are " + returnExistingChannel(channel)->getModes();
-		//std::cout << "Active modes: " << activeModes << std::endl;
 		sendToClient(serverReply(client.getNick(), "351", {"MODE", channel, activeModes}, ""), client);
     	return;
 	}
 	else if(channelExists(channel) && returnExistingChannel(channel)->clientNotOperator(client))
 	{
-		printclient(returnExistingChannel(channel)->getOperatorsVector());
-		//std::cout << "Client is not operator" << std::endl;
-		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482); 
+		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482);
+        sendToClient(errorMessage, client);
 		return;
 	}
 	if (channelExists(channel) && !mode.empty())
