@@ -154,6 +154,7 @@ void Server::runServer()
 void Server::handleData(int fd, Client &sender, size_t idx)
 {
 	//printf("IN HANDLE DATA\n");
+	(void)idx;
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 	int bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
@@ -164,12 +165,14 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
 			//close(fd);
 			handleQuit(sender, "");
+			clearChannelsNoUsers();
+
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
-		close(fd);
-		_fds.erase(_fds.begin() + idx);
-		--idx; // Adjust index after erasing
+		//close(fd);
+		//_fds.erase(_fds.begin() + idx);
+		//--idx; // Adjust index after erasing
 	} 
 	else 
 	{
@@ -769,7 +772,7 @@ void Server::handleQuit(Client& sender, const std::string& trailer)
 		std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
 		printf("Client removed 2\n");
 	}
-
+	std::cerr << "END OF HANDLE qUIT." << std::endl;
 }
 
 void Server::removeClientFromChannels(Client& client)
@@ -817,6 +820,7 @@ void Server::removeClientFromServer(Client& client)
 	{
 		if (_fds[i].fd == client.getFd())
 		{
+			std::cout << "inside of .if (_fds[i].fd == client.getFd())" << std::endl;
 			close(client.getFd());
 			_fds.erase(_fds.begin() + i);
 			break;
@@ -827,6 +831,7 @@ void Server::removeClientFromServer(Client& client)
 	{
 		if (_clients[i].getNick() == client.getNick())
 		{
+			std::cout << "inside of .if (_clients[i].getNick() == client.getNick())" << std::endl;
 			_clients.erase(_clients.begin() + i);
 			break;
 		}
