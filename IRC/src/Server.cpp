@@ -1,5 +1,5 @@
-#include "Server.hpp"
-#include "Channel.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Channel.hpp"
 #include <cctype>
 #include <iostream>
 #include <string>
@@ -173,7 +173,8 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 	} 
 	else 
 	{
-		printf("Received message: %s", buffer);
+		std::cout << YELLOW << "Received message: " << RESET << buffer << std::endl;
+		//printf("Received message: %s", buffer);
 		//printCharValues(buffer);
 		parseCommand(buffer, sender);
 	}
@@ -440,8 +441,6 @@ int Server::checkNick(std::string& nick, Client& sender, std::string& param2)
 			sendToClient(numReplyGenerator(SERVER, {"NICK", nick}, 433), sender);
 			return 0;
 		}
-		//Servers MUST allow at least all alphanumerical characters, square and curly brackets ([]{}), backslashes (\), and pipe (|) characters in nicknames, and MAY disallow digits as the first character
-		//no leading # or @  or : or ASCII space character
 	}
 	return (1);
 }
@@ -454,7 +453,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 		std::cout << "Error sending message"  << std::endl;
 		return (-1);
 	}
-	std::cout << "Sent: " << message << " to " << client.getNick() << std::endl;
+	std::cout << BLUE << "Sent: " << RESET << message << BLUE << " to " << RESET << client.getNick() << std::endl;
 	return (0);
 }
 
@@ -754,7 +753,7 @@ void Server::handleQuit(Client& sender, const std::string& trailer)
 	if(nickIsInServer(sender.getNick()))
 	{
 		std::cout << "Client " << sender.getNick() << " fd " << sender.getFd() << " is quitting." << std::endl;
-		printChannels(_channels);
+		//printChannels(_channels);
 		for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)//Broadcast leave message
 		{
 			if((*it).clientWithThatNameNotInChannel(sender.getNick()))
@@ -776,7 +775,7 @@ void Server::removeClientFromChannels(Client& client)
 {
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
-		std::cout << "Removing " << (*it).getUsernum() << " clients in channel: " << (*it).getChannelName() << " before" << std::endl;
+		std::cout << "Removing " << (*it).getUsernum() << " clients in channel: " << (*it).getChannelName() std::endl;
 		it->removeClient(client);
 		if (clientIsOperator((*it).getChannelName(), client))
 		{
@@ -788,13 +787,12 @@ void Server::removeClientFromChannels(Client& client)
 		}
 		//std::cout << (*it).getUsernum() << " clients in channel: " << (*it).getChannelName() << " after" << std::endl;
 	}
-	//clearChannelsNoUsers();
 }
 
 void	Server::clearChannelsNoUsers()
 {
 	//std::cout << "CCNU print channels before" << std::endl;
-	printChannels(_channels);
+	//printChannels(_channels);
 	for(std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end();)
 	{
 		//std::cout << "Channel name: " << (*it).getChannelName() << " number of users: " << (*it).getUsernum() << std::endl;

@@ -1,4 +1,4 @@
-#include "Channel.hpp"
+#include "../inc/Channel.hpp"
 
 Channel::Channel(std::string name) :_name(name), _topic(""), _key(""), _modes("+"), _isInviteOnly(false), _hasMaxUsers(false), _restrictTopic(false), _pwdProtected(false){}
 
@@ -291,7 +291,7 @@ void Channel::removeClient(Client& client)
 	{
 		if (it->getNick() == client.getNick())
 		{
-			//std::cout << "Client found in : " << _name << std::endl;
+			std::cout << "Client found in : " << _name << std::endl;
 			_clients.erase(it);
 			//break;
 		}
