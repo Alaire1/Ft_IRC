@@ -847,15 +847,13 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 			sendToClient(numReplyGenerator(client.getNick(), {"TOPIC", channel}, 442), client); return;
 		}
 		std::string activeModes = "Modes on " + returnExistingChannel(channel)->getChannelName() + " are " + returnExistingChannel(channel)->getModes();
-		//std::cout << "Active modes: " << activeModes << std::endl;
 		sendToClient(serverReply(client.getNick(), "351", {"MODE", channel, activeModes}, ""), client);
     	return;
 	}
 	else if(channelExists(channel) && returnExistingChannel(channel)->clientNotOperator(client))
 	{
-		printclient(returnExistingChannel(channel)->getOperatorsVector());
-		//std::cout << "Client is not operator" << std::endl;
 		std::string errorMessage = numReplyGenerator(SERVER, {"NOTICE", channel}, 482); 
+		sendToClient(errorMessage, client);
 		return;
 	}
 	if (channelExists(channel) && !mode.empty())
@@ -869,7 +867,6 @@ void Server::mode(std::string channel, std::string mode, std::string parameter, 
 
 bool Server::clientIsOperator(std::string channelName, Client& client) {
     Channel* modeChannel = returnExistingChannel(channelName);
-		//std::cout << "number of operators " << modeChannel->getOperatorsVector().size() << std::endl;
     for (std::vector<Client>::const_iterator it = modeChannel->getOperatorsVector().begin(); it != modeChannel->getOperatorsVector().end(); ++it) {
         if (it->getNick() == client.getNick())
             return true;
