@@ -127,7 +127,7 @@ void Server::createSocket()
 
 void Server::runServer()
 {
-	std::cout << "Server listening on port " << _port << " ..."<< std::endl;
+	std::cout << YELLOW << "Server listening on port " << _port << " ..." << RESET << std::endl;
 
 	while (g_signal) {
 		// Poll sockets
