@@ -145,15 +145,14 @@ void Server::runServer()
 				if (_fds[i].fd == _serverFd)
 					acceptClient();
 				else 
-					handleData(_fds[i].fd, _clients[i - 1], i);
+					handleData(_fds[i].fd, _clients[i - 1]);
 			}
 		}
 	}
 }
 
-void Server::handleData(int fd, Client &sender, size_t idx)
+void Server::handleData(int fd, Client &sender)
 {
-    (void)idx;
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 	int bytesRead = recv(fd, buffer, BUFFER_SIZE, 0);
@@ -169,9 +168,6 @@ void Server::handleData(int fd, Client &sender, size_t idx)
 		}
 		else 
 			std::cerr << "ERROR reading from socket (fd: " << fd << ")" << std::endl;
-		//close(fd);
-		//_fds.erase(_fds.begin() + idx);
-		//--idx; // Adjust index after erasing
 	} 
 	else 
 	{

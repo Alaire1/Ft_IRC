@@ -57,7 +57,7 @@ class Server
 		void 				runServer();
 		void 				initServer();
 		void 				acceptClient();
-		void 				handleData(int fd, Client &sender, size_t idx);
+		void 				handleData(int fd, Client &sender);
 		void 				closeFds();
 		Client 			*findClientByNick(std::string nick);
 
