@@ -499,13 +499,9 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 				sendToClient(serverReply(sender.getNick(), "525", {"JOIN", channelName}, "Key is not well-formed"), sender);
 			return;
 		}
-		if (channel->getTopic() == "")
-			sendToClient(numReplyGenerator(SERVER, {"JOIN", channelName}, 331), sender);
-		else
-			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, channel->getTopic()), sender);
 		if (channel->containsClient(sender) == true)
 		{
-			printf("WE ARE HERE!!!!!"); //debug
+			//printf("WE ARE HERE!!!!!"); //debug
 			std::string errorMessage = numReplyGenerator(SERVER, {"JOIN", sender.getNick(), channelName}, 464);
 			sendToClient(errorMessage, sender);
 			return;
@@ -522,6 +518,10 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 			sendToClient(errorMessage, sender);
 			return;
 		}
+		if (channel->getTopic() == "")
+			sendToClient(numReplyGenerator(SERVER, {"JOIN", channelName}, 331), sender);
+		else
+			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, channel->getTopic()), sender);
 		channel->addUser(sender);
 		channel->removeInvite(sender);
 
@@ -578,7 +578,8 @@ void Server::channelTopic(Client &sender, std::string channelName, std::string t
 		{
 			sendToClient(numReplyGenerator(sender.getNick(), {"TOPIC", channelName}, 482), sender); return;
 		}
-		if (trailer.empty() && !topicChannel->getTopic().empty())
+
+		if (trailer.empty() && !topicChannel->getTopic().empty() )
 			sendToClient(serverReply(SERVER, "332", {"TOPIC", channelName}, topicChannel->getTopic()), sender);
 		else if (!trailer.empty())
 		{
@@ -751,7 +752,7 @@ void printChannels(std::vector<Channel> channels)
 }
 void Server::handleQuit(Client& sender, const std::string& trailer)
 {
-	(void)trailer;
+	//(void)trailer;
 	if(nickIsInServer(sender.getNick()))
 	{
 		std::cout << "Client " << sender.getNick() << " fd " << sender.getFd() << " is quitting." << std::endl;

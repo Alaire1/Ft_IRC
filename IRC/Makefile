@@ -53,7 +53,7 @@ all : $(NAME)
 $(NAME) : $(OBJ)
 	@echo "$(BLUE)";
 	$(BANNER_IRC)
-	@echo "$(GREEN)ft_irc's compilation done...$(RESET)";
+	@echo "$(GREEN)ft_irc's compilation done!$(RESET)";
 	@$(CXX) $(CXXFLAGS) $(STDFLAG) $(OBJ) -o $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp

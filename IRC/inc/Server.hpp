@@ -155,7 +155,7 @@ static std::string code_464 = "Password incorrect";
 static std::string code_471 = "User limit reached";
 static std::string code_472 = "No mode found";
 static std::string code_473 = "Cannot join channel (+i)";
-static std::string code_475 = "You need a password to join (+l)";
+static std::string code_475 = "You need a password to join (+k)";
 static std::string code_482 = "You're not a channel operator";
 
 std::string removeNonPrintable(const std::string& input);
