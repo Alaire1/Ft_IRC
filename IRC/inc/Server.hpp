@@ -103,6 +103,7 @@ class Server
 
 		//QUIT FUNCTION 
 		void 				handleQuit(Client& sender, const std::string& trailer);
+		void 				handleQuitRegister(Client& sender);
 		void 				removeClientFromChannels(Client& client);
 		void 				removeClientFromServer(Client& client);
 		void				clearChannelsNoUsers();//Clears channels with no users inside.

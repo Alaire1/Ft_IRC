@@ -162,7 +162,10 @@ void Server::handleData(int fd, Client &sender)
 		{
 			std::cout << "Client disconnected (fd: " << fd << ")" << std::endl;
 			//close(fd);
-			handleQuit(sender, "");
+			if (sender.getIsRegistered())
+				handleQuit(sender, "");
+			else
+				handleQuitRegister(sender);
 			clearChannelsNoUsers();
 
 		}
@@ -172,8 +175,6 @@ void Server::handleData(int fd, Client &sender)
 	else 
 	{
 		std::cout << YELLOW << "Received message: " << RESET << buffer << std::endl;
-		//printf("Received message: %s", buffer);
-		//printCharValues(buffer);
 		parseCommand(buffer, sender);
 	}
 }
@@ -497,7 +498,6 @@ void Server::joinChannel(Client &sender, const std::string& channelName, const s
 		}
 		if (channel->containsClient(sender) == true)
 		{
-			//printf("WE ARE HERE!!!!!"); //debug
 			std::string errorMessage = numReplyGenerator(SERVER, {"JOIN", sender.getNick(), channelName}, 464);
 			sendToClient(errorMessage, sender);
 			return;
@@ -746,6 +746,16 @@ void printChannels(std::vector<Channel> channels)
 		}
 
 }
+
+
+void Server::handleQuitRegister(Client& sender)
+{
+
+	std::cout << "Client fd " << sender.getFd() << " is not register and is quitting." << std::endl;
+	//printChannels(_channels);
+	removeClientFromServer(sender);//handle client resources closing fd
+}
+
 void Server::handleQuit(Client& sender, const std::string& trailer)
 {
 	//(void)trailer;
@@ -765,7 +775,7 @@ void Server::handleQuit(Client& sender, const std::string& trailer)
 	else 
 	{
 		std::cerr << "Warning: Client with nickname '" << sender.getNick() << "' not found on server." << std::endl;
-		printf("Client removed 2\n");
+		std::cout << "Client removed 2\n" << std::endl;
 	}
 
 }
@@ -928,6 +938,8 @@ void Server::modeOperator(std::string channel, std::string parameter, Client& cl
 		}
 	}
 }
+
+
 
 bool Server::nickIsInServer(std::string nick)
 {
