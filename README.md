@@ -1,4 +1,5 @@
 # IRC
+![HexChat](Screenshot from 2024-07-21 13-23-16.png)
 An IRC server is the central piece of **I**nternet **R**elay **C**hat, acting like a meeting point for users who want to chat with each other. IRC server acts as a central hub, facilitating connections between clients and enabling communication across channels 
 and networks Here's a breakdown of the key components:
 - **Server Software:** This is the core program running on a computer, handling connections from IRC clients and managing communication between them. There are various open-source and proprietary IRC server software options available.
