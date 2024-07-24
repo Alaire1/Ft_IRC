@@ -13,22 +13,19 @@ and networks Here's a breakdown of the key components:
 An IRC channel is a virtual room where multiple users can chat simultaneously. It's like a public chat room with a specific topic or interest. Users can join and leave channels as they please, and messages sent in a channel are visible to everyone in that channel. 
 ### Channel commands:
 <details>
-  <summary>JOIN</summary>
+  <summary> **JOIN**- join and create channel if it doesn't exist </summary>
 </details>
 <details>
-  <summary>TOPIC</summary>
+  <summary>TOPIC - Change or view the channel topic </summary>
 </details>
 <details>
-  <summary>INVITE</summary>
+  <summary>INVITE - Invite a client to a channel </summary>
 </details>
 <details>
-  <summary>KICK</summary>
+  <summary>KICK -  Eject a client from the channel</summary>
 </details>
 <details>
-  <summary>MODE</summary>
+  <summary>MODE - Change the channel’s mode or see active modes</summary>
 </details>
-- JOIN - join and create channel if it doesn't exist
-- KICK - Eject a client from the channel
-- INVITE - Invite a client to a channel
-- TOPIC - Change or view the channel topic
-- MODE - Change the channel’s mode
+
+
