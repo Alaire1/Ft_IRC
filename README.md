@@ -13,7 +13,11 @@ and networks Here's a breakdown of the key components:
 An IRC channel is a virtual room where multiple users can chat simultaneously. It's like a public chat room with a specific topic or interest. Users can join and leave channels as they please, and messages sent in a channel are visible to everyone in that channel. 
 ### Channel commands:
 <details>
-  <summary> **JOIN**- join and create channel if it doesn't exist </summary>
+  <summary> JOIN - join and create channel if it doesn't exist </summary>
+  ```
+  JOIN #channelName - sent from client
+  :ourSuperServer 001 client1 :Welcome to ft_irc server! - server response 
+  ```
 </details>
 <details>
   <summary>TOPIC - Change or view the channel topic </summary>
