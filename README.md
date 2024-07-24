@@ -9,7 +9,26 @@ and networks Here's a breakdown of the key components:
 - **Channels:** These are virtual chat rooms within the network where users can gather and discuss specific topics or interests. Users can join and leave channels at will.
 - **Protocol (IRC):** This is the set of rules and commands that define how IRC servers and clients communicate with each other. It uses TCP for data transfer and optionally TLS for encryption.
 
-
-```
-
-
+## Channel
+An IRC channel is a virtual room where multiple users can chat simultaneously. It's like a public chat room with a specific topic or interest. Users can join and leave channels as they please, and messages sent in a channel are visible to everyone in that channel. 
+### Channel commands:
+<details>
+  <summary>JOIN</summary>
+</details>
+<details>
+  <summary>TOPIC</summary>
+</details>
+<details>
+  <summary>INVITE</summary>
+</details>
+<details>
+  <summary>KICK</summary>
+</details>
+<details>
+  <summary>MODE</summary>
+</details>
+- JOIN - join and create channel if it doesn't exist
+- KICK - Eject a client from the channel
+- INVITE - Invite a client to a channel
+- TOPIC - Change or view the channel topic
+- MODE - Change the channel’s mode
