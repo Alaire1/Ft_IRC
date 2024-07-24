@@ -15,12 +15,15 @@ An IRC channel is a virtual room where multiple users can chat simultaneously. I
 <details>
   <summary> JOIN - join and create channel if it doesn't exist </summary>
 
-  JOIN #channelName - sent from client </b>
-  :ourSuperServer 001 client1 :Welcome to ft_irc server! - server response 
-
+  **JOIN #channelName** - sent from client </br>
+  channel name has to start with a **#** and cannt be longer than 50 chracters
+  **:ourSuperServer 001 client1 :Welcome to ft_irc server!** - server response (if client has been registered)
+  
 </details>
+
 <details>
   <summary>TOPIC - Change or view the channel topic </summary>
+  
 </details>
 <details>
   <summary>INVITE - Invite a client to a channel </summary>
