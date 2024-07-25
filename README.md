@@ -75,7 +75,12 @@ Mode has several options to choose:
     - option `+l` needs third param `limit of users`, after reaching the limit, the `JOIN` command throws an error
     - `MODE #channelName +l 10` - example
     - `-l`:`MODE #channelName -l` -example
-    
+
+**QUIT** - Disconnets from the server
+  - takes one param which is leaving message, if none give will take the default one
+  - `QUIT :Leaving` - example
+  - deletes client from the list of the server clients
+  
 
 
 
