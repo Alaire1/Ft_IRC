@@ -14,8 +14,10 @@ An IRC channel is a virtual room where multiple users can chat simultaneously. I
 ### Channel commands:
 <details>
   <summary> JOIN - join and create channel if it doesn't exist </summary>
-</br>
+```
   **JOIN #channelName** - sent from client </br>
+```
+  
   channel name has to start with a **#** and cannot be longer than 50 chracters </br>
   **:ourSuperServer 001 client1 :Welcome to ft_irc server!** - server response (if client has been registered)
   
