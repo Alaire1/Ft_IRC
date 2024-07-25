@@ -12,12 +12,17 @@ and networks Here's a breakdown of the key components:
 ## Channel
 An IRC channel is a virtual room where multiple users can chat simultaneously. It's like a public chat room with a specific topic or interest. Users can join and leave channels as they please, and messages sent in a channel are visible to everyone in that channel. 
 ### Channel commands:
+Our IRC server has to cover commands JOIN, INVITE, KICK, MODE, TOPIC. Those can be used by registered users that have to provide correct PASS, and unique NICK nad USER credentials.
+The client is sending command that is then being parsed by the server and then server is sending a response, in a following format
+```
+  [prefix] command [parameters] [trailing parameters]
+  :ourSuperServer 001 client1 :Welcome to ft_irc server! - example
+```
 <details>
   <summary> JOIN - join and create channel if it doesn't exist </summary>
 
   `JOIN #channelName` - sent from client </br>
-  channel name has to start with a `#` and cannot be longer than 50 chracters </br>
-  `:ourSuperServer 001 client1 :Welcome to ft_irc server!` - server response (if client has been registered)
+  channel name has to start with a `#` and cannot be longer than 50 characters </br>
   
 </details>
 
