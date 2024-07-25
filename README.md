@@ -47,30 +47,34 @@ Mode has several options to choose:
 
 **no mode**
   - it's taking only one parameter `#channelName`
-  - `MODE #channelName`
+  - `MODE #channelName` - example
   - displaying current active channel modes `#channel Modes on #channel are +ti`
-  - can be used by anyone
+  - only one that can be used by any member of channel
     
 **i**: Set/remove Invite-only channel
   - takes two parameters `#channelName` and either `+i` to turn invite only mode or `-i` to turn it off.
-  - `MODE #channelName +o`
+  - `MODE #channelName +o` - example
   - after being used clients cannot just join channel they have to be invited first
     
 **t**: Set/remove the restrictions of the TOPIC command to channel
   - it's taking `#channelName` and `+t` or `-t`
-  - `MODE #channelName -t`
+  - `MODE #channelName -t` - example
   - if it's on the `TOPIC` command can only be used by an operator of this channel
 
 **k**: Set/remove the channel key (password)
   - if setting on takes three params `#channelName`, `+k` and `password` (password has to be one word)
-  - `MODE #channelName +k <password>`
-  - if tis mode is on everyone who would like to join 
+  - `MODE #channelName +k <password>` - example
+  - if this mode is on everyone who would like to join the channel has to use correct password while joining `JOIN ##channel <pass>`
   - when channel key removed we only need `#channelName` and `-k`
   - `MODE #channelName -k`
 
 **o**: Give/take channel operator privilege
-
+  - takes three params `#channelName`, `+o` or `-o` and `nickname` of person we want to have or not to have operator rights anymore
+  - `MODE #channelName -o client2` - example
 **l**: Set/remove the user limit to channel
+    - option `+l` needs third param `limit of users`, after reaching the limit, the `JOIN` command throws an error
+    - `MODE #channelName +l 10` - example
+    - `-l`:`MODE #channelName -l` -example
     
 
 
