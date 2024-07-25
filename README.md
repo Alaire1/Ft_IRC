@@ -15,12 +15,11 @@ An IRC channel is a virtual room where multiple users can chat simultaneously. I
 Our IRC server has to cover commands JOIN, INVITE, KICK, MODE, TOPIC, PRIVMSG. Those can be used by registered users that have to provide correct PASS, and unique NICK nad USER credentials.
 The client is sending command that is then being parsed by the server and then server is sending a response, in a following format
 ```
-  [prefix] command [parameters] [trailing parameters]
-  :ourSuperServer 001 client1 :Welcome to ft_irc server! - example
+[prefix] command [parameters] [trailing parameters]
+:ourSuperServer 001 client1 :Welcome to ft_irc server! - example
 ```
 <details>
   <summary> JOIN - join and create channel if it doesn't exist </summary>
-  
     Has only one parameter `channel name` </br>
     channel name has to start with a `#` and cannot be longer than 50 characters </br>
     JOIN #channelName` - sent from client </br>
