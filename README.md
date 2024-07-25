@@ -18,37 +18,35 @@ The client is sending command that is then being parsed by the server and then s
 [prefix] command [parameters] [trailing parameters]
 :ourSuperServer 001 client1 :Welcome to ft_irc server! - example
 ```
-<details>
-  <summary> JOIN - join and create channel if it doesn't exist </summary>
+
+ **JOIN** - join and create channel if it doesn't exist
   
-  Has only one parameter `channel name` </br>
-  Channel name has to start with a `#` cannot contain bell signs, spaces and a commas, alse cannot be longer than 50 characters </br>
+   Has only one parameter `channel name` </br>
+   Channel name has to start with a `#` cannot contain bell signs, spaces and a commas, alse cannot be longer than 50 characters </br>
   `JOIN #channelName` - sent from client </br>
   If the channel doesn't exist it is also creating it's instance and the person becomes an operator of that channel.
-</details>
 
-<details>
-  <summary>TOPIC - Change or view the channel topic </summary>
+
+**TOPIC** - Change or view the channel topic 
   
   Has two parameters `#channelName` and  `topic` that is a description of the channel content. Can have several words, starts with `:`
-`TOPIC  #channelName :This is channel topic` 
+  `TOPIC  #channelName :This is channel topic` 
   
-</details>
-<details>
-  <summary>INVITE - Invite a client to a channel </summary>
+
+
+**INVITE** - Invite a client to a channel
   
   Has two parameters `nickname` and  `#channelNane`
   `INVITE client2 #channelName`
-</details>
-<details>
-  <summary>KICK -  Eject a client from the channel</summary>
+
+**KICK** -  Eject a client from the channel
   
   Has three parameters `#channelName`, `nickname` and `message`. If message is not provided, the default one is being taken as a parameter.
   In order to to use you have to be an operator of a channel, normal users cannot kick anyone. Operators can kick other operators, but cannot kick themselves.
   `KICK #channelName client2 :you are being kicked`
-</details>
-<details>
-  <summary>MODE - Change the channel’s mode or see active modes</summary>
-</details>
+
+
+**MODE** - Change the channel’s mode or see active modes
+
 
 
