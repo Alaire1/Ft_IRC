@@ -44,26 +44,32 @@ The client is sending command that is then being parsed by the server and then s
 **MODE** - Change the channel’s mode or see active modes
 Modes are to be used by the operators of the channel, only displaying current active modes can be done by any member of a channel.
 Mode has several options to choose: 
+
 **no mode**
   - it's taking only one parameter `#channelName`
   - `MODE #channelName`
   - displaying current active channel modes `#channel Modes on #channel are +ti`
   - can be used by anyone
+    
 **i**: Set/remove Invite-only channel
   - takes two parameters `#channelName` and either `+i` to turn invite only mode or `-i` to turn it off.
   - `MODE #channelName +o`
   - after being used clients cannot just join channel they have to be invited first
+    
 **t**: Set/remove the restrictions of the TOPIC command to channel
   - it's taking `#channelName` and `+t` or `-t`
   - `MODE #channelName -t`
   - if it's on the `TOPIC` command can only be used by an operator of this channel
+
 **k**: Set/remove the channel key (password)
   - if setting on takes three params `#channelName`, `+k` and `password` (password has to be one word)
   - `MODE #channelName +k <password>`
   - if tis mode is on everyone who would like to join 
   - when channel key removed we only need `#channelName` and `-k`
   - `MODE #channelName -k`
+
 **o**: Give/take channel operator privilege
+
 **l**: Set/remove the user limit to channel
     
 
