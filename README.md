@@ -22,12 +22,14 @@ The client is sending command that is then being parsed by the server and then s
  **JOIN** - join and create channel if it doesn't exist
   - Has only one parameter `channel name` </br>
    - Channel name has to start with a `#` cannot contain bell signs, spaces and a commas, alse cannot be longer than 50 characters </br>
-   - JOIN #channelName` - sent from client </br>
+   - `JOIN #channelName` - sent from client </br>
    -  If the channel doesn't exist it is also creating it's instance and the person becomes an operator of that channel.
+     
 **TOPIC** - Change or view the channel topic 
   
  -  Has two parameters `#channelName` and  `topic` that is a description of the channel content. Can have several words, starts with `:`
- -  `TOPIC  #channelName :This is channel topic` 
+ -  `TOPIC  #channelName :This is channel topic`
+   
 **INVITE** - Invite a client to a channel
   
   - Has two parameters `nickname` and  `#channelNane`
