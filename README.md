@@ -75,7 +75,12 @@ Mode has several options to choose:
     - option `+l` needs third param `limit of users`, after reaching the limit, the `JOIN` command throws an error
     - `MODE #channelName +l 10` - example
     - `-l`:`MODE #channelName -l` -example
-
+      
+**PRIVMSG** - send a message to the other client or to the channel
+  - takes three params `#channelName` or `nick` and `message`
+  - `PRIVMSG #channel :this is my message` - this version is being send to all the clients on this channel
+  - `PRIVMSG client2 :message text` - this one is being sent just to one client that we have targetted 
+    
 **QUIT** - Disconnets from the server
   - takes one param which is leaving message, if none give will take the default one
   - `QUIT :Leaving` - example
