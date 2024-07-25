@@ -14,15 +14,16 @@ An IRC channel is a virtual room where multiple users can chat simultaneously. I
 ### Channel commands:
 Our IRC server has to cover commands JOIN, INVITE, KICK, MODE, TOPIC, PRIVMSG. Those can be used by registered users that have to provide correct PASS, and unique NICK nad USER credentials.
 The client is sending command that is then being parsed by the server and then server is sending a response, in a following format
+
 ```
 [prefix] command [parameters] [trailing parameters]
 :ourSuperServer 001 client1 :Welcome to ft_irc server! - example
 ```
 
  **JOIN** - join and create channel if it doesn't exist
-  - Has only one parameter `channel name` </br>
+  - Has only one parameter `channel name` 
    - Channel name has to start with a `#` cannot contain bell signs, spaces and a commas, alse cannot be longer than 50 characters </br>
-   - `JOIN #channelName` - sent from client </br>
+   - `JOIN #channelName` - sent from client 
    -  If the channel doesn't exist it is also creating it's instance and the person becomes an operator of that channel.
      
 **TOPIC** - Change or view the channel topic 
@@ -39,7 +40,15 @@ The client is sending command that is then being parsed by the server and then s
   - Has three parameters `#channelName`, `nickname` and `message`. If message is not provided, the default one is being taken as a parameter.
   - In order to to use you have to be an operator of a channel, normal users cannot kick anyone. Operators can kick other operators, but cannot kick themselves.
   - `KICK #channelName client2 :you are being kicked`
+
 **MODE** - Change the channel’s mode or see active modes
+Mode has several options to choose:
+  - **i**: Set/remove Invite-only channel
+  - **t**: Set/remove the restrictions of the TOPIC command to channel
+operators
+  - **k**: Set/remove the channel key (password)
+  - **o**: Give/take channel operator privilege
+    
 
 
 
