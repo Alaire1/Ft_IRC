@@ -73,10 +73,10 @@ Mode has several options to choose:
   - `MODE #channelName -o client2` - example
     
 **l**: Set/remove the user limit to channel
-    - option `+l` needs third param `limit of users`, after reaching the limit, the `JOIN` command throws an error
-    - `MODE #channelName +l 10` - example
-    - `-l`:`MODE #channelName -l` -example
-      
+  - option `+l` needs third param `limit of users`, after reaching the limit, the `JOIN` command throws an error
+  - `MODE #channelName +l 10` - example
+  - `-l`:`MODE #channelName -l` -example
+  
 **PRIVMSG** - send a message to the other client or to the channel
   - takes three params `#channelName` or `nick` and `message`
   - `PRIVMSG #channel :this is my message` - this version is being send to all the clients on this channel
