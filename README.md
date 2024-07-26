@@ -71,6 +71,7 @@ Mode has several options to choose:
 **o**: Give/take channel operator privilege
   - takes three params `#channelName`, `+o` or `-o` and `nickname` of person we want to have or not to have operator rights anymore
   - `MODE #channelName -o client2` - example
+    
 **l**: Set/remove the user limit to channel
     - option `+l` needs third param `limit of users`, after reaching the limit, the `JOIN` command throws an error
     - `MODE #channelName +l 10` - example
